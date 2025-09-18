@@ -1,6 +1,12 @@
 import json
 import pandas as pd
 
+# Função para converter JSON em formato formato CSV
+def json_to_csv(json_file, csv_path):
+    df = json_to_table(json_file)
+    df.to_csv(csv_path, index=False, encoding="utf-8")
+    print(f"Arquivo CSV criado: {csv_path}")
+
 # Função para converter JSON em formato tabular (DataFrame)
 def json_to_table(json_file):
     with open(json_file, "r", encoding="utf-8") as f:
@@ -19,10 +25,10 @@ def table_to_csv(df, csv_file):
     print(f"Arquivo CSV criado: {csv_file}")
 
 # Exemplo de uso
-if __name__ == "__main__":
-    # Lê o JSON e converte para tabela
-    df = json_to_table("schema_apartamento.json")  # <-- substitui pelo nome do teu ficheiro
-    print(df)
+# if __name__ == "__main__":
+#     # Lê o JSON e converte para tabela
+#     df = json_to_table("schema_apartamento.json")  # <-- substitui pelo nome do teu ficheiro
+#     print(df)
 
-    # Exporta para CSV
-    table_to_csv(df, "ficheiros/imovel.csv")
+# Exporta para CSV
+# table_to_csv(df, "ficheiros/imovel.csv")
