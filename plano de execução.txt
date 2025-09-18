@@ -1,0 +1,16 @@
+fonte de dados em csv ou json
+https://casa.sapo.pt/
+1) procurar casas num intervalo de preco e area e criar json neste formato
+2) Fazer graficos 
+3) usar machine learning para prever tendencias
+{
+    'id' : int, -- ordem da página
+    'id_anuncio', -- (opcional)
+    'link':string, -- página do anuncio
+    'tipo_casa': string, -- (opcional) assumir apartamento
+  
+    'preco':decimal, -- 250 000 euros
+    'preco/metro': decimal, -- 3000 euros / metro^2
+    'tipologia':string, -- T0/T1/T3
+    'concelho':string, -- Ex: Amadora
+}

@@ -1,0 +1,5 @@
+pandas==2.3.2
+seaborn==0.13.2
+# 1) Ativar ambiente virtual .venv\Scripts\Activate
+# 2) Instalar dependências pip install -r requirements.txt
+# pip install -r requirements.txt --dry-run verifica o que vai ser modificado
