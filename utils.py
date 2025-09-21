@@ -1,5 +1,12 @@
 import json
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from models.Apartamento import Apartamento   # importa a classe
+import logging
+from datetime import date
+import re
+import math
 
 # Função para converter JSON em formato formato CSV
 def json_to_csv(json_file, csv_path):
