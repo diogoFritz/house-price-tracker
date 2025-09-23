@@ -235,6 +235,48 @@ def get_sapo_results(concelho="amadora"):
 
     return total_paginas, total_casas, resultados_por_pagina
 
+def get_sapo_results_with_filters(concelho="amadora",min_price=100000, max_price=300000,min_size=30, max_size=150):
+    """ Exemplo de URL com filtros:
+    https://casa.sapo.pt/comprar-apartamentos/amadora/?lp=100000&gp=300000&lau=30&gau=150&pn=1"""
+    url = f"https://casa.sapo.pt/comprar-apartamentos/{concelho}/?lp={min_price}&gp={max_price}&lau={min_size}&gau={max_size}&pn=1"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    resp = requests.get(url, headers=headers, verify=False)
+
+    if resp.status_code != 200:
+        logging.error(f"Erro ao aceder à página {url}")
+        return None, None, None
+
+    soup = BeautifulSoup(resp.text, "html.parser")
+
+    # 1) Total de casas (do título)
+    total_casas = None
+    titulo_pesquisa = soup.find("div", class_="list-title")
+    if titulo_pesquisa:
+        texto = titulo_pesquisa.get_text(strip=True)
+        match = re.search(r"(\d+)", texto)
+        if match:
+            total_casas = int(match.group(1))
+
+    # 2) Nº resultados na primeira página
+    properties = soup.find_all("div", class_="property-info-content")
+    resultados_por_pagina = len(properties)
+
+    # 3) Total de páginas
+    total_paginas = None
+    pager = soup.find("ul", class_="pager")
+    if pager:
+        paginas = [int(a.get_text()) for a in pager.find_all("a") if a.get_text().isdigit()]
+        if paginas:
+            total_paginas = max(paginas)
+    elif total_casas and resultados_por_pagina:
+        total_paginas = math.ceil(total_casas / resultados_por_pagina)
+
+    logging.info(f"Total casas: {total_casas}")
+    logging.info(f"Resultados por página: {resultados_por_pagina}")
+    logging.info(f"Total páginas: {total_paginas}")
+
+    return total_paginas, total_casas, resultados_por_pagina
+
 # pages = get_sapo_results(concelho="amadora")
 data = scrape_sapo_pages(concelho="amadora", max_pages=5)
 print(data)

@@ -31,6 +31,8 @@ def table_to_csv(df, csv_file):
     df.to_csv(csv_file, index=False, encoding="utf-8")
     print(f"Arquivo CSV criado: {csv_file}")
 
+
+
 # Exemplo de uso
 # if __name__ == "__main__":
 #     # Lê o JSON e converte para tabela
