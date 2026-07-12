@@ -1,7 +1,9 @@
 import json
 import logging
 import math
+import random
 import re
+import time
 from datetime import date
 from pathlib import Path
 
@@ -14,15 +16,31 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-HEADERS = {"User-Agent": "Mozilla/5.0"}
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pt-PT,pt;q=0.9,en;q=0.8",
+}
 BASE_URL = "https://casa.sapo.pt/comprar-apartamentos/{concelho}/?pn={page}"
+# Intervalo entre pedidos sucessivos, para não parecer tráfego automatizado
+# e evitar o bloqueio por limite de pedidos (HTTP 429) do casa.sapo.pt.
+REQUEST_DELAY_RANGE = (2.0, 4.0)
+
+# Sessão partilhada: mantém cookies entre pedidos, tal como um browser real.
+_session = requests.Session()
+_session.headers.update(HEADERS)
 
 
-def _fetch_page(concelho, page):
+def _fetch_page(concelho, page, delay=True):
     url = BASE_URL.format(concelho=concelho, page=page)
-    resp = requests.get(url, headers=HEADERS, verify=False)
+    if delay:
+        time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
+    resp = _session.get(url, verify=False, timeout=15)
     if resp.status_code != 200:
-        logging.error(f"Erro ao aceder à página {page} ({url})")
+        logging.error(f"Erro ao aceder à página {page} ({url}) - status {resp.status_code}")
         return None
     return BeautifulSoup(resp.text, "html.parser")
 
@@ -91,11 +109,11 @@ def _parse_listing(prop, page, idx, concelho=None):
     }
 
 
-def get_sapo_results(concelho="amadora"):
-    """Calcula o total de casas, resultados por página e total de páginas."""
+def _page1_stats(concelho):
+    """Pede a página 1 uma única vez e devolve (soup, total_paginas, total_casas, resultados_por_pagina)."""
     soup = _fetch_page(concelho, 1)
     if soup is None:
-        return None, None, None
+        return None, None, None, None
 
     total_casas = None
     titulo_pesquisa = soup.find("div", class_="list-title")
@@ -120,23 +138,30 @@ def get_sapo_results(concelho="amadora"):
     logging.info(f"Resultados por página: {resultados_por_pagina}")
     logging.info(f"Total páginas: {total_paginas}")
 
+    return soup, total_paginas, total_casas, resultados_por_pagina
+
+
+def get_sapo_results(concelho="amadora"):
+    """Calcula o total de casas, resultados por página e total de páginas."""
+    _, total_paginas, total_casas, resultados_por_pagina = _page1_stats(concelho)
     return total_paginas, total_casas, resultados_por_pagina
 
 
 def scrape_sapo_site(concelho="amadora", output_dir="data/json"):
     """Percorre todas as páginas de um concelho e grava o resultado em JSON."""
-    total_paginas, _, _ = get_sapo_results(concelho)
+    soup, total_paginas, _, _ = _page1_stats(concelho)
     if not total_paginas:
         logging.error(f"Não foi possível determinar o total de páginas para {concelho}")
         return []
 
     propriedades_lista = []
     for page in range(1, total_paginas + 1):
-        soup = _fetch_page(concelho, page)
-        if soup is None:
+        # A página 1 já foi obtida em _page1_stats; reutiliza-a em vez de repetir o pedido.
+        page_soup = soup if page == 1 else _fetch_page(concelho, page)
+        if page_soup is None:
             continue
 
-        properties = soup.find_all("div", class_="property-info-content")
+        properties = page_soup.find_all("div", class_="property-info-content")
         logging.info(f"Página {page}: {len(properties)} resultados detetados")
 
         for idx, prop in enumerate(properties, start=1):
