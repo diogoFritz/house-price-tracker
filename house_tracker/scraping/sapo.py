@@ -1,11 +1,13 @@
 import json
 import logging
 import math
+import os
 import random
 import re
 import time
 from datetime import date
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -34,23 +36,38 @@ _session = requests.Session()
 _session.headers.update(HEADERS)
 
 
-def _fetch_page(concelho, page, delay=True):
-    url = BASE_URL.format(concelho=concelho, page=page)
+def _get(url, delay=True):
     if delay:
         time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
-    resp = _session.get(url, verify=False, timeout=15)
+    return _session.get(url, verify=False, timeout=15)
+
+
+def _fetch_page(concelho, page, delay=True):
+    url = BASE_URL.format(concelho=concelho, page=page)
+    resp = _get(url, delay=delay)
     if resp.status_code != 200:
         logging.error(f"Erro ao aceder à página {page} ({url}) - status {resp.status_code}")
         return None
     return BeautifulSoup(resp.text, "html.parser")
 
 
-def _parse_listing(prop, page, idx, concelho=None):
+def _resolve_link(link, concelho):
+    if not link:
+        return None
+    if link.startswith("https://gespub.casa.sapo.pt"):
+        qs = parse_qs(urlparse(link).query)
+        if "l" in qs:
+            return unquote(qs["l"][0])
+        return link
+    if link.startswith("/"):
+        return f"https://casa.sapo.pt{link}"
+    return link
+
+
+def _parse_listing(prop, pagina, idx, concelho=None):
     """Extrai os campos de um único anúncio (div.property-info-content)."""
     a_tag = prop.find("a", class_="property-info")
-    link = a_tag["href"] if a_tag else None
-    if link and link.startswith("/"):
-        link = f"https://casa.sapo.pt{link}"
+    link = _resolve_link(a_tag["href"], concelho) if a_tag else None
     titulo = a_tag["title"] if a_tag else None
 
     features_tag = prop.find("div", class_="property-features-text")
@@ -75,25 +92,35 @@ def _parse_listing(prop, page, idx, concelho=None):
     data_pub = data_tag.get_text(strip=True) if data_tag else None
 
     preco, preco_antigo, desconto = None, None, None
+    preco_box = prop.find("div", class_="property-price")
+    if preco_box:
+        preco_old_tag = preco_box.find("div", class_="property-price-old")
+        if preco_old_tag:
+            preco_antigo = re.sub(r"[^\d]", "", preco_old_tag.get_text(strip=True))
+            preco_antigo = int(preco_antigo) if preco_antigo else None
 
-    preco_old_tag = prop.find("div", class_="property-price-old")
-    if preco_old_tag:
-        preco_antigo = re.sub(r"[^\d]", "", preco_old_tag.get_text(strip=True))
-        preco_antigo = int(preco_antigo) if preco_antigo else None
+        preco_tag = preco_box.find("div", class_="property-price-value")
+        if preco_tag:
+            strong = preco_tag.find("strong")
+            span = preco_tag.find("span")
+            if strong:
+                preco_txt = strong.get_text(strip=True)
+            elif span:
+                preco_txt = span.get_text(strip=True)
+            else:
+                preco_txt = preco_tag.get_text(" ", strip=True)
 
-    preco_tag = prop.find("div", class_="property-price-value")
-    if preco_tag:
-        preco = re.sub(r"[^\d]", "", preco_tag.get_text(strip=True))
-        preco = int(preco) if preco else None
+            match = re.search(r"(\d[\d.\s]*)\s*€", preco_txt)
+            if match:
+                preco_clean = re.sub(r"[^\d]", "", match.group(1))
+                preco = int(preco_clean) if preco_clean else None
 
-    desconto_tag = prop.find("div", class_="property-price-discount")
-    if desconto_tag:
-        desconto = desconto_tag.get_text(strip=True)
-
-    preco_por_metro = round(preco / tamanho, 2) if preco and tamanho else None
+        desconto_tag = preco_box.find("div", class_="property-price-discount")
+        if desconto_tag:
+            desconto = desconto_tag.get_text(strip=True)
 
     return {
-        "pagina": page,
+        "pagina": pagina,
         "id": idx,
         "titulo": titulo,
         "link": link,
@@ -103,10 +130,164 @@ def _parse_listing(prop, page, idx, concelho=None):
         "preco": preco,
         "preco_antigo": preco_antigo,
         "desconto": desconto,
-        "preco_por_metro": preco_por_metro,
         "localizacao": localizacao,
         "data_publicacao": data_pub,
+        "data_extracao": date.today().strftime("%Y%m%d"),
     }
+
+
+def get_sapo_url(concelho="amadora", min_preco=100000, max_preco=400000, min_tamanho=30,
+                  max_tamanho=150, page=None, estado=None, certificado_energetico=None):
+    """Constrói um URL de pesquisa com filtros, ex.:
+    https://casa.sapo.pt/comprar-apartamentos/usado/lisboa/?lp=100000&gp=300000&lau=30&gau=150&ecv=25&pn=1
+    """
+    url = "https://casa.sapo.pt/comprar-apartamentos/"
+    if estado:
+        url += f"{estado}/"
+    url += f"{concelho}/?pn={page if page else 1}"
+
+    if min_preco is not None:
+        url += f"&lp={min_preco}"
+    if max_preco is not None:
+        url += f"&gp={max_preco}"
+    if min_tamanho is not None:
+        url += f"&lau={min_tamanho}"
+    if max_tamanho is not None:
+        url += f"&gau={max_tamanho}"
+    if estado is not None:
+        url += f"&estado={estado}"
+    if certificado_energetico is not None:
+        url += f"&ecv={certificado_energetico}"
+
+    logging.info(f"URL: {url}")
+    return url
+
+
+def download_sapo_page(url, filename):
+    """Faz download de uma página e guarda em HTML local."""
+    resp = _get(url)
+    if resp.status_code != 200:
+        logging.error(f"Erro {resp.status_code} ao aceder {url}")
+        return None
+
+    dirpath = os.path.dirname(filename)
+    if dirpath:
+        os.makedirs(dirpath, exist_ok=True)
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(resp.text)
+    logging.info(f"[DOWNLOAD] Página salva em {filename}")
+    return filename
+
+
+def download_sapo_all(concelho="amadora", pasta="sapo/html/"):
+    """Faz download de todas as páginas de resultados de um concelho no Sapo Casa.
+    Para automaticamente quando encontra uma página sem resultados.
+    """
+    concelho_path = os.path.join(pasta, concelho)
+    os.makedirs(concelho_path, exist_ok=True)
+
+    for f in os.listdir(concelho_path):
+        if f.endswith(".html"):
+            os.remove(os.path.join(concelho_path, f))
+
+    page = 1
+    total_downloaded = 0
+    while True:
+        url = f"https://casa.sapo.pt/comprar-apartamentos/{concelho}/?pn={page}"
+        resp = _get(url)
+        if resp.status_code != 200:
+            logging.error(f"Erro {resp.status_code} ao aceder {url}")
+            break
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        properties = soup.find_all("div", class_="property-info-content")
+        if not properties:
+            logging.info(f"[STOP] Página {page} sem resultados. Fim do download.")
+            break
+
+        filename = os.path.join(pasta, concelho, f"pagina{page}.html")
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(resp.text)
+
+        logging.info(f"[DOWNLOAD] Página {page}: {len(properties)} resultados guardados em {filename}")
+        total_downloaded += 1
+        page += 1
+
+    logging.info(f"[RESUMO] Total de páginas descarregadas: {total_downloaded}")
+    return total_downloaded
+
+
+def parse_sapo_page(filepath, pagina=1, concelho=None):
+    """Extrai os imóveis de uma página HTML previamente descarregada."""
+    with open(filepath, "r", encoding="utf-8") as f:
+        html = f.read()
+
+    soup = BeautifulSoup(html, "html.parser")
+    properties = soup.find_all("div", class_="property-info-content")
+    logging.info(f"[DEBUG] {filepath}: {len(properties)} resultados detetados")
+
+    return [
+        _parse_listing(prop, pagina, idx, concelho)
+        for idx, prop in enumerate(properties, start=1)
+    ]
+
+
+def parse_sapo_all(concelho="amadora", pasta_base="sapo"):
+    """Extrai todas as páginas HTML descarregadas de um concelho e grava um único JSON."""
+    pasta_html = os.path.join(pasta_base, "html", concelho)
+    pasta_json = os.path.join(pasta_base, "json")
+    os.makedirs(pasta_json, exist_ok=True)
+
+    ficheiros = sorted(
+        [f for f in os.listdir(pasta_html) if f.startswith("pagina") and f.endswith(".html")],
+        key=lambda x: int(re.search(r"(\d+)", x).group(1)),
+    )
+
+    propriedades_lista = []
+    for f in ficheiros:
+        pagina = int(re.search(r"(\d+)", f).group(1))
+        propriedades = parse_sapo_page(os.path.join(pasta_html, f), pagina=pagina, concelho=concelho)
+        propriedades_lista.extend(propriedades)
+        logging.info(f"[INFO] {len(propriedades)} imóveis extraídos de {f}")
+
+    data_extracao = date.today().strftime("%Y%m%d")
+    json_file = os.path.join(pasta_json, f"{concelho}_{data_extracao}.json")
+    with open(json_file, "w", encoding="utf-8") as f:
+        json.dump(propriedades_lista, f, ensure_ascii=False, indent=2)
+
+    logging.info(
+        f"[RESUMO] {len(propriedades_lista)} imóveis extraídos de {len(ficheiros)} páginas e salvos em {json_file}"
+    )
+    return propriedades_lista
+
+
+def download_sapo_property(url, filename="imovel_full.html"):
+    """Usa o Selenium para descarregar a página completa (renderizada) de um imóvel."""
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.common.by import By
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.webdriver.support.ui import WebDriverWait
+
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+
+    driver = webdriver.Chrome(options=options)
+    try:
+        driver.get(url)
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, ".detail-section.detail-title"))
+        )
+        html = driver.page_source
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(html)
+    finally:
+        driver.quit()
+
+    return filename
 
 
 def _page1_stats(concelho):
@@ -147,8 +328,8 @@ def get_sapo_results(concelho="amadora"):
     return total_paginas, total_casas, resultados_por_pagina
 
 
-def scrape_sapo_site(concelho="amadora", output_dir="data/json"):
-    """Percorre todas as páginas de um concelho e grava o resultado em JSON."""
+def scrape_sapo_site(concelho="amadora", output_dir="sapo/json"):
+    """Percorre todas as páginas de um concelho (pedido em direto) e grava o resultado em JSON."""
     soup, total_paginas, _, _ = _page1_stats(concelho)
     if not total_paginas:
         logging.error(f"Não foi possível determinar o total de páginas para {concelho}")
@@ -170,48 +351,6 @@ def scrape_sapo_site(concelho="amadora", output_dir="data/json"):
     date_format = date.today().strftime("%Y_%m_%d")
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     file_name = Path(output_dir) / f"propriedades_sapo_{concelho}_{date_format}.json"
-    with open(file_name, "w", encoding="utf-8") as json_file:
-        json.dump(propriedades_lista, json_file, ensure_ascii=False, indent=2)
-    logging.info(f"{file_name} salvo com sucesso")
-
-    return propriedades_lista
-
-
-def save_page_html(concelho="lisboa", output_dir="data/raw_html"):
-    """Grava o HTML bruto da primeira página de um concelho, para depuração offline."""
-    soup = _fetch_page(concelho, 1)
-    if soup is None:
-        return None
-
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    date_format = date.today().strftime("%Y_%m_%d")
-    file_name = Path(output_dir) / f"sapo_{concelho}_{date_format}.html"
-    with open(file_name, "w", encoding="utf-8") as f:
-        f.write(soup.prettify())
-    logging.info(f"Página salva como {file_name}")
-    return file_name
-
-
-def parse_saved_html(filepath, output_dir="data/json"):
-    """Lê um HTML previamente gravado e extrai as propriedades para JSON."""
-    filepath = Path(filepath)
-    concelho = filepath.stem.split('_')[1]
-
-    with open(filepath, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    soup = BeautifulSoup(content, "html.parser")
-    properties = soup.find_all("div", class_="property-info-content")
-    logging.info(f"Encontradas {len(properties)} resultados em {concelho}")
-
-    propriedades_lista = [
-        _parse_listing(prop, page=1, idx=idx, concelho=concelho)
-        for idx, prop in enumerate(properties, start=1)
-    ]
-
-    date_format = date.today().strftime("%Y_%m_%d")
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    file_name = Path(output_dir) / f"propriedades_sapo_{date_format}.json"
     with open(file_name, "w", encoding="utf-8") as json_file:
         json.dump(propriedades_lista, json_file, ensure_ascii=False, indent=2)
     logging.info(f"{file_name} salvo com sucesso")
