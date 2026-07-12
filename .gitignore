@@ -2,6 +2,4 @@
 .venv/
 __pycache__
 .ipynb_checkpoints/
-
-# Dados gerados pelo scraper (novos ficheiros; os já existentes continuam versionados)
-data/
+/sapo/html/
