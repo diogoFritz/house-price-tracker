@@ -1,0 +1,4 @@
+id,id_anuncio,link,tipo_casa,preco,preco_metro,tipologia,distrito,concelho,freguesia,ano_construcao,estado,area_util,area_bruta,data_anuncio
+1,,https://casa.sapo.pt/comprar-apartamento-t1-lisboa-sao-vicente-17ef048d-6bca-11f0-9e61-060000000056.html?g3pid=1042610,Apartamento,350000,8139.53,T1,Lisboa,Lisboa,São Vicente,2022,usado,43,51.0,
+2,,https://casa.sapo.pt/comprar-apartamento-t1-lisboa-santa-maria-maior-078154ec-51d0-11f0-9e61-060000000056.html?g3pid=1042609,Apartamento,255000,,T1,Lisboa,Lisboa,Santa Maria Maior,1949,usado,43,40.0,
+3,,https://casa.sapo.pt/comprar-apartamento-lisboa-olivais-encarnacao-3e472b53-694b-445e-b247-462a05a498ae.html?g3pid=1041869,Apartamento,295000,,T3,Lisboa,Lisboa,Olivais,1988,usado,60,,11/09/2025

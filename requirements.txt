@@ -1,5 +1,13 @@
 pandas==2.3.2
 seaborn==0.13.2
+notebook==6.5.4
+requests==2.31.0
+beautifulsoup4==4.12.2
+
+# Criar nvo ambiente virtual python -m venv .venv
 # 1) Ativar ambiente virtual .venv\Scripts\Activate
 # 2) Instalar dependências pip install -r requirements.txt
 # pip install -r requirements.txt --dry-run verifica o que vai ser modificado
+
+# pip freeze > requirements.txt atualiza o ficheiro com as libs instaladas
+# pip list mostra as libs instaladas
