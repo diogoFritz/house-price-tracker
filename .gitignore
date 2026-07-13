@@ -2,4 +2,9 @@
 .venv/
 __pycache__
 .ipynb_checkpoints/
+*.log
 /sapo/html/
+/imovirtual/html/
+
+# Checkpoints por página da extração do Imovirtual (redundantes com o JSON consolidado)
+/imovirtual/json/*/

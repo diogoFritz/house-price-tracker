@@ -1,8 +1,24 @@
 import json
+import logging
+import os
+import random
 import re
+import time
+from datetime import date
 
 import requests
 from bs4 import BeautifulSoup
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Intervalo entre pedidos sucessivos ao percorrer várias páginas, para não
+# parecer tráfego automatizado e reduzir o risco de bloqueio/captcha (DataDome).
+REQUEST_DELAY_RANGE = (2.0, 4.0)
+
+_ROOMS_MAP = {
+    "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
+    "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9, "TEN": 10,
+}
 
 DOWNLOAD_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0",
@@ -58,3 +74,148 @@ def fetch_json_ld(url, timeout=30):
             blocks.append(data)
 
     return blocks
+
+
+def _location_field(item, level):
+    locations = item.get("location", {}).get("reverseGeocoding", {}).get("locations", [])
+    for loc in locations:
+        if loc.get("locationLevel") == level:
+            return loc.get("name")
+    return None
+
+
+def _parse_listing(item):
+    total_price = item.get("totalPrice") or {}
+    price_m2 = item.get("pricePerSquareMeter") or {}
+    href = item.get("href") or ""
+    link = f"https://www.imovirtual.com{href.replace('[lang]', '/pt')}" if href else None
+
+    quartos = _ROOMS_MAP.get(item.get("roomsNumber"), item.get("roomsNumber"))
+    tipologia = f"T{quartos - 1}" if isinstance(quartos, int) else None
+
+    street = item.get("location", {}).get("address", {}).get("street", {}) or {}
+    morada = " ".join(part for part in [street.get("name"), street.get("number")] if part).strip() or None
+
+    return {
+        "id": item.get("id"),
+        "titulo": item.get("title"),
+        "link": link,
+        "tipologia": tipologia,
+        "quartos": quartos,
+        "tamanho": item.get("areaInSquareMeters"),
+        "preco": total_price.get("value"),
+        "preco_por_metro": price_m2.get("value"),
+        "piso": item.get("floorNumber"),
+        "morada": morada,
+        "bairro": _location_field(item, "neighborhood"),
+        "freguesia": _location_field(item, "parish"),
+        "concelho": _location_field(item, "council"),
+        "distrito": _location_field(item, "district"),
+        "destacado": item.get("isPromoted"),
+        "oferta_privada": item.get("isPrivateOwner"),
+        "num_fotos": item.get("totalPossibleImages"),
+        "data_publicacao": item.get("dateCreated"),
+        "data_extracao": date.today().strftime("%Y%m%d"),
+        "origem": "Imovirtual",
+    }
+
+
+def _fetch_page_data(concelho, distrito, page):
+    """Devolve (items_parsed, pagination) de uma página de resultados, ou (None, None) se bloqueado."""
+    url = f"https://www.imovirtual.com/pt/resultados/comprar/apartamento/{distrito}/{concelho}/?page={page}"
+
+    r = requests.get(url, headers=DOWNLOAD_HEADERS, timeout=30, verify=False)
+    r.raise_for_status()
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    script = soup.find("script", {"id": "__NEXT_DATA__"})
+    if script is None or not script.string:
+        logging.error(
+            f"[Imovirtual] __NEXT_DATA__ não encontrado em {url} — "
+            "possível bloqueio/captcha (o site usa DataDome)."
+        )
+        return None, None
+
+    data = json.loads(script.string)
+    search_ads = (
+        data.get("props", {}).get("pageProps", {}).get("data", {}).get("searchAds", {})
+    )
+    items = search_ads.get("items", [])
+    pagination = search_ads.get("pagination", {})
+    return [_parse_listing(item) for item in items], pagination
+
+
+def fetch_listings(concelho="lisboa", distrito=None, page=1):
+    """Obtém os imóveis (dados estruturados) de uma página de resultados do Imovirtual.
+
+    Os dados reais dos anúncios vêm do JSON embutido em <script id="__NEXT_DATA__">
+    (app Next.js) — o bloco application/ld+json só tem metadados da página, não
+    os imóveis individuais.
+    """
+    distrito = distrito or concelho
+    items, _ = _fetch_page_data(concelho, distrito, page)
+    if items is None:
+        return []
+
+    if not items:
+        logging.warning(f"[Imovirtual] 0 imóveis extraídos (concelho={concelho}, página={page}) "
+                         "— verificar se houve bloqueio/captcha.")
+    else:
+        logging.info(f"[Imovirtual] {len(items)} imóveis encontrados (concelho={concelho}, página={page})")
+
+    return items
+
+
+def fetch_all_listings(concelho="lisboa", distrito=None, output_dir="imovirtual/json"):
+    """Extrai todos os imóveis de um concelho, percorrendo todas as páginas.
+
+    Grava o resultado de cada página em disco (output_dir/<concelho>/pagina_N.json)
+    à medida que avança. Se a extração for interrompida (erro, bloqueio/captcha),
+    basta chamar a função outra vez com os mesmos argumentos: as páginas já gravadas
+    são reaproveitadas em vez de repedidas, retomando a partir da última página em falta.
+    """
+    distrito = distrito or concelho
+    concelho_dir = os.path.join(output_dir, concelho)
+    os.makedirs(concelho_dir, exist_ok=True)
+
+    all_listings = []
+    total_pages = None
+    page = 1
+
+    while total_pages is None or page <= total_pages:
+        page_file = os.path.join(concelho_dir, f"pagina_{page}.json")
+
+        if os.path.exists(page_file):
+            with open(page_file, encoding="utf-8") as f:
+                cached = json.load(f)
+            all_listings.extend(cached["items"])
+            total_pages = cached["total_pages"]
+            logging.info(f"[Imovirtual] Página {page}/{total_pages} já em cache ({page_file}), a saltar")
+            page += 1
+            continue
+
+        if page > 1:
+            time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
+
+        items, pagination = _fetch_page_data(concelho, distrito, page)
+        if items is None:
+            logging.error(
+                f"[Imovirtual] Falha/bloqueio na página {page}. Progresso gravado até à página {page - 1}. "
+                "Chama fetch_all_listings outra vez mais tarde para retomar a partir daqui."
+            )
+            break
+
+        total_pages = pagination.get("totalPages", total_pages)
+        with open(page_file, "w", encoding="utf-8") as f:
+            json.dump({"page": page, "total_pages": total_pages, "items": items}, f, ensure_ascii=False, indent=2)
+
+        all_listings.extend(items)
+        logging.info(f"[Imovirtual] Página {page}/{total_pages}: {len(items)} imóveis gravados em {page_file}")
+        page += 1
+
+    consolidated_file = os.path.join(output_dir, f"{concelho}_{date.today().strftime('%Y%m%d')}.json")
+    with open(consolidated_file, "w", encoding="utf-8") as f:
+        json.dump(all_listings, f, ensure_ascii=False, indent=2)
+    logging.info(f"[Imovirtual] Total: {len(all_listings)} imóveis consolidados em {consolidated_file}")
+
+    return all_listings
