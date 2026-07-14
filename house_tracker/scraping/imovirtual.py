@@ -8,6 +8,7 @@ from datetime import date
 
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -18,6 +19,13 @@ REQUEST_DELAY_RANGE = (2.0, 4.0)
 _ROOMS_MAP = {
     "ONE": 1, "TWO": 2, "THREE": 3, "FOUR": 4, "FIVE": 5,
     "SIX": 6, "SEVEN": 7, "EIGHT": 8, "NINE": 9, "TEN": 10,
+}
+
+# Rés-do-chão = 0, cave = -1. ABOVE_TENTH não tem número exato no site — aproximado a 11.
+_PISO_MAP = {
+    "CELLAR": -1, "GROUND": 0, "FIRST": 1, "SECOND": 2, "THIRD": 3, "FOURTH": 4,
+    "FIFTH": 5, "SIXTH": 6, "SEVENTH": 7, "EIGHTH": 8, "NINTH": 9, "TENTH": 10,
+    "ABOVE_TENTH": 11,
 }
 
 DOWNLOAD_HEADERS = {
@@ -84,11 +92,11 @@ def _location_field(item, level):
     return None
 
 
-def _parse_listing(item):
+def _parse_listing(item, pagina=None):
     total_price = item.get("totalPrice") or {}
     price_m2 = item.get("pricePerSquareMeter") or {}
-    href = item.get("href") or ""
-    link = f"https://www.imovirtual.com{href.replace('[lang]', '/pt')}" if href else None
+    slug = item.get("slug") or ""
+    link = f"https://www.imovirtual.com/pt/anuncio/{slug}" if slug else None
 
     quartos = _ROOMS_MAP.get(item.get("roomsNumber"), item.get("roomsNumber"))
     tipologia = f"T{quartos - 1}" if isinstance(quartos, int) else None
@@ -98,6 +106,7 @@ def _parse_listing(item):
 
     return {
         "id": item.get("id"),
+        "pagina": pagina,
         "titulo": item.get("title"),
         "link": link,
         "tipologia": tipologia,
@@ -105,12 +114,13 @@ def _parse_listing(item):
         "tamanho": item.get("areaInSquareMeters"),
         "preco": total_price.get("value"),
         "preco_por_metro": price_m2.get("value"),
-        "piso": item.get("floorNumber"),
+        "piso": _PISO_MAP.get(item.get("floorNumber"), item.get("floorNumber")),
         "morada": morada,
         "bairro": _location_field(item, "neighborhood"),
         "freguesia": _location_field(item, "parish"),
         "concelho": _location_field(item, "council"),
         "distrito": _location_field(item, "district"),
+        "agencia": (item.get("agency") or {}).get("name"),
         "destacado": item.get("isPromoted"),
         "oferta_privada": item.get("isPrivateOwner"),
         "num_fotos": item.get("totalPossibleImages"),
@@ -142,7 +152,7 @@ def _fetch_page_data(concelho, distrito, page):
     )
     items = search_ads.get("items", [])
     pagination = search_ads.get("pagination", {})
-    return [_parse_listing(item) for item in items], pagination
+    return [_parse_listing(item, pagina=page) for item in items], pagination
 
 
 def fetch_listings(concelho="lisboa", distrito=None, page=1):
@@ -181,6 +191,7 @@ def fetch_all_listings(concelho="lisboa", distrito=None, output_dir="imovirtual/
     all_listings = []
     total_pages = None
     page = 1
+    barra = tqdm(desc=f"Imovirtual [{concelho}]", unit="página")
 
     while total_pages is None or page <= total_pages:
         page_file = os.path.join(concelho_dir, f"pagina_{page}.json")
@@ -190,28 +201,40 @@ def fetch_all_listings(concelho="lisboa", distrito=None, output_dir="imovirtual/
                 cached = json.load(f)
             all_listings.extend(cached["items"])
             total_pages = cached["total_pages"]
-            logging.info(f"[Imovirtual] Página {page}/{total_pages} já em cache ({page_file}), a saltar")
+            if barra.total is None:
+                barra.total = total_pages
+                barra.refresh()
+            barra.set_postfix_str(f"página {page} em cache")
+            barra.update(1)
             page += 1
             continue
 
         if page > 1:
             time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
 
+        inicio = time.time()
         items, pagination = _fetch_page_data(concelho, distrito, page)
+        duracao = time.time() - inicio
         if items is None:
-            logging.error(
-                f"[Imovirtual] Falha/bloqueio na página {page}. Progresso gravado até à página {page - 1}. "
+            tqdm.write(
+                f"[Imovirtual] Falha/bloqueio na página {page} ({duracao:.1f}s). Progresso gravado até à página {page - 1}. "
                 "Chama fetch_all_listings outra vez mais tarde para retomar a partir daqui."
             )
             break
 
         total_pages = pagination.get("totalPages", total_pages)
+        if barra.total is None:
+            barra.total = total_pages
+            barra.refresh()
         with open(page_file, "w", encoding="utf-8") as f:
             json.dump({"page": page, "total_pages": total_pages, "items": items}, f, ensure_ascii=False, indent=2)
 
         all_listings.extend(items)
-        logging.info(f"[Imovirtual] Página {page}/{total_pages}: {len(items)} imóveis gravados em {page_file}")
+        barra.set_postfix_str(f"{len(items)} imóveis, {duracao:.1f}s")
+        barra.update(1)
         page += 1
+
+    barra.close()
 
     consolidated_file = os.path.join(output_dir, f"{concelho}_{date.today().strftime('%Y%m%d')}.json")
     with open(consolidated_file, "w", encoding="utf-8") as f:

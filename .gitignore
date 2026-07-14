@@ -3,8 +3,14 @@
 __pycache__
 .ipynb_checkpoints/
 *.log
-/sapo/html/
-/imovirtual/html/
+
+# Segredos locais (API keys, credenciais de proxy) — nunca commitar
+.env
+/sapo/html/*
+/imovirtual/html/*
+# ...exceto um exemplo de página por site, mantido para consultar o schema/estrutura
+!/sapo/html/exemplo_pagina.html
+!/imovirtual/html/exemplo_pagina.html
 
 # Checkpoints por página da extração do Imovirtual (redundantes com o JSON consolidado)
 /imovirtual/json/*/

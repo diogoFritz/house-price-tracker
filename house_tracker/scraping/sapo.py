@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, unquote, urlparse
 
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 import urllib3
 
@@ -119,6 +120,15 @@ def _parse_listing(prop, pagina, idx, concelho=None):
         if desconto_tag:
             desconto = desconto_tag.get_text(strip=True)
 
+    agencia_tag = prop.find("div", class_="property-owner-logo")
+    agencia = None
+    if agencia_tag:
+        agencia_link = agencia_tag.find("a")
+        if agencia_link and agencia_link.get("title"):
+            agencia = agencia_link["title"].replace("Veja todos os imóveis do anunciante ", "").strip()
+
+    preco_por_metro = round(preco / tamanho, 2) if preco and tamanho else None
+
     return {
         "pagina": pagina,
         "id": idx,
@@ -128,11 +138,14 @@ def _parse_listing(prop, pagina, idx, concelho=None):
         "estado": estado,
         "tamanho": tamanho,
         "preco": preco,
+        "preco_por_metro": preco_por_metro,
         "preco_antigo": preco_antigo,
         "desconto": desconto,
         "localizacao": localizacao,
+        "agencia": agencia,
         "data_publicacao": data_pub,
         "data_extracao": date.today().strftime("%Y%m%d"),
+        "origem": "Sapo",
     }
 
 
@@ -179,40 +192,58 @@ def download_sapo_page(url, filename):
     return filename
 
 
-def download_sapo_all(concelho="amadora", pasta="sapo/html/"):
+def download_sapo_all(concelho="amadora", pasta="sapo/html/", forcar_novo=False):
     """Faz download de todas as páginas de resultados de um concelho no Sapo Casa.
     Para automaticamente quando encontra uma página sem resultados.
+
+    Por omissão é retomável (tal como fetch_all_listings do Imovirtual): se uma
+    página já tiver sido descarregada, é reaproveitada em vez de repedida. Usa
+    forcar_novo=True para limpar tudo e recomeçar do zero.
     """
     concelho_path = os.path.join(pasta, concelho)
     os.makedirs(concelho_path, exist_ok=True)
 
-    for f in os.listdir(concelho_path):
-        if f.endswith(".html"):
-            os.remove(os.path.join(concelho_path, f))
+    if forcar_novo:
+        for f in os.listdir(concelho_path):
+            if f.endswith(".html"):
+                os.remove(os.path.join(concelho_path, f))
 
     page = 1
     total_downloaded = 0
+    barra = tqdm(desc=f"Sapo [{concelho}]", unit="página")
     while True:
+        filename = os.path.join(pasta, concelho, f"pagina{page}.html")
+
+        if os.path.exists(filename):
+            barra.set_postfix_str(f"página {page} em cache")
+            total_downloaded += 1
+            barra.update(1)
+            page += 1
+            continue
+
+        inicio = time.time()
         url = f"https://casa.sapo.pt/comprar-apartamentos/{concelho}/?pn={page}"
         resp = _get(url)
+        duracao = time.time() - inicio
         if resp.status_code != 200:
-            logging.error(f"Erro {resp.status_code} ao aceder {url}")
+            tqdm.write(f"Erro {resp.status_code} ao aceder {url} ({duracao:.1f}s)")
             break
 
         soup = BeautifulSoup(resp.text, "html.parser")
         properties = soup.find_all("div", class_="property-info-content")
         if not properties:
-            logging.info(f"[STOP] Página {page} sem resultados. Fim do download.")
+            barra.set_postfix_str(f"página {page} sem resultados, a parar ({duracao:.1f}s)")
             break
 
-        filename = os.path.join(pasta, concelho, f"pagina{page}.html")
         with open(filename, "w", encoding="utf-8") as f:
             f.write(resp.text)
 
-        logging.info(f"[DOWNLOAD] Página {page}: {len(properties)} resultados guardados em {filename}")
+        barra.set_postfix_str(f"página {page}: {len(properties)} imóveis, {duracao:.1f}s")
+        barra.update(1)
         total_downloaded += 1
         page += 1
 
+    barra.close()
     logging.info(f"[RESUMO] Total de páginas descarregadas: {total_downloaded}")
     return total_downloaded
 

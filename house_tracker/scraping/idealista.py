@@ -1,0 +1,340 @@
+"""Scraper para o Idealista.
+
+O Idealista usa DataDome (proteção anti-bot) que bloqueia pedidos simples e
+por vezes desafia mesmo pedidos feitos com um browser real (Selenium) com um
+CAPTCHA interativo. Este módulo usa o serviço pago 2Captcha para resolver
+esse CAPTCHA quando aparece.
+
+Configuração necessária (variáveis de ambiente — define-as num ficheiro ".env"
+na raiz do projeto, copiando ".env.example"; nunca hardcoded no código):
+    TWOCAPTCHA_API_KEY   - API key da conta 2Captcha
+    IDEALISTA_PROXY_URI  - "login:password@ip:porta" de um proxy
+    IDEALISTA_PROXY_TYPE - tipo do proxy (default: "HTTPS")
+
+Nota: mesmo resolvendo o CAPTCHA, o DataDome pode voltar a desafiar pedidos
+seguintes com alguma frequência — cada resolução tem custo (2Captcha cobra
+por CAPTCHA resolvido).
+"""
+import contextlib
+import functools
+import json
+import logging
+import os
+import tempfile
+import time
+
+import requests
+from dotenv import load_dotenv
+from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from tqdm import tqdm
+from twocaptcha import TwoCaptcha
+
+load_dotenv()
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+
+
+def _get_solver():
+    api_key = os.environ.get("TWOCAPTCHA_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Define a variável de ambiente TWOCAPTCHA_API_KEY antes de usar este módulo."
+        )
+    return TwoCaptcha(api_key)
+
+
+@contextlib.contextmanager
+def _sem_verificacao_ssl():
+    """A biblioteca 2captcha-python usa requests.post/get sem expor 'verify=False'.
+    2captcha.com (tal como o idealista.pt) não envia a cadeia de certificados
+    completa, o que faz o requests falhar a verificação SSL por omissão — por
+    isso, tal como o resto do projeto, desativamos a verificação só durante a
+    chamada ao 2Captcha."""
+    original_post, original_get = requests.post, requests.get
+    requests.post = functools.partial(original_post, verify=False)
+    requests.get = functools.partial(original_get, verify=False)
+    try:
+        yield
+    finally:
+        requests.post, requests.get = original_post, original_get
+
+
+def _parse_proxy_uri(uri):
+    auth, hostport = uri.split("@", 1)
+    user, senha = auth.split(":", 1)
+    host, porta = hostport.split(":", 1)
+    return host, int(porta), user, senha
+
+
+def _get_proxy():
+    uri = os.environ.get("IDEALISTA_PROXY_URI")
+    if not uri:
+        raise RuntimeError(
+            "Define a variável de ambiente IDEALISTA_PROXY_URI (login:password@ip:porta)."
+        )
+    return {"type": os.environ.get("IDEALISTA_PROXY_TYPE", "HTTPS"), "uri": uri}
+
+
+def _build_proxy_auth_extension(host, porta, user, senha):
+    """Cria uma extensão Chrome temporária que autentica automaticamente no proxy.
+
+    O Chrome não suporta autenticação de proxy (utilizador/password) por linha de
+    comandos — abre sempre um popup. Esta extensão intercepta o pedido de
+    autenticação (webRequest.onAuthRequired) e responde com as credenciais.
+    """
+    ext_dir = tempfile.mkdtemp(prefix="idealista_proxy_ext_")
+
+    manifest = {
+        "version": "1.0.0",
+        "manifest_version": 2,
+        "name": "Proxy Auth",
+        "permissions": [
+            "proxy", "tabs", "unlimitedStorage", "storage",
+            "<all_urls>", "webRequest", "webRequestBlocking",
+        ],
+        "background": {"scripts": ["background.js"]},
+        "minimum_chrome_version": "22.0.0",
+    }
+    with open(os.path.join(ext_dir, "manifest.json"), "w", encoding="utf-8") as f:
+        json.dump(manifest, f)
+
+    background_js = f"""
+    var config = {{
+        mode: "fixed_servers",
+        rules: {{
+            singleProxy: {{ scheme: "http", host: "{host}", port: parseInt({porta}) }},
+            bypassList: ["localhost"]
+        }}
+    }};
+    chrome.proxy.settings.set({{value: config, scope: "regular"}}, function() {{}});
+
+    chrome.webRequest.onAuthRequired.addListener(
+        function(details) {{
+            return {{authCredentials: {{username: "{user}", password: "{senha}"}}}};
+        }},
+        {{urls: ["<all_urls>"]}},
+        ["blocking"]
+    );
+    """
+    with open(os.path.join(ext_dir, "background.js"), "w", encoding="utf-8") as f:
+        f.write(background_js)
+
+    return ext_dir
+
+
+def _new_driver(usar_proxy=False):
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument(f"user-agent={USER_AGENT}")
+
+    # O DataDome usa navigator.webdriver e as flags de automação do Chrome como
+    # sinal de deteção de bot — sem isto, pedidos são silenciosamente
+    # redirecionados para a homepage (sem sequer mostrar CAPTCHA) ou desafiados
+    # com mais frequência.
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
+
+    # Não precisamos das fotos dos imóveis, só do texto/HTML — bloquear imagens
+    # poupa a grande maioria do tráfego que passa pelo proxy (pago por GB).
+    options.add_experimental_option(
+        "prefs", {"profile.managed_default_content_settings.images": 2}
+    )
+    options.add_argument("--blink-settings=imagesEnabled=false")
+
+    if usar_proxy:
+        uri = os.environ.get("IDEALISTA_PROXY_URI")
+        if not uri:
+            raise RuntimeError(
+                "Define a variável de ambiente IDEALISTA_PROXY_URI (login:password@ip:porta)."
+            )
+        host, porta, user, senha = _parse_proxy_uri(uri)
+        ext_dir = _build_proxy_auth_extension(host, porta, user, senha)
+        options.add_argument(f"--load-extension={ext_dir}")
+
+    driver = webdriver.Chrome(options=options)
+    driver.execute_cdp_cmd(
+        "Page.addScriptToEvaluateOnNewDocument",
+        {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"},
+    )
+    return driver
+
+
+def _find_captcha_iframe(driver):
+    try:
+        return driver.find_element(By.CSS_SELECTOR, "iframe[src*='captcha-delivery.com']")
+    except Exception:
+        return None
+
+
+# Tempo máximo de espera pela resolução do 2Captcha (default da lib é 120s).
+# 30s mostrou-se insuficiente na prática para um DataDome ser resolvido.
+CAPTCHA_TIMEOUT_S = 120
+
+
+def _solve_captcha(driver, url, captcha_url):
+    """Resolve o CAPTCHA DataDome via 2Captcha e injeta o cookie resultante na sessão."""
+    solver = _get_solver()
+    proxy = _get_proxy()
+
+    logging.info(f"[Idealista] A enviar CAPTCHA para o 2Captcha (timeout {CAPTCHA_TIMEOUT_S}s)...")
+    with _sem_verificacao_ssl():
+        result = solver.datadome(
+            captcha_url=captcha_url,
+            pageurl=url,
+            userAgent=USER_AGENT,
+            proxy=proxy,
+            timeout=CAPTCHA_TIMEOUT_S,
+        )
+
+    cookie_str = result["code"]  # formato: "datadome=VALOR; Path=/; Secure; SameSite=Lax"
+    nome, resto = cookie_str.split("=", 1)
+    valor = resto.split(";", 1)[0]
+
+    driver.add_cookie({"name": nome.strip(), "value": valor.strip(), "domain": ".idealista.pt"})
+    logging.info("[Idealista] Cookie do CAPTCHA resolvido e aplicado.")
+
+
+def _dismiss_cookie_banner(driver):
+    """Fecha o banner de consentimento de cookies (Didomi) — a app não renderiza
+    o conteúdo real da página enquanto o banner estiver por resolver."""
+    try:
+        botao = driver.find_element(By.ID, "didomi-notice-agree-button")
+        botao.click()
+        time.sleep(1)
+        logging.info("[Idealista] Banner de cookies fechado.")
+    except Exception:
+        pass
+
+
+class CaptchaFalhouError(Exception):
+    """O CAPTCHA apareceu mas não foi possível resolvê-lo (2Captcha falhou ou esgotaram-se as tentativas)."""
+
+
+def fetch_page(url):
+    """Vai buscar uma página do Idealista, resolvendo o CAPTCHA DataDome via 2Captcha se aparecer.
+
+    Sem retries: se o CAPTCHA aparecer e o 2Captcha não conseguir resolvê-lo à
+    primeira, desiste logo (lança CaptchaFalhouError). Erros de rede/browser
+    propagam normalmente (WebDriverException, etc.) — quem chama esta função
+    decide como lidar com eles (ver fetch_all_pages).
+    """
+    inicio = time.time()
+    driver = _new_driver(usar_proxy=True)
+    try:
+        driver.get(url)
+        time.sleep(3)
+        _dismiss_cookie_banner(driver)
+
+        iframe = _find_captcha_iframe(driver)
+        if iframe is None:
+            duracao = time.time() - inicio
+            logging.info(f"[Idealista] Sem CAPTCHA, página carregada normalmente ({duracao:.1f}s).")
+            return driver.page_source
+
+        logging.warning(f"[Idealista] CAPTCHA detetado, {time.time() - inicio:.1f}s decorridos.")
+        captcha_url = iframe.get_attribute("src")
+        try:
+            _solve_captcha(driver, url, captcha_url)
+        except Exception as e:
+            # Qualquer falha do 2Captcha (ApiException, TimeoutException, etc.)
+            # conta como CAPTCHA não resolvido — sem retry, desiste já.
+            raise CaptchaFalhouError(
+                f"2Captcha não conseguiu resolver ({time.time() - inicio:.1f}s decorridos): {e}"
+            ) from e
+
+        driver.get(url)
+        time.sleep(3)
+        _dismiss_cookie_banner(driver)
+        return driver.page_source
+    finally:
+        driver.quit()
+
+
+def _url_pagina(concelho, page):
+    base = f"https://www.idealista.pt/comprar-casas/{concelho}/{concelho}/"
+    if page == 1:
+        return base
+    return f"{base}pagina-{page}.htm"
+
+
+def fetch_all_pages(concelho="lisboa", max_paginas=20, pasta_saida="idealista/html"):
+    """Percorre as páginas de resultados de um concelho, gravando o HTML de cada
+    página com sucesso. Páginas que falham (CAPTCHA não resolvido, erro de rede,
+    bloqueio, etc.) são saltadas de imediato, sem retry — sem interromper a
+    extração das restantes — com a justificação registada no resumo final.
+
+    Retomável: se já houver uma página gravada em disco (sucesso de uma corrida
+    anterior), é reaproveitada em vez de repedida — cada pedido tem custo real
+    (2Captcha + tráfego do proxy), por isso não vale a pena repetir o que já
+    funcionou.
+
+    Devolve um dict: {"sucesso": [...], "falha_captcha": [...], "falha_outra": [...]}
+    """
+    concelho_dir = os.path.join(pasta_saida, concelho)
+    os.makedirs(concelho_dir, exist_ok=True)
+
+    resultado = {"sucesso": [], "falha_captcha": [], "falha_outra": []}
+    barra = tqdm(range(1, max_paginas + 1), desc=f"Idealista [{concelho}]", unit="página")
+
+    for page in barra:
+        filename = os.path.join(concelho_dir, f"pagina{page}.html")
+        if os.path.exists(filename):
+            resultado["sucesso"].append(page)
+            barra.set_postfix_str(f"página {page} em cache")
+            continue
+
+        url = _url_pagina(concelho, page)
+        inicio_pagina = time.time()
+        html = None
+        motivo_falha = None
+
+        try:
+            html = fetch_page(url)
+        except CaptchaFalhouError as e:
+            motivo_falha = ("captcha", str(e))
+            tqdm.write(f"[Idealista] Página {page}: CAPTCHA — {e}")
+        except WebDriverException as e:
+            motivo_falha = ("rede/browser", str(e).splitlines()[0])
+            tqdm.write(f"[Idealista] Página {page}: erro de rede/browser — {motivo_falha[1]}")
+
+        duracao = time.time() - inicio_pagina
+
+        if html is not None:
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(html)
+            resultado["sucesso"].append(page)
+            barra.set_postfix_str(f"pág {page} OK, {duracao:.1f}s")
+        elif motivo_falha and motivo_falha[0] == "captcha":
+            resultado["falha_captcha"].append({"pagina": page, "motivo": motivo_falha[1], "duracao_s": round(duracao, 1)})
+            barra.set_postfix_str(f"pág {page} CAPTCHA (saltada), {duracao:.1f}s")
+        else:
+            motivo_txt = motivo_falha[1] if motivo_falha else "desconhecido"
+            resultado["falha_outra"].append({"pagina": page, "motivo": motivo_txt, "duracao_s": round(duracao, 1)})
+            barra.set_postfix_str(f"pág {page} falhou (saltada), {duracao:.1f}s")
+
+    barra.close()
+
+    total = len(resultado["sucesso"]) + len(resultado["falha_captcha"]) + len(resultado["falha_outra"])
+    logging.info(
+        f"[Idealista] Resumo {concelho}: {len(resultado['sucesso'])}/{total} sucesso, "
+        f"{len(resultado['falha_captcha'])} falharam por CAPTCHA, "
+        f"{len(resultado['falha_outra'])} falharam por outro motivo."
+    )
+    for f in resultado["falha_captcha"]:
+        logging.info(f"  - página {f['pagina']}: CAPTCHA — {f['motivo']} ({f['duracao_s']}s)")
+    for f in resultado["falha_outra"]:
+        logging.info(f"  - página {f['pagina']}: {f['motivo']} ({f['duracao_s']}s)")
+
+    return resultado
