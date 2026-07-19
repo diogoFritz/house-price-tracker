@@ -2,18 +2,19 @@
 
 O Idealista usa DataDome (proteção anti-bot) que bloqueia pedidos simples e
 por vezes desafia mesmo pedidos feitos com um browser real (Selenium) com um
-CAPTCHA interativo. Este módulo usa o serviço pago 2Captcha para resolver
-esse CAPTCHA quando aparece.
+CAPTCHA interativo. Este módulo pode resolver esse CAPTCHA via CapSolver
+(omissão, ver CAPTCHA_PROVIDER) ou via 2Captcha.
 
 Configuração necessária (variáveis de ambiente — define-as num ficheiro ".env"
 na raiz do projeto, copiando ".env.example"; nunca hardcoded no código):
-    TWOCAPTCHA_API_KEY   - API key da conta 2Captcha
+    CAPSOLVER_API_KEY    - API key da conta CapSolver (provider por omissão)
+    TWOCAPTCHA_API_KEY   - API key da conta 2Captcha (provider alternativo)
     IDEALISTA_PROXY_URI  - "login:password@ip:porta" de um proxy
     IDEALISTA_PROXY_TYPE - tipo do proxy (default: "HTTPS")
 
 Nota: mesmo resolvendo o CAPTCHA, o DataDome pode voltar a desafiar pedidos
-seguintes com alguma frequência — cada resolução tem custo (2Captcha cobra
-por CAPTCHA resolvido).
+seguintes com alguma frequência — cada resolução tem custo (o serviço de
+CAPTCHA cobra por resolução).
 """
 import contextlib
 import functools
@@ -37,9 +38,13 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Tem de ser um dos userAgent suportados pelo CapSolver para DatadomeSliderTask
+# (Chrome 137 a 149, Windows) — ver https://docs.capsolver.com/en/guide/captcha/datadome/.
+# É também o UA real usado pelo browser (ver _new_driver), por isso os dois
+# lados (browser e CapSolver) ficam sempre consistentes.
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    "(KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
 )
 
 
@@ -209,13 +214,34 @@ def _find_captcha_iframe(driver):
         return None
 
 
-# Tempo máximo de espera pela resolução do 2Captcha (default da lib é 120s).
+# Tempo máximo de espera pela resolução do CAPTCHA (default da lib 2captcha é 120s).
 # 30s mostrou-se insuficiente na prática para um DataDome ser resolvido.
 CAPTCHA_TIMEOUT_S = 120
 
+# Serviço de resolução de CAPTCHA a usar por omissão. O 2Captcha falhou
+# repetidamente (ERROR_CAPTCHA_UNSOLVABLE) neste DataDome específico do
+# idealista.pt — o CapSolver tem um tipo de tarefa dedicado a DataDome
+# (DatadomeSliderTask), por isso é a opção por omissão agora.
+CAPTCHA_PROVIDER = "capsolver"
 
-def _solve_captcha(driver, url, captcha_url):
-    """Resolve o CAPTCHA DataDome via 2Captcha e injeta o cookie resultante na sessão."""
+
+def _solve_captcha(driver, url, captcha_url, provider=CAPTCHA_PROVIDER):
+    """Resolve o CAPTCHA DataDome e injeta o cookie resultante na sessão do driver."""
+    if provider == "capsolver":
+        cookie_str = _resolver_capsolver(url, captcha_url)
+    elif provider == "2captcha":
+        cookie_str = _resolver_2captcha(url, captcha_url)
+    else:
+        raise ValueError(f"provider desconhecido: {provider!r} (usa 'capsolver' ou '2captcha')")
+
+    nome, resto = cookie_str.split("=", 1)
+    valor = resto.split(";", 1)[0]
+
+    driver.add_cookie({"name": nome.strip(), "value": valor.strip(), "domain": ".idealista.pt"})
+    logging.info(f"[Idealista] Cookie do CAPTCHA resolvido via {provider} e aplicado.")
+
+
+def _resolver_2captcha(url, captcha_url):
     solver = _get_solver()
     proxy = _get_proxy()
 
@@ -228,13 +254,68 @@ def _solve_captcha(driver, url, captcha_url):
             proxy=proxy,
             timeout=CAPTCHA_TIMEOUT_S,
         )
+    return result["code"]  # formato: "datadome=VALOR; Path=/; Secure; SameSite=Lax"
 
-    cookie_str = result["code"]  # formato: "datadome=VALOR; Path=/; Secure; SameSite=Lax"
-    nome, resto = cookie_str.split("=", 1)
-    valor = resto.split(";", 1)[0]
 
-    driver.add_cookie({"name": nome.strip(), "value": valor.strip(), "domain": ".idealista.pt"})
-    logging.info("[Idealista] Cookie do CAPTCHA resolvido e aplicado.")
+# Intervalo entre consultas ao getTaskResult do CapSolver, enquanto o CAPTCHA
+# ainda está a ser resolvido.
+CAPSOLVER_POLL_INTERVAL_S = 3
+
+
+def _resolver_capsolver(url, captcha_url):
+    """Resolve o CAPTCHA DataDome via CapSolver (tarefa DatadomeSliderTask) e
+    devolve a string do cookie "datadome=VALOR; ...", tal como a API do 2Captcha."""
+    api_key = os.environ.get("CAPSOLVER_API_KEY")
+    if not api_key:
+        raise RuntimeError("Define a variável de ambiente CAPSOLVER_API_KEY antes de usar este módulo.")
+
+    uri = os.environ.get("IDEALISTA_PROXY_URI")
+    if not uri:
+        raise RuntimeError("Define a variável de ambiente IDEALISTA_PROXY_URI (login:password@ip:porta).")
+    host, porta, user, senha = _parse_proxy_uri(uri)
+
+    logging.info(f"[Idealista] A enviar CAPTCHA para o CapSolver (timeout {CAPTCHA_TIMEOUT_S}s)...")
+    criar = requests.post(
+        "https://api.capsolver.com/createTask",
+        json={
+            "clientKey": api_key,
+            "task": {
+                "type": "DatadomeSliderTask",
+                "websiteURL": url,
+                "captchaUrl": captcha_url,
+                "userAgent": USER_AGENT,
+                "proxy": f"{host}:{porta}:{user}:{senha}",
+            },
+        },
+        timeout=30,
+        verify=False,
+    )
+    if criar.status_code != 200:
+        raise RuntimeError(f"CapSolver createTask devolveu {criar.status_code}: {criar.text}")
+    resposta = criar.json()
+    if resposta.get("errorId"):
+        raise RuntimeError(f"CapSolver createTask falhou: {resposta.get('errorDescription')}")
+    task_id = resposta["taskId"]
+
+    inicio = time.time()
+    while time.time() - inicio < CAPTCHA_TIMEOUT_S:
+        time.sleep(CAPSOLVER_POLL_INTERVAL_S)
+        resultado = requests.post(
+            "https://api.capsolver.com/getTaskResult",
+            json={"clientKey": api_key, "taskId": task_id},
+            timeout=30,
+            verify=False,
+        )
+        resultado.raise_for_status()
+        dados = resultado.json()
+        if dados.get("errorId"):
+            raise RuntimeError(f"CapSolver getTaskResult falhou: {dados.get('errorDescription')}")
+        if dados.get("status") == "ready":
+            return dados["solution"]["cookie"]
+        if dados.get("status") == "failed":
+            raise RuntimeError("CapSolver devolveu status 'failed'.")
+
+    raise TimeoutError(f"CapSolver não respondeu em {CAPTCHA_TIMEOUT_S}s.")
 
 
 def _dismiss_cookie_banner(driver):

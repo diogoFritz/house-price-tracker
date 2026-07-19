@@ -1,0 +1,6307 @@
+{
+  "overview": {
+    "total_listings": 70747,
+    "concelhos": [
+      "Alenquer",
+      "Amadora",
+      "Arruda dos Vinhos",
+      "Azambuja",
+      "Cadaval",
+      "Cascais",
+      "Lisboa",
+      "Loures",
+      "Lourinhã",
+      "Mafra",
+      "Odivelas",
+      "Oeiras",
+      "Sintra",
+      "Sobral de Monte Agraço",
+      "Torres Vedras",
+      "Vila Franca de Xira"
+    ],
+    "origens": [
+      "Century21",
+      "ERA",
+      "Imovirtual",
+      "Remax",
+      "Sapo",
+      "Supercasa"
+    ],
+    "date_min": "20250923",
+    "date_max": "20260719",
+    "n_dates": 10
+  },
+  "by_concelho": [
+    {
+      "concelho": "Lisboa",
+      "count": 36858,
+      "median_ppm": 7262.57,
+      "median_preco": 690000.0
+    },
+    {
+      "concelho": "Cascais",
+      "count": 3533,
+      "median_ppm": 6987.95,
+      "median_preco": 938000
+    },
+    {
+      "concelho": "Oeiras",
+      "count": 5784,
+      "median_ppm": 5864.2,
+      "median_preco": 698000
+    },
+    {
+      "concelho": "Loures",
+      "count": 4666,
+      "median_ppm": 4583.33,
+      "median_preco": 475000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "count": 2634,
+      "median_ppm": 4385.05,
+      "median_preco": 460000.0
+    },
+    {
+      "concelho": "Mafra",
+      "count": 1029,
+      "median_ppm": 4117.39,
+      "median_preco": 500000.0
+    },
+    {
+      "concelho": "Amadora",
+      "count": 4702,
+      "median_ppm": 4080.12,
+      "median_preco": 317000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "count": 1622,
+      "median_ppm": 3750.0,
+      "median_preco": 420000
+    },
+    {
+      "concelho": "Sintra",
+      "count": 8326,
+      "median_ppm": 3635.06,
+      "median_preco": 306000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "count": 411,
+      "median_ppm": 3170.73,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Lourinhã",
+      "count": 260,
+      "median_ppm": 3170.37,
+      "median_preco": 394500.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "count": 74,
+      "median_ppm": 3125.38,
+      "median_preco": 415000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "count": 98,
+      "median_ppm": 2975.32,
+      "median_preco": 410000
+    },
+    {
+      "concelho": "Alenquer",
+      "count": 435,
+      "median_ppm": 2857.14,
+      "median_preco": 277000
+    },
+    {
+      "concelho": "Azambuja",
+      "count": 213,
+      "median_ppm": 2349.59,
+      "median_preco": 292000
+    },
+    {
+      "concelho": "Cadaval",
+      "count": 102,
+      "median_ppm": 2272.35,
+      "median_preco": 299000.0
+    }
+  ],
+  "by_concelho_tipologia": [
+    {
+      "concelho": "Alenquer",
+      "tipologia": "T0",
+      "count": 1,
+      "median_ppm": 1425,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Alenquer",
+      "tipologia": "T1",
+      "count": 17,
+      "median_ppm": 3407.89,
+      "median_preco": 235000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "tipologia": "T2",
+      "count": 157,
+      "median_ppm": 3141.03,
+      "median_preco": 250000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "tipologia": "T3",
+      "count": 224,
+      "median_ppm": 2625,
+      "median_preco": 290000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "tipologia": "T4",
+      "count": 28,
+      "median_ppm": 2386.08,
+      "median_preco": 380000.0
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T0",
+      "count": 65,
+      "median_ppm": 4500.0,
+      "median_preco": 225000
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T1",
+      "count": 715,
+      "median_ppm": 5405.41,
+      "median_preco": 255000.0
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T2",
+      "count": 2038,
+      "median_ppm": 4166.67,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T3",
+      "count": 1408,
+      "median_ppm": 3765.43,
+      "median_preco": 372500
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T4",
+      "count": 255,
+      "median_ppm": 3863.64,
+      "median_preco": 435000
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T5",
+      "count": 29,
+      "median_ppm": 3243.18,
+      "median_preco": 565000
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T6",
+      "count": 4,
+      "median_ppm": 4574.47,
+      "median_preco": 430000.0
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T7",
+      "count": 3,
+      "median_ppm": 2063.95,
+      "median_preco": 355000
+    },
+    {
+      "concelho": "Amadora",
+      "tipologia": "T8",
+      "count": 6,
+      "median_ppm": 3250.0,
+      "median_preco": 650000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T0",
+      "count": 7,
+      "median_ppm": 2668.71,
+      "median_preco": 435000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T1",
+      "count": 4,
+      "median_ppm": 3007.81,
+      "median_preco": 200000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T2",
+      "count": 29,
+      "median_ppm": 3005.26,
+      "median_preco": 315000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T3",
+      "count": 32,
+      "median_ppm": 3293.81,
+      "median_preco": 370000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T4",
+      "count": 11,
+      "median_ppm": null,
+      "median_preco": 668000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T5",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T6",
+      "count": 6,
+      "median_ppm": null,
+      "median_preco": 740000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "tipologia": "T8",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Azambuja",
+      "tipologia": "T1",
+      "count": 2,
+      "median_ppm": 3000.0,
+      "median_preco": 216000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "tipologia": "T2",
+      "count": 116,
+      "median_ppm": 2349.59,
+      "median_preco": 289000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "tipologia": "T3",
+      "count": 78,
+      "median_ppm": 2378.79,
+      "median_preco": 314000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "tipologia": "T4",
+      "count": 11,
+      "median_ppm": 1296.43,
+      "median_preco": 363000
+    },
+    {
+      "concelho": "Azambuja",
+      "tipologia": "T5",
+      "count": 3,
+      "median_ppm": 2169.57,
+      "median_preco": 249500.0
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T0",
+      "count": 6,
+      "median_ppm": 2500,
+      "median_preco": 97500.0
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T1",
+      "count": 7,
+      "median_ppm": 3012.66,
+      "median_preco": 192000
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T2",
+      "count": 17,
+      "median_ppm": 2610.53,
+      "median_preco": 179900
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T3",
+      "count": 49,
+      "median_ppm": 2160.87,
+      "median_preco": 335000
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T4",
+      "count": 15,
+      "median_ppm": null,
+      "median_preco": 479000
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T5",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Cadaval",
+      "tipologia": "T7",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 850000
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T0",
+      "count": 107,
+      "median_ppm": 8796.9,
+      "median_preco": 345000
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T1",
+      "count": 337,
+      "median_ppm": 7611.94,
+      "median_preco": 522500.0
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T2",
+      "count": 1062,
+      "median_ppm": 6750,
+      "median_preco": 770000.0
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T3",
+      "count": 1429,
+      "median_ppm": 6725.02,
+      "median_preco": 1200000
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T4",
+      "count": 445,
+      "median_ppm": 7916.52,
+      "median_preco": 1750000
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T5",
+      "count": 90,
+      "median_ppm": 8189.66,
+      "median_preco": 1830000.0
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T6",
+      "count": 10,
+      "median_ppm": 5454.55,
+      "median_preco": 2100000.0
+    },
+    {
+      "concelho": "Cascais",
+      "tipologia": "T7",
+      "count": 1,
+      "median_ppm": 8794.79,
+      "median_preco": 2700000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T0",
+      "count": 1289,
+      "median_ppm": 8043.48,
+      "median_preco": 380000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T1",
+      "count": 6339,
+      "median_ppm": 8188.41,
+      "median_preco": 495000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T2",
+      "count": 11725,
+      "median_ppm": 7333.33,
+      "median_preco": 695000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T3",
+      "count": 10023,
+      "median_ppm": 6901.41,
+      "median_preco": 790000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T4",
+      "count": 3194,
+      "median_ppm": 7082.71,
+      "median_preco": 1397000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T5",
+      "count": 829,
+      "median_ppm": 5980.0,
+      "median_preco": 1200000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T6",
+      "count": 332,
+      "median_ppm": 5500.0,
+      "median_preco": 1300000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T7",
+      "count": 133,
+      "median_ppm": 5482.46,
+      "median_preco": 1250000
+    },
+    {
+      "concelho": "Lisboa",
+      "tipologia": "T8",
+      "count": 55,
+      "median_ppm": 6181.67,
+      "median_preco": 1500000
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T0",
+      "count": 24,
+      "median_ppm": 4175,
+      "median_preco": 500000
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T1",
+      "count": 327,
+      "median_ppm": 5340.91,
+      "median_preco": 309000
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T2",
+      "count": 1605,
+      "median_ppm": 4890.91,
+      "median_preco": 425000
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T3",
+      "count": 2057,
+      "median_ppm": 4414.29,
+      "median_preco": 530000.0
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T4",
+      "count": 382,
+      "median_ppm": 4361.11,
+      "median_preco": 785000
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T5",
+      "count": 120,
+      "median_ppm": 4000.0,
+      "median_preco": 820000.0
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T6",
+      "count": 4,
+      "median_ppm": 3167.33,
+      "median_preco": 795000.0
+    },
+    {
+      "concelho": "Loures",
+      "tipologia": "T7",
+      "count": 2,
+      "median_ppm": 1527.78,
+      "median_preco": 550000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "tipologia": "T0",
+      "count": 2,
+      "median_ppm": 2243.63,
+      "median_preco": 332500.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "tipologia": "T1",
+      "count": 12,
+      "median_ppm": 3706.72,
+      "median_preco": 249000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "tipologia": "T2",
+      "count": 80,
+      "median_ppm": 3132.91,
+      "median_preco": 337500.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "tipologia": "T3",
+      "count": 137,
+      "median_ppm": 3158.03,
+      "median_preco": 426500.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "tipologia": "T4",
+      "count": 24,
+      "median_ppm": 3245.26,
+      "median_preco": 1055000.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T0",
+      "count": 13,
+      "median_ppm": 6201.55,
+      "median_preco": 320000
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T1",
+      "count": 32,
+      "median_ppm": 4346.74,
+      "median_preco": 303000.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T2",
+      "count": 413,
+      "median_ppm": 4247.31,
+      "median_preco": 457500.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T3",
+      "count": 482,
+      "median_ppm": 4043.48,
+      "median_preco": 547450.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T4",
+      "count": 60,
+      "median_ppm": 3524.1,
+      "median_preco": 685000.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T5",
+      "count": 8,
+      "median_ppm": 3047.21,
+      "median_preco": 710000.0
+    },
+    {
+      "concelho": "Mafra",
+      "tipologia": "T6",
+      "count": 1,
+      "median_ppm": 873.36,
+      "median_preco": 200000
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T0",
+      "count": 8,
+      "median_ppm": 5000.0,
+      "median_preco": 222500.0
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T1",
+      "count": 140,
+      "median_ppm": 5645.65,
+      "median_preco": 259700.0
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T2",
+      "count": 884,
+      "median_ppm": 4384.62,
+      "median_preco": 340000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T3",
+      "count": 1311,
+      "median_ppm": 4358.27,
+      "median_preco": 559000
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T4",
+      "count": 172,
+      "median_ppm": 3984.66,
+      "median_preco": 695000
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T5",
+      "count": 14,
+      "median_ppm": 4644.81,
+      "median_preco": 850000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T6",
+      "count": 5,
+      "median_ppm": 5200,
+      "median_preco": 1167650
+    },
+    {
+      "concelho": "Odivelas",
+      "tipologia": "T7",
+      "count": 6,
+      "median_ppm": 1655.56,
+      "median_preco": 298000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T0",
+      "count": 30,
+      "median_ppm": 5436.36,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T1",
+      "count": 380,
+      "median_ppm": 6666.67,
+      "median_preco": 420000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T2",
+      "count": 1942,
+      "median_ppm": 5841.27,
+      "median_preco": 475000
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T3",
+      "count": 2198,
+      "median_ppm": 5964.32,
+      "median_preco": 780000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T4",
+      "count": 926,
+      "median_ppm": 6557.38,
+      "median_preco": 1291500
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T5",
+      "count": 95,
+      "median_ppm": 5398.78,
+      "median_preco": 1350000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "tipologia": "T6",
+      "count": 8,
+      "median_ppm": 4064.41,
+      "median_preco": 1199000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T0",
+      "count": 47,
+      "median_ppm": 4528.3,
+      "median_preco": 240000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T1",
+      "count": 718,
+      "median_ppm": 4329.84,
+      "median_preco": 265000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T2",
+      "count": 4438,
+      "median_ppm": 3705.88,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T3",
+      "count": 2366,
+      "median_ppm": 3355.56,
+      "median_preco": 340000
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T4",
+      "count": 397,
+      "median_ppm": 3269.23,
+      "median_preco": 525000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T5",
+      "count": 38,
+      "median_ppm": 3184.56,
+      "median_preco": 445000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T6",
+      "count": 19,
+      "median_ppm": 2641.18,
+      "median_preco": 449000.0
+    },
+    {
+      "concelho": "Sintra",
+      "tipologia": "T7",
+      "count": 2,
+      "median_ppm": 14166.67,
+      "median_preco": 8500000.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T0",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 160000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T1",
+      "count": 4,
+      "median_ppm": null,
+      "median_preco": 112500.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T2",
+      "count": 25,
+      "median_ppm": 3141.96,
+      "median_preco": 275000.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T3",
+      "count": 11,
+      "median_ppm": 2991.67,
+      "median_preco": 437000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T4",
+      "count": 15,
+      "median_ppm": null,
+      "median_preco": 668000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T5",
+      "count": 7,
+      "median_ppm": null,
+      "median_preco": 525000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T6",
+      "count": 5,
+      "median_ppm": null,
+      "median_preco": 625000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T7",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 1200000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "tipologia": "T8",
+      "count": 1,
+      "median_ppm": null,
+      "median_preco": 1400000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T0",
+      "count": 1,
+      "median_ppm": 620.69,
+      "median_preco": 90000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T1",
+      "count": 31,
+      "median_ppm": 4008.41,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T2",
+      "count": 164,
+      "median_ppm": 3118.62,
+      "median_preco": 375000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T3",
+      "count": 171,
+      "median_ppm": 3209.21,
+      "median_preco": 435000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T4",
+      "count": 26,
+      "median_ppm": 2548.08,
+      "median_preco": 530000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "tipologia": "T5",
+      "count": 9,
+      "median_ppm": 2530.93,
+      "median_preco": 659000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T0",
+      "count": 9,
+      "median_ppm": 2927.63,
+      "median_preco": 280000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T1",
+      "count": 106,
+      "median_ppm": 4691.55,
+      "median_preco": 300000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T2",
+      "count": 668,
+      "median_ppm": 3962.26,
+      "median_preco": 368000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T3",
+      "count": 705,
+      "median_ppm": 3622.58,
+      "median_preco": 450000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T4",
+      "count": 105,
+      "median_ppm": 3163.84,
+      "median_preco": 560000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T5",
+      "count": 12,
+      "median_ppm": 3196.63,
+      "median_preco": 747500.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "tipologia": "T6",
+      "count": 1,
+      "median_ppm": 628.67,
+      "median_preco": 535000
+    }
+  ],
+  "by_freguesia": [
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Gomes Freire (Coração de Jesus)",
+      "count": 3,
+      "median_ppm": 15526.32,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Entrecampos (Nossa Senhora de Fátima)",
+      "count": 9,
+      "median_ppm": 13291.26,
+      "median_preco": 2738000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Coração de Jesus",
+      "count": 5,
+      "median_ppm": 13191.49,
+      "median_preco": 620000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações Sul",
+      "count": 24,
+      "median_ppm": 12962.96,
+      "median_preco": 2100000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Marquês de Pombal (Mártires)",
+      "count": 6,
+      "median_ppm": 12769.17,
+      "median_preco": 725000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça de Espanha (Nossa Senhora de Fátima)",
+      "count": 19,
+      "median_ppm": 12588.24,
+      "median_preco": 2738000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque Eduardo VII (São Sebastião da Pedreira)",
+      "count": 15,
+      "median_ppm": 12272.73,
+      "median_preco": 1350000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Alto de Algés (Algés)",
+      "count": 11,
+      "median_ppm": 12190.81,
+      "median_preco": 3450000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Belém (Santa Maria de Belém)",
+      "count": 46,
+      "median_ppm": 12162.16,
+      "median_preco": 950000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida da Liberdade (Coração de Jesus)",
+      "count": 41,
+      "median_ppm": 11986.39,
+      "median_preco": 1050000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Junqueira (Santa Maria de Belém)",
+      "count": 32,
+      "median_ppm": 11776.32,
+      "median_preco": 1100000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Duque de Loulé (São Jorge de Arroios)",
+      "count": 16,
+      "median_ppm": 11621.62,
+      "median_preco": 2150000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Restauradores",
+      "count": 7,
+      "median_ppm": 11419.75,
+      "median_preco": 680000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (São Jorge de Arroios)",
+      "count": 9,
+      "median_ppm": 11018.52,
+      "median_preco": 882000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Dafundo (Cruz Quebrada-Dafundo)",
+      "count": 4,
+      "median_ppm": 10950.67,
+      "median_preco": 1822500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Restauradores (São José)",
+      "count": 4,
+      "median_ppm": 10889.57,
+      "median_preco": 1775000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Azul (Nossa Senhora de Fátima)",
+      "count": 24,
+      "median_ppm": 10865.38,
+      "median_preco": 1130000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida António Augusto Aguiar (São Sebastião da Pedreira)",
+      "count": 16,
+      "median_ppm": 10714.29,
+      "median_preco": 750000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Sé)",
+      "count": 3,
+      "median_ppm": 10678.57,
+      "median_preco": 897000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua Castilho (Santo António)",
+      "count": 66,
+      "median_ppm": 10612.27,
+      "median_preco": 568750.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça Luís de Camões (Encarnação)",
+      "count": 6,
+      "median_ppm": 10597.11,
+      "median_preco": 1222500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça D. Luís",
+      "count": 4,
+      "median_ppm": 10510.2,
+      "median_preco": 515000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Marquês de Pombal (Coração de Jesus)",
+      "count": 17,
+      "median_ppm": 10491.8,
+      "median_preco": 1190000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Twin Towers",
+      "count": 3,
+      "median_ppm": 10393.26,
+      "median_preco": 925000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Caxias (Oeiras e São Julião Barra)",
+      "count": 4,
+      "median_ppm": 10240.0,
+      "median_preco": 1280000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Marquês de Pombal (São Mamede)",
+      "count": 9,
+      "median_ppm": 10149.25,
+      "median_preco": 990000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida da Liberdade (São Mamede)",
+      "count": 20,
+      "median_ppm": 10122.7,
+      "median_preco": 1155000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Condomínio Goya (Nossa Senhora de Fátima)",
+      "count": 3,
+      "median_ppm": 10047.06,
+      "median_preco": 512400
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Saldanha (Nossa Senhora de Fátima)",
+      "count": 5,
+      "median_ppm": 10000.0,
+      "median_preco": 800000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida da Liberdade (São José)",
+      "count": 41,
+      "median_ppm": 9946.24,
+      "median_preco": 605000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua da Junqueira",
+      "count": 58,
+      "median_ppm": 9871.24,
+      "median_preco": 1785000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (Coração de Jesus)",
+      "count": 5,
+      "median_ppm": 9722.22,
+      "median_preco": 1400000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Príncipe Real (São José)",
+      "count": 8,
+      "median_ppm": 9706.96,
+      "median_preco": 2000000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça de Espanha",
+      "count": 10,
+      "median_ppm": 9642.86,
+      "median_preco": 1350000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alto do Parque (São Sebastião da Pedreira)",
+      "count": 9,
+      "median_ppm": 9628.57,
+      "median_preco": 674000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Luís Bivar",
+      "count": 6,
+      "median_ppm": 9602.6,
+      "median_preco": 2345000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Defensores de Chaves",
+      "count": 3,
+      "median_ppm": 9544.94,
+      "median_preco": 1699000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Areeiro (São João de Deus)",
+      "count": 8,
+      "median_ppm": 9519.23,
+      "median_preco": 902000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações",
+      "count": 1170,
+      "median_ppm": 9501.78,
+      "median_preco": 1100000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (São Nicolau)",
+      "count": 7,
+      "median_ppm": 9487.18,
+      "median_preco": 740000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Príncipe Real (Mercês)",
+      "count": 31,
+      "median_ppm": 9483.12,
+      "median_preco": 700500
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Cais do Sodré (Santos-o-Velho)",
+      "count": 4,
+      "median_ppm": 9445.58,
+      "median_preco": 1625000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santo António",
+      "count": 2033,
+      "median_ppm": 9437.79,
+      "median_preco": 875000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida 24 de Julho (Santos-o-Velho)",
+      "count": 15,
+      "median_ppm": 9393.94,
+      "median_preco": 1600000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo de Ourique (Prazeres)",
+      "count": 4,
+      "median_ppm": 9264.71,
+      "median_preco": 472500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo Pequeno (Nossa Senhora de Fátima)",
+      "count": 24,
+      "median_ppm": 9226.93,
+      "median_preco": 1720000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida 5 de Outubro (São Sebastião da Pedreira)",
+      "count": 4,
+      "median_ppm": 9075.34,
+      "median_preco": 1325000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Conde Valbom",
+      "count": 5,
+      "median_ppm": 9029.13,
+      "median_preco": 945000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida da República (Nossa Senhora de Fátima)",
+      "count": 6,
+      "median_ppm": 8987.58,
+      "median_preco": 1672500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (Mártires)",
+      "count": 19,
+      "median_ppm": 8961.54,
+      "median_preco": 1750000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (Sacramento)",
+      "count": 10,
+      "median_ppm": 8955.22,
+      "median_preco": 1200000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Escola Josefa Obidos (Prazeres)",
+      "count": 15,
+      "median_ppm": 8845.83,
+      "median_preco": 530750
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações - Expo Sul",
+      "count": 27,
+      "median_ppm": 8835.25,
+      "median_preco": 1620000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Amoreiras (Santa Isabel)",
+      "count": 16,
+      "median_ppm": 8750.0,
+      "median_preco": 640000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo Cebolas (Sé)",
+      "count": 7,
+      "median_ppm": 8750.0,
+      "median_preco": 910000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Amoreiras (São Mamede)",
+      "count": 12,
+      "median_ppm": 8735.85,
+      "median_preco": 1200000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida 5 de Outubro (Nossa Senhora de Fátima)",
+      "count": 11,
+      "median_ppm": 8706.9,
+      "median_preco": 1990000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Laranjeiras",
+      "count": 7,
+      "median_ppm": 8693.48,
+      "median_preco": 399900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Calçada da Ajuda",
+      "count": 11,
+      "median_ppm": 8666.67,
+      "median_preco": 1300000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (São Mamede)",
+      "count": 12,
+      "median_ppm": 8658.73,
+      "median_preco": 449500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alcantara (Prazeres)",
+      "count": 30,
+      "median_ppm": 8636.36,
+      "median_preco": 762500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Braço de Prata",
+      "count": 327,
+      "median_ppm": 8575.49,
+      "median_preco": 885000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas",
+      "count": 1852,
+      "median_ppm": 8551.64,
+      "median_preco": 995000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arredores (São Vicente de Fora)",
+      "count": 3,
+      "median_ppm": 8508.51,
+      "median_preco": 399900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santa Maria de Belém)",
+      "count": 3,
+      "median_ppm": 8492.46,
+      "median_preco": 1690000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Saldanha (São Sebastião da Pedreira)",
+      "count": 5,
+      "median_ppm": 8464.91,
+      "median_preco": 965000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Infante Santo (Prazeres)",
+      "count": 208,
+      "median_ppm": 8448.28,
+      "median_preco": 910000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (Nossa Senhora de Fátima)",
+      "count": 12,
+      "median_ppm": 8444.44,
+      "median_preco": 1395000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Alto (Santa Catarina)",
+      "count": 5,
+      "median_ppm": 8433.73,
+      "median_preco": 700000
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "União das freguesias de Cascais e Estoril",
+      "count": 94,
+      "median_ppm": 8412.78,
+      "median_preco": 1015000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (Encarnação)",
+      "count": 42,
+      "median_ppm": 8406.59,
+      "median_preco": 870000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Janelas Verdes (Prazeres)",
+      "count": 5,
+      "median_ppm": 8404.26,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Entrecampos (Campo Grande)",
+      "count": 3,
+      "median_ppm": 8392.52,
+      "median_preco": 898000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua Santa Engrácia",
+      "count": 4,
+      "median_ppm": 8379.31,
+      "median_preco": 729000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrela (Lapa)",
+      "count": 273,
+      "median_ppm": 8347.83,
+      "median_preco": 910000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Berna (Nossa Senhora de Fátima)",
+      "count": 3,
+      "median_ppm": 8333.33,
+      "median_preco": 1700000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Janelas Verdes (Santos-o-Velho)",
+      "count": 3,
+      "median_ppm": 8333.33,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Madragoa (Lapa)",
+      "count": 12,
+      "median_ppm": 8306.37,
+      "median_preco": 970000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Vale Santo António (Santa Engrácia)",
+      "count": 33,
+      "median_ppm": 8250.0,
+      "median_preco": 399900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Baixa (São Nicolau)",
+      "count": 17,
+      "median_ppm": 8250.0,
+      "median_preco": 695000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Pedrouços (Santa Maria de Belém)",
+      "count": 13,
+      "median_ppm": 8205.13,
+      "median_preco": 665000
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "Cascais e Estoril",
+      "count": 1507,
+      "median_ppm": 8177.11,
+      "median_preco": 1250000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (Campo Grande)",
+      "count": 41,
+      "median_ppm": 8166.67,
+      "median_preco": 1120000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santos (Santos-o-Velho)",
+      "count": 38,
+      "median_ppm": 8160.44,
+      "median_preco": 975000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (Alvalade)",
+      "count": 3,
+      "median_ppm": 8142.08,
+      "median_preco": 1490000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Infante Santo (Lapa)",
+      "count": 111,
+      "median_ppm": 8085.97,
+      "median_preco": 840000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alfama (Sé)",
+      "count": 37,
+      "median_ppm": 8075.29,
+      "median_preco": 657600.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campolide",
+      "count": 1411,
+      "median_ppm": 8070.94,
+      "median_preco": 820000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrela",
+      "count": 3047,
+      "median_ppm": 8062.5,
+      "median_preco": 810000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo de Ourique (Santo Condestável)",
+      "count": 26,
+      "median_ppm": 8028.63,
+      "median_preco": 750000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Martim Moniz (São Nicolau)",
+      "count": 6,
+      "median_ppm": 7980.77,
+      "median_preco": 472000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Lapa)",
+      "count": 3,
+      "median_ppm": 7960.0,
+      "median_preco": 1990000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (São João de Deus)",
+      "count": 149,
+      "median_ppm": 7904.76,
+      "median_preco": 935000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Amoreiras",
+      "count": 37,
+      "median_ppm": 7900.0,
+      "median_preco": 599000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro Cultural de Belém (Santa Maria de Belém)",
+      "count": 8,
+      "median_ppm": 7894.74,
+      "median_preco": 1759500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (São Paulo)",
+      "count": 26,
+      "median_ppm": 7875.0,
+      "median_preco": 1700000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Bento (Santa Isabel)",
+      "count": 9,
+      "median_ppm": 7857.14,
+      "median_preco": 1100000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alvalade (São João de Brito)",
+      "count": 28,
+      "median_ppm": 7855.98,
+      "median_preco": 890000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro",
+      "count": 22,
+      "median_ppm": 7837.61,
+      "median_preco": 792950.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Cais do Sodré (São Paulo)",
+      "count": 60,
+      "median_ppm": 7777.78,
+      "median_preco": 790000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Graça (Santiago)",
+      "count": 12,
+      "median_ppm": 7777.13,
+      "median_preco": 351000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Gulbenkian (Nossa Senhora de Fátima)",
+      "count": 5,
+      "median_ppm": 7731.09,
+      "median_preco": 920000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Restelo (Santa Maria de Belém)",
+      "count": 104,
+      "median_ppm": 7699.28,
+      "median_preco": 2025000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Cruz Quebrada-Centro (Cruz Quebrada-Dafundo)",
+      "count": 5,
+      "median_ppm": 7695.48,
+      "median_preco": 1385186
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arroios (Penha de França)",
+      "count": 5,
+      "median_ppm": 7690.77,
+      "median_preco": 499900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrela (Prazeres)",
+      "count": 83,
+      "median_ppm": 7678.57,
+      "median_preco": 780000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santo Condestável)",
+      "count": 7,
+      "median_ppm": 7668.71,
+      "median_preco": 328500
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Belém",
+      "count": 856,
+      "median_ppm": 7665.51,
+      "median_preco": 1390000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida João XXI (São João de Deus)",
+      "count": 15,
+      "median_ppm": 7653.06,
+      "median_preco": 1500000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Castelo de São Jorge (São Miguel)",
+      "count": 3,
+      "median_ppm": 7613.64,
+      "median_preco": 670000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Misericórdia",
+      "count": 1691,
+      "median_ppm": 7588.24,
+      "median_preco": 720000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alfama (Castelo)",
+      "count": 6,
+      "median_ppm": 7572.26,
+      "median_preco": 480000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rego (São Sebastião da Pedreira)",
+      "count": 3,
+      "median_ppm": 7549.02,
+      "median_preco": 770000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Lapa",
+      "count": 48,
+      "median_ppm": 7538.46,
+      "median_preco": 955000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Baixa (Santa Justa)",
+      "count": 13,
+      "median_ppm": 7538.46,
+      "median_preco": 810000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alcântara",
+      "count": 1338,
+      "median_ppm": 7531.35,
+      "median_preco": 730000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alfama (São Vicente de Fora)",
+      "count": 21,
+      "median_ppm": 7500.0,
+      "median_preco": 1800000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Graça)",
+      "count": 5,
+      "median_ppm": 7500.0,
+      "median_preco": 225000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Sebastião (São Sebastião da Pedreira)",
+      "count": 12,
+      "median_ppm": 7471.26,
+      "median_preco": 650000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Bento (Mercês)",
+      "count": 10,
+      "median_ppm": 7441.86,
+      "median_preco": 545000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua de São Bento",
+      "count": 12,
+      "median_ppm": 7441.86,
+      "median_preco": 945000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Graça",
+      "count": 69,
+      "median_ppm": 7439.74,
+      "median_preco": 364000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Restelo (São Francisco Xavier)",
+      "count": 95,
+      "median_ppm": 7430.07,
+      "median_preco": 2025000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações Norte",
+      "count": 8,
+      "median_ppm": 7428.57,
+      "median_preco": 780000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Barão Sabrosa (São João)",
+      "count": 8,
+      "median_ppm": 7422.68,
+      "median_preco": 600000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Príncipe Real (São Mamede)",
+      "count": 10,
+      "median_ppm": 7422.5,
+      "median_preco": 1136000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Marvila",
+      "count": 1137,
+      "median_ppm": 7417.58,
+      "median_preco": 880000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Baixa (Socorro)",
+      "count": 3,
+      "median_ppm": 7362.64,
+      "median_preco": 670000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Parque dos Poetas (Paço de Arcos)",
+      "count": 13,
+      "median_ppm": 7355.83,
+      "median_preco": 1199000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alto de Santo Amaro",
+      "count": 21,
+      "median_ppm": 7346.94,
+      "median_preco": 485000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Telheiras",
+      "count": 38,
+      "median_ppm": 7317.07,
+      "median_preco": 850000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santos-o-Velho)",
+      "count": 60,
+      "median_ppm": 7287.45,
+      "median_preco": 1800000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Almirante Reis (São Jorge de Arroios)",
+      "count": 30,
+      "median_ppm": 7270.41,
+      "median_preco": 619500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo Grande",
+      "count": 536,
+      "median_ppm": 7258.06,
+      "median_preco": 793000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua da Prata (Santa Maria Maior)",
+      "count": 6,
+      "median_ppm": 7250.0,
+      "median_preco": 640000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santa Isabel)",
+      "count": 8,
+      "median_ppm": 7248.2,
+      "median_preco": 412800.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Baixa (Castelo)",
+      "count": 4,
+      "median_ppm": 7222.22,
+      "median_preco": 910000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Lumiar",
+      "count": 2144,
+      "median_ppm": 7208.0,
+      "median_preco": 728000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Alto (Mercês)",
+      "count": 7,
+      "median_ppm": 7183.1,
+      "median_preco": 1100000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Benfica Stadium",
+      "count": 8,
+      "median_ppm": 7168.14,
+      "median_preco": 810000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Assembleia da República",
+      "count": 3,
+      "median_ppm": 7166.67,
+      "median_preco": 1290000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Marta (Coração de Jesus)",
+      "count": 18,
+      "median_ppm": 7158.14,
+      "median_preco": 642500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Algés, Linda-a-Velha e Cruz Quebrada-Dafundo",
+      "count": 56,
+      "median_ppm": 7113.82,
+      "median_preco": 1150000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Azul (São Sebastião da Pedreira)",
+      "count": 4,
+      "median_ppm": 7102.27,
+      "median_preco": 1250000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Lapa (Santos-o-Velho)",
+      "count": 8,
+      "median_ppm": 7099.7,
+      "median_preco": 2350000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santa Engrácia)",
+      "count": 9,
+      "median_ppm": 7093.02,
+      "median_preco": 399900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Saldanha (São Jorge de Arroios)",
+      "count": 9,
+      "median_ppm": 7072.92,
+      "median_preco": 575000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santos (São Paulo)",
+      "count": 3,
+      "median_ppm": 7071.43,
+      "median_preco": 315000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Alto (Encarnação)",
+      "count": 21,
+      "median_ppm": 7063.2,
+      "median_preco": 550000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Cemitério",
+      "count": 4,
+      "median_ppm": 7032.88,
+      "median_preco": 549900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Madragoa (Santos-o-Velho)",
+      "count": 6,
+      "median_ppm": 7022.14,
+      "median_preco": 870000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alvalade (Campo Grande)",
+      "count": 11,
+      "median_ppm": 7020.55,
+      "median_preco": 1025000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo de Ourique",
+      "count": 765,
+      "median_ppm": 7019.23,
+      "median_preco": 590000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Jardim da Parada",
+      "count": 13,
+      "median_ppm": 7019.23,
+      "median_preco": 427500
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "União das freguesias de Carcavelos e Parede",
+      "count": 53,
+      "median_ppm": 7009.57,
+      "median_preco": 830000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Baixa (Madalena)",
+      "count": 14,
+      "median_ppm": 6979.17,
+      "median_preco": 350000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Carcavelos e Parede",
+      "count": 82,
+      "median_ppm": 6974.07,
+      "median_preco": 815000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Maria Maior",
+      "count": 1950,
+      "median_ppm": 6964.29,
+      "median_preco": 575000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Carnaxide",
+      "count": 102,
+      "median_ppm": 6950.98,
+      "median_preco": 750000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alfama (Santo Estevão)",
+      "count": 7,
+      "median_ppm": 6944.44,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Domingos Benfica",
+      "count": 6,
+      "median_ppm": 6927.71,
+      "median_preco": 532000.0
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "Carcavelos e Parede",
+      "count": 1285,
+      "median_ppm": 6914.89,
+      "median_preco": 890000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alvalade",
+      "count": 960,
+      "median_ppm": 6907.69,
+      "median_preco": 760000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Panteão Nacional (São Vicente de Fora)",
+      "count": 5,
+      "median_ppm": 6875.0,
+      "median_preco": 275000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Bento (São Paulo)",
+      "count": 12,
+      "median_ppm": 6869.74,
+      "median_preco": 812500.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Jardins do Cristo Rei",
+      "count": 3,
+      "median_ppm": 6858.63,
+      "median_preco": 1677500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sapadores (Penha de França)",
+      "count": 9,
+      "median_ppm": 6847.95,
+      "median_preco": 499900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Areeiro",
+      "count": 874,
+      "median_ppm": 6818.18,
+      "median_preco": 835000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo de Ourique (Santa Isabel)",
+      "count": 62,
+      "median_ppm": 6816.84,
+      "median_preco": 753000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Algés, Linda-a-Velha e Cruz Quebrada-Dafundo",
+      "count": 1164,
+      "median_ppm": 6803.7,
+      "median_preco": 875000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arroios",
+      "count": 2830,
+      "median_ppm": 6792.06,
+      "median_preco": 597500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Jardim Constantino (São Jorge de Arroios)",
+      "count": 25,
+      "median_ppm": 6790.0,
+      "median_preco": 339500
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida de Madrid",
+      "count": 5,
+      "median_ppm": 6764.71,
+      "median_preco": 1325000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Belas Clube de Campo",
+      "count": 74,
+      "median_ppm": 6754.45,
+      "median_preco": 600000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sapadores (São Vicente de Fora)",
+      "count": 3,
+      "median_ppm": 6754.39,
+      "median_preco": 385000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Restelo",
+      "count": 6,
+      "median_ppm": 6717.08,
+      "median_preco": 1887500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Martim Moniz (Socorro)",
+      "count": 5,
+      "median_ppm": 6714.29,
+      "median_preco": 235000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Catarina",
+      "count": 19,
+      "median_ppm": 6701.94,
+      "median_preco": 940000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenidas Novas (São Sebastião da Pedreira)",
+      "count": 15,
+      "median_ppm": 6701.03,
+      "median_preco": 725000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Arredores (Cruz Quebrada-Dafundo)",
+      "count": 5,
+      "median_ppm": 6697.25,
+      "median_preco": 730000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Paço de Arcos",
+      "count": 35,
+      "median_ppm": 6666.67,
+      "median_preco": 475000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro dos Actores (São João)",
+      "count": 3,
+      "median_ppm": 6644.44,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Almirante Reis",
+      "count": 4,
+      "median_ppm": 6632.11,
+      "median_preco": 655000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Miraflores (Linda a Velha)",
+      "count": 10,
+      "median_ppm": 6626.45,
+      "median_preco": 699200.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Vicente",
+      "count": 1596,
+      "median_ppm": 6612.36,
+      "median_preco": 399900.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Algés",
+      "count": 645,
+      "median_ppm": 6609.59,
+      "median_preco": 975000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Cacilhas (Oeiras e São Julião Barra)",
+      "count": 12,
+      "median_ppm": 6603.93,
+      "median_preco": 900000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Jardins Cristo Rei",
+      "count": 7,
+      "median_ppm": 6597.94,
+      "median_preco": 640000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arroios (Alto do Pina)",
+      "count": 7,
+      "median_ppm": 6588.24,
+      "median_preco": 760000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro Lopes",
+      "count": 6,
+      "median_ppm": 6587.3,
+      "median_preco": 415000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Campo Grande)",
+      "count": 13,
+      "median_ppm": 6573.19,
+      "median_preco": 960000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Terraços da Ponte (Sacavém)",
+      "count": 19,
+      "median_ppm": 6567.8,
+      "median_preco": 775000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "24 de Julho",
+      "count": 11,
+      "median_ppm": 6542.06,
+      "median_preco": 700000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Caxias",
+      "count": 54,
+      "median_ppm": 6541.1,
+      "median_preco": 940000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Centro (Oeiras e São Julião Barra)",
+      "count": 5,
+      "median_ppm": 6521.74,
+      "median_preco": 900000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Vale de Figueira (São João da Talha)",
+      "count": 4,
+      "median_ppm": 6512.85,
+      "median_preco": 675000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rodrigo da Fonseca (São Mamede)",
+      "count": 10,
+      "median_ppm": 6500.0,
+      "median_preco": 1200000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Pontinha (Santiago)",
+      "count": 3,
+      "median_ppm": 6500.0,
+      "median_preco": 260000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estefânia (São Jorge de Arroios)",
+      "count": 12,
+      "median_ppm": 6495.45,
+      "median_preco": 780000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Colégio Militar",
+      "count": 4,
+      "median_ppm": 6485.14,
+      "median_preco": 479900.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Barro",
+      "count": 3,
+      "median_ppm": 6481.48,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "The Yard Tagus",
+      "count": 4,
+      "median_ppm": 6460.68,
+      "median_preco": 510000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Moscavide",
+      "count": 4,
+      "median_ppm": 6457.44,
+      "median_preco": 585000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sé (Madalena)",
+      "count": 6,
+      "median_ppm": 6436.88,
+      "median_preco": 810000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Anjos (São Jorge de Arroios)",
+      "count": 4,
+      "median_ppm": 6424.39,
+      "median_preco": 820000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro (Santa Maria e São Miguel)",
+      "count": 9,
+      "median_ppm": 6418.92,
+      "median_preco": 675000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Calçada do Combro (Santa Catarina)",
+      "count": 7,
+      "median_ppm": 6402.44,
+      "median_preco": 1050000
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "Centro",
+      "count": 4,
+      "median_ppm": 6398.29,
+      "median_preco": 645000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rato (Coração de Jesus)",
+      "count": 3,
+      "median_ppm": 6395.35,
+      "median_preco": 550000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alfama (São Miguel)",
+      "count": 23,
+      "median_ppm": 6377.78,
+      "median_preco": 287000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "União das freguesias de Algés",
+      "count": 84,
+      "median_ppm": 6346.28,
+      "median_preco": 861000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Lisboa",
+      "count": 30,
+      "median_ppm": 6338.03,
+      "median_preco": 449000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Socorro)",
+      "count": 30,
+      "median_ppm": 6326.86,
+      "median_preco": 612500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Penha de França",
+      "count": 1169,
+      "median_ppm": 6323.53,
+      "median_preco": 479900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Benfica",
+      "count": 2311,
+      "median_ppm": 6321.84,
+      "median_preco": 529900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Apolónia (Santo Estevão)",
+      "count": 14,
+      "median_ppm": 6320.75,
+      "median_preco": 670000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida do Uruguai",
+      "count": 21,
+      "median_ppm": 6314.74,
+      "median_preco": 599900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alto dos Moinhos",
+      "count": 18,
+      "median_ppm": 6306.62,
+      "median_preco": 1330000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Caneças",
+      "count": 16,
+      "median_ppm": 6296.3,
+      "median_preco": 350000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Anjos",
+      "count": 42,
+      "median_ppm": 6290.32,
+      "median_preco": 640000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alameda (São Jorge de Arroios)",
+      "count": 4,
+      "median_ppm": 6287.04,
+      "median_preco": 339500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Paço do Lumiar",
+      "count": 6,
+      "median_ppm": 6273.34,
+      "median_preco": 957500.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Serra de Carnaxide (Venteira)",
+      "count": 23,
+      "median_ppm": 6265.32,
+      "median_preco": 485000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Mouraria (Graça)",
+      "count": 12,
+      "median_ppm": 6259.4,
+      "median_preco": 312500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça da Figueira (Madalena)",
+      "count": 6,
+      "median_ppm": 6250.0,
+      "median_preco": 790000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Parque das Nações",
+      "count": 19,
+      "median_ppm": 6250,
+      "median_preco": 749900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Chiado (Santa Justa)",
+      "count": 3,
+      "median_ppm": 6238.1,
+      "median_preco": 699000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Califa",
+      "count": 13,
+      "median_ppm": 6234.12,
+      "median_preco": 529900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bica (São Paulo)",
+      "count": 5,
+      "median_ppm": 6231.88,
+      "median_preco": 430000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Miraflores (Algés)",
+      "count": 37,
+      "median_ppm": 6188.12,
+      "median_preco": 830000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Calhariz de Benfica",
+      "count": 8,
+      "median_ppm": 6161.63,
+      "median_preco": 529900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Bento (Santos-o-Velho)",
+      "count": 3,
+      "median_ppm": 6153.85,
+      "median_preco": 480000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Moscavide e Portela",
+      "count": 23,
+      "median_ppm": 6140.35,
+      "median_preco": 465000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Almirante Reis (Anjos)",
+      "count": 15,
+      "median_ppm": 6111.11,
+      "median_preco": 550000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Portas Benfica",
+      "count": 6,
+      "median_ppm": 6109.89,
+      "median_preco": 499900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua Castilho (São Sebastião da Pedreira)",
+      "count": 6,
+      "median_ppm": 6108.95,
+      "median_preco": 1490000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Mouraria (Madalena)",
+      "count": 9,
+      "median_ppm": 6100.0,
+      "median_preco": 950000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Carnide",
+      "count": 121,
+      "median_ppm": 6085.71,
+      "median_preco": 590000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Maria Pia",
+      "count": 23,
+      "median_ppm": 6068.97,
+      "median_preco": 797000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Columbano Bordalo Pinheiro (São Sebastião da Pedreira)",
+      "count": 3,
+      "median_ppm": 6062.5,
+      "median_preco": 485000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alto do Lumiar",
+      "count": 3,
+      "median_ppm": 6060.61,
+      "median_preco": 400000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Alfragide Sul (Alfragide)",
+      "count": 9,
+      "median_ppm": 6052.63,
+      "median_preco": 575000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Olivais",
+      "count": 57,
+      "median_ppm": 5976.33,
+      "median_preco": 715000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Santo Isidoro",
+      "count": 5,
+      "median_ppm": 5975,
+      "median_preco": 569000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "São Domingos de Benfica",
+      "count": 728,
+      "median_ppm": 5952.38,
+      "median_preco": 650000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Bombeiros Voluntários (Algés)",
+      "count": 4,
+      "median_ppm": 5943.4,
+      "median_preco": 630000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Bairro Augusto de Castro (Oeiras e São Julião Barra)",
+      "count": 14,
+      "median_ppm": 5937.5,
+      "median_preco": 475000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campo Mártires da Pátria (Pena)",
+      "count": 17,
+      "median_ppm": 5934.96,
+      "median_preco": 730000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Parque dos Poetas (Oeiras e São Julião Barra)",
+      "count": 6,
+      "median_ppm": 5924.17,
+      "median_preco": 1250000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Belas Clube de Campo (Belas)",
+      "count": 48,
+      "median_ppm": 5918.61,
+      "median_preco": 695000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Linda-a-Velha (Linda a Velha)",
+      "count": 8,
+      "median_ppm": 5882.6,
+      "median_preco": 548500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Oeiras e São Julião da Barra",
+      "count": 655,
+      "median_ppm": 5864.2,
+      "median_preco": 475000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Oeiras (Oeiras e São Julião Barra)",
+      "count": 24,
+      "median_ppm": 5864.2,
+      "median_preco": 475000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Oeiras e S. Julião da Barra, Paço de Arcos e Caxias",
+      "count": 732,
+      "median_ppm": 5864.2,
+      "median_preco": 525000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sapadores (Santa Engrácia)",
+      "count": 9,
+      "median_ppm": 5857.14,
+      "median_preco": 410000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Almirante Reis (Penha de França)",
+      "count": 3,
+      "median_ppm": 5855.26,
+      "median_preco": 445000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações - Expo Centro",
+      "count": 3,
+      "median_ppm": 5849.28,
+      "median_preco": 765000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Ajuda",
+      "count": 316,
+      "median_ppm": 5846.85,
+      "median_preco": 449900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro de Santa Cruz",
+      "count": 11,
+      "median_ppm": 5846.15,
+      "median_preco": 529900
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Quinta da Terrugem (Paço de Arcos)",
+      "count": 3,
+      "median_ppm": 5823.53,
+      "median_preco": 495000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrada da Luz",
+      "count": 4,
+      "median_ppm": 5802.47,
+      "median_preco": 470000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Belém",
+      "count": 8,
+      "median_ppm": 5788.72,
+      "median_preco": 885000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Parque das Nações - Expo Norte",
+      "count": 21,
+      "median_ppm": 5769.23,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Costa do Castelo (Castelo)",
+      "count": 17,
+      "median_ppm": 5750.0,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Carmo (Sacramento)",
+      "count": 5,
+      "median_ppm": 5750.0,
+      "median_preco": 460000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Marquês de Pombal (São José)",
+      "count": 4,
+      "median_ppm": 5748.41,
+      "median_preco": 477500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Apolónia (São Vicente de Fora)",
+      "count": 16,
+      "median_ppm": 5745.98,
+      "median_preco": 407500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Beato",
+      "count": 317,
+      "median_ppm": 5727.64,
+      "median_preco": 440000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (São Vicente de Fora)",
+      "count": 15,
+      "median_ppm": 5712.86,
+      "median_preco": 399000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Figueirinha (Oeiras e São Julião Barra)",
+      "count": 16,
+      "median_ppm": 5709.88,
+      "median_preco": 250000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Picheleira",
+      "count": 9,
+      "median_ppm": 5696.2,
+      "median_preco": 450000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rossio (Pena)",
+      "count": 15,
+      "median_ppm": 5694.44,
+      "median_preco": 420000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Apolónia (Santa Engrácia)",
+      "count": 18,
+      "median_ppm": 5684.3,
+      "median_preco": 399900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Mercado",
+      "count": 8,
+      "median_ppm": 5680.68,
+      "median_preco": 499900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "ESTRADA DE BENFICA",
+      "count": 22,
+      "median_ppm": 5680.68,
+      "median_preco": 499900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sé",
+      "count": 7,
+      "median_ppm": 5653.33,
+      "median_preco": 850000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arroios (São Jorge de Arroios)",
+      "count": 16,
+      "median_ppm": 5636.36,
+      "median_preco": 399000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Centro (Cruz Quebrada-Dafundo)",
+      "count": 4,
+      "median_ppm": 5600.0,
+      "median_preco": 420000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Praça do Chile (São Jorge de Arroios)",
+      "count": 26,
+      "median_ppm": 5588.24,
+      "median_preco": 595000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Cruz Quebrada Dafundo",
+      "count": 3,
+      "median_ppm": 5571.43,
+      "median_preco": 390000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Quinta do Morgado",
+      "count": 3,
+      "median_ppm": 5557.14,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Laranjeiras Metro",
+      "count": 4,
+      "median_ppm": 5552.55,
+      "median_preco": 499700.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Fonte Nova",
+      "count": 7,
+      "median_ppm": 5550.0,
+      "median_preco": 499900
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santo António de Cavaleiros",
+      "count": 78,
+      "median_ppm": 5523.91,
+      "median_preco": 624750.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Olivais",
+      "count": 636,
+      "median_ppm": 5500.0,
+      "median_preco": 465000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "União das freguesias de Moscavide e Portela",
+      "count": 16,
+      "median_ppm": 5475.84,
+      "median_preco": 432500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Oeiras e São Julião da Barra, Paço de Arcos e Caxias",
+      "count": 370,
+      "median_ppm": 5466.37,
+      "median_preco": 597900.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Quinta da Parreirinha (Bobadela)",
+      "count": 4,
+      "median_ppm": 5463.26,
+      "median_preco": 596500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida de Roma (Alvalade)",
+      "count": 4,
+      "median_ppm": 5461.54,
+      "median_preco": 355000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Centro (Moscavide)",
+      "count": 6,
+      "median_ppm": 5459.48,
+      "median_preco": 290000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arneiros",
+      "count": 5,
+      "median_ppm": 5444.55,
+      "median_preco": 549900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arredores (Santo Condestável)",
+      "count": 6,
+      "median_ppm": 5442.31,
+      "median_preco": 300000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Porto Salvo",
+      "count": 173,
+      "median_ppm": 5422.54,
+      "median_preco": 518500
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "União das freguesias de Oeiras e São Julião da Barra",
+      "count": 20,
+      "median_ppm": 5411.59,
+      "median_preco": 482500.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "União das freguesias de Sacavém e Prior Velho",
+      "count": 17,
+      "median_ppm": 5400.0,
+      "median_preco": 469750
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida do Brasil (São João de Brito)",
+      "count": 3,
+      "median_ppm": 5395.68,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "À Av. Gomes Pereira",
+      "count": 3,
+      "median_ppm": 5389.19,
+      "median_preco": 859000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arredores (Madalena)",
+      "count": 3,
+      "median_ppm": 5369.23,
+      "median_preco": 349000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Santa Catarina)",
+      "count": 9,
+      "median_ppm": 5283.02,
+      "median_preco": 480000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Urbanização Casas do Lago (Venteira)",
+      "count": 3,
+      "median_ppm": 5265.31,
+      "median_preco": 516000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Urbanização Colinas do Cruzeiro",
+      "count": 7,
+      "median_ppm": 5250.0,
+      "median_preco": 900000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Bairro da Figueirinha (Oeiras e São Julião Barra)",
+      "count": 14,
+      "median_ppm": 5219.78,
+      "median_preco": 475000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Campos Martires da Pátria (Anjos)",
+      "count": 12,
+      "median_ppm": 5213.33,
+      "median_preco": 782000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrela (São Paulo)",
+      "count": 3,
+      "median_ppm": 5204.68,
+      "median_preco": 890000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Moscavide e Portela",
+      "count": 249,
+      "median_ppm": 5192.86,
+      "median_preco": 346500
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Convento Encarnação (Pena)",
+      "count": 3,
+      "median_ppm": 5180.0,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Picoas (São Jorge de Arroios)",
+      "count": 3,
+      "median_ppm": 5166.67,
+      "median_preco": 775000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Colinas do Cruzeiro",
+      "count": 56,
+      "median_ppm": 5163.58,
+      "median_preco": 695000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Castelo São Jorge (Castelo)",
+      "count": 17,
+      "median_ppm": 5157.89,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Xabregas",
+      "count": 3,
+      "median_ppm": 5142.86,
+      "median_preco": 360000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Olivais Norte",
+      "count": 13,
+      "median_ppm": 5125.0,
+      "median_preco": 312500.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Odivelas Centro",
+      "count": 4,
+      "median_ppm": 5111.86,
+      "median_preco": 285000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Estrada Benfica",
+      "count": 7,
+      "median_ppm": 5101.02,
+      "median_preco": 499900
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Colares",
+      "count": 55,
+      "median_ppm": 5080.65,
+      "median_preco": 590000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Oeiras",
+      "count": 5,
+      "median_ppm": 5071.82,
+      "median_preco": 479500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Brasil (Alvalade)",
+      "count": 6,
+      "median_ppm": 5069.44,
+      "median_preco": 700000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Graça (São Vicente de Fora)",
+      "count": 14,
+      "median_ppm": 5057.4,
+      "median_preco": 364000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Paradela (Santo António de Cavaleiros)",
+      "count": 16,
+      "median_ppm": 5052.63,
+      "median_preco": 490000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Paradela",
+      "count": 46,
+      "median_ppm": 5052.63,
+      "median_preco": 480000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Benfica",
+      "count": 11,
+      "median_ppm": 5039.94,
+      "median_preco": 529900
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "Oeiras e S. Julião da Barra, Paço de Arcos e Caxias",
+      "count": 11,
+      "median_ppm": 5038.1,
+      "median_preco": 529000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida EUA (Alvalade)",
+      "count": 6,
+      "median_ppm": 5019.23,
+      "median_preco": 752500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rua Áurea",
+      "count": 3,
+      "median_ppm": 5000.0,
+      "median_preco": 1200000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Carnaxide e Queijas",
+      "count": 982,
+      "median_ppm": 5000.0,
+      "median_preco": 690000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Beloura (São Pedro Penaferrim)",
+      "count": 37,
+      "median_ppm": 5000.0,
+      "median_preco": 759000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Santo António dos Cavaleiros e Frielas",
+      "count": 127,
+      "median_ppm": 5000.0,
+      "median_preco": 497500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Quinta do Marquês (Oeiras e São Julião Barra)",
+      "count": 5,
+      "median_ppm": 4990.57,
+      "median_preco": 529000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Sintra (Santa Maria e São Miguel",
+      "count": 4,
+      "median_ppm": 4966.89,
+      "median_preco": 750000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Columbano Bordalo Pinheiro",
+      "count": 3,
+      "median_ppm": 4963.5,
+      "median_preco": 680000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "União das freguesias de Carnaxide e Queijas",
+      "count": 18,
+      "median_ppm": 4958.53,
+      "median_preco": 650000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Mina",
+      "count": 32,
+      "median_ppm": 4954.95,
+      "median_preco": 500000.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Ericeira",
+      "count": 424,
+      "median_ppm": 4948.93,
+      "median_preco": 650000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Martim Moniz (Madalena)",
+      "count": 12,
+      "median_ppm": 4940.0,
+      "median_preco": 444000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Atalaia",
+      "count": 6,
+      "median_ppm": 4928.57,
+      "median_preco": 345000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "São José",
+      "count": 4,
+      "median_ppm": 4927.48,
+      "median_preco": 295000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Olaias",
+      "count": 5,
+      "median_ppm": 4925.37,
+      "median_preco": 450000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Loures",
+      "count": 811,
+      "median_ppm": 4920.05,
+      "median_preco": 507200.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Alto do Dafundo (Cruz Quebrada-Dafundo)",
+      "count": 9,
+      "median_ppm": 4916.67,
+      "median_preco": 590000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "São João das Lampas e Terrugem",
+      "count": 76,
+      "median_ppm": 4916.67,
+      "median_preco": 295000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Magoito (São João das Lampas)",
+      "count": 17,
+      "median_ppm": 4916.67,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Magoito (Terrugem)",
+      "count": 3,
+      "median_ppm": 4916.67,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Moscavide",
+      "count": 12,
+      "median_ppm": 4890.91,
+      "median_preco": 275000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Centro (Brandoa)",
+      "count": 4,
+      "median_ppm": 4872.34,
+      "median_preco": 229000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Quinta das Conchas",
+      "count": 5,
+      "median_ppm": 4871.79,
+      "median_preco": 380000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Venteira",
+      "count": 18,
+      "median_ppm": 4869.57,
+      "median_preco": 660000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Quinta dos Alcoutins",
+      "count": 3,
+      "median_ppm": 4844.29,
+      "median_preco": 1400000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Infantado",
+      "count": 12,
+      "median_ppm": 4843.38,
+      "median_preco": 697500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Rato (São Mamede)",
+      "count": 5,
+      "median_ppm": 4833.33,
+      "median_preco": 290000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Queluz (Monte Abraão)",
+      "count": 8,
+      "median_ppm": 4818.18,
+      "median_preco": 287500.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Patameiras",
+      "count": 4,
+      "median_ppm": 4779.63,
+      "median_preco": 259700.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santo António dos Cavaleiros e Frielas",
+      "count": 1531,
+      "median_ppm": 4774.77,
+      "median_preco": 480000.0
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "São Domingos de Rana",
+      "count": 187,
+      "median_ppm": 4772.73,
+      "median_preco": 493500.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Urbanização Moinho do Guizo (São Brás)",
+      "count": 8,
+      "median_ppm": 4765.2,
+      "median_preco": 315000.0
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "Alcabideche",
+      "count": 210,
+      "median_ppm": 4754.88,
+      "median_preco": 599000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Olivais Sul",
+      "count": 32,
+      "median_ppm": 4750.0,
+      "median_preco": 379000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Venteira",
+      "count": 38,
+      "median_ppm": 4745.22,
+      "median_preco": 570000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "União das freguesias de Ramada e Caneças",
+      "count": 38,
+      "median_ppm": 4729.65,
+      "median_preco": 375000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Centro",
+      "count": 4,
+      "median_ppm": 4724.14,
+      "median_preco": 537000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Mina de Água",
+      "count": 13,
+      "median_ppm": 4722.22,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Igreja (Venteira)",
+      "count": 5,
+      "median_ppm": 4709.09,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (São Francisco Xavier)",
+      "count": 3,
+      "median_ppm": 4701.75,
+      "median_preco": 1340000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Encarnação",
+      "count": 4,
+      "median_ppm": 4656.86,
+      "median_preco": 415000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alta de Lisboa",
+      "count": 11,
+      "median_ppm": 4654.09,
+      "median_preco": 740000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Solvillas",
+      "count": 6,
+      "median_ppm": 4644.81,
+      "median_preco": 850000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Sacavém e Prior Velho",
+      "count": 355,
+      "median_ppm": 4626.87,
+      "median_preco": 470000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Centro (Penha de França)",
+      "count": 7,
+      "median_ppm": 4615.38,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "São João das Lampas",
+      "count": 12,
+      "median_ppm": 4583.33,
+      "median_preco": 275000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "União das freguesias de Santo António dos Cavaleiros e Frielas",
+      "count": 48,
+      "median_ppm": 4560.03,
+      "median_preco": 436312.5
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Poço do Bispo",
+      "count": 3,
+      "median_ppm": 4556.07,
+      "median_preco": 1950000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Centro (Algés)",
+      "count": 4,
+      "median_ppm": 4541.67,
+      "median_preco": 545000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Quinta de Stº António",
+      "count": 4,
+      "median_ppm": 4534.09,
+      "median_preco": 399000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arredores (Socorro)",
+      "count": 3,
+      "median_ppm": 4521.28,
+      "median_preco": 425000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Alfornelos",
+      "count": 19,
+      "median_ppm": 4520.55,
+      "median_preco": 330000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Largo do Caldas (Madalena)",
+      "count": 6,
+      "median_ppm": 4496.64,
+      "median_preco": 670000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Odivelas",
+      "count": 923,
+      "median_ppm": 4487.5,
+      "median_preco": 380000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Quinta do Conventinho (Santo António de Cavaleiros)",
+      "count": 6,
+      "median_ppm": 4486.11,
+      "median_preco": 335000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Pinheiro de Loures",
+      "count": 12,
+      "median_ppm": 4484.13,
+      "median_preco": 565000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Arredores (São Brás)",
+      "count": 6,
+      "median_ppm": 4483.33,
+      "median_preco": 269000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alameda (São João de Deus)",
+      "count": 7,
+      "median_ppm": 4481.13,
+      "median_preco": 475000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Centro (Santo António de Cavaleiros)",
+      "count": 3,
+      "median_ppm": 4477.86,
+      "median_preco": 470175
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Póvoa de Santo Adrião e Olival Basto",
+      "count": 46,
+      "median_ppm": 4456.66,
+      "median_preco": 570000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Casal do Chapim",
+      "count": 3,
+      "median_ppm": 4455.45,
+      "median_preco": 450000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Quinta Grande (Alfragide)",
+      "count": 3,
+      "median_ppm": 4452.05,
+      "median_preco": 650000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Centro (Mina)",
+      "count": 14,
+      "median_ppm": 4446.15,
+      "median_preco": 287000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Clara",
+      "count": 239,
+      "median_ppm": 4440.19,
+      "median_preco": 459900
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "S.Maria e S.Miguel",
+      "count": 171,
+      "median_ppm": 4420.35,
+      "median_preco": 675000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santo António dos Cavaleiros",
+      "count": 3,
+      "median_ppm": 4410.53,
+      "median_preco": 419000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "A-da-Beja (Mina)",
+      "count": 9,
+      "median_ppm": 4409.84,
+      "median_preco": 269000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Jardim da Amoreira (Ramada)",
+      "count": 6,
+      "median_ppm": 4393.48,
+      "median_preco": 477000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Pedralvas",
+      "count": 4,
+      "median_ppm": 4390.54,
+      "median_preco": 324950.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro",
+      "count": 3,
+      "median_ppm": 4384.62,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Centro (Carnaxide)",
+      "count": 5,
+      "median_ppm": 4375.0,
+      "median_preco": 420000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Cacém",
+      "count": 5,
+      "median_ppm": 4375.0,
+      "median_preco": 270000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Cruz Quebrada (Cruz Quebrada-Dafundo)",
+      "count": 11,
+      "median_ppm": 4369.75,
+      "median_preco": 520000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Falagueira Venda Nova",
+      "count": 6,
+      "median_ppm": 4367.99,
+      "median_preco": 294250.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Centro",
+      "count": 19,
+      "median_ppm": 4361.11,
+      "median_preco": 560000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Casais de Mem Martins (Rio de Mouro)",
+      "count": 6,
+      "median_ppm": 4359.13,
+      "median_preco": 262500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Centro de Carnaxide",
+      "count": 3,
+      "median_ppm": 4357.8,
+      "median_preco": 475000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santa Clara",
+      "count": 8,
+      "median_ppm": 4321.43,
+      "median_preco": 312500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Queluz (Belas)",
+      "count": 4,
+      "median_ppm": 4320.34,
+      "median_preco": 289000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Massamá Norte (Belas)",
+      "count": 3,
+      "median_ppm": 4300.0,
+      "median_preco": 387000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)",
+      "count": 32,
+      "median_ppm": 4296.26,
+      "median_preco": 531500.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Venteira",
+      "count": 1299,
+      "median_ppm": 4295.77,
+      "median_preco": 317000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Ramada e Caneças",
+      "count": 477,
+      "median_ppm": 4293.59,
+      "median_preco": 547600
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Mouraria (Socorro)",
+      "count": 4,
+      "median_ppm": 4292.31,
+      "median_preco": 279000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Pontinha e Famões",
+      "count": 280,
+      "median_ppm": 4285.71,
+      "median_preco": 399000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Tapada do Mocho",
+      "count": 6,
+      "median_ppm": 4272.64,
+      "median_preco": 735000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Águas Livres",
+      "count": 14,
+      "median_ppm": 4267.25,
+      "median_preco": 277350.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "União das freguesias do Cacém e São Marcos",
+      "count": 13,
+      "median_ppm": 4266.67,
+      "median_preco": 297000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "União das freguesias de Queluz e Belas",
+      "count": 39,
+      "median_ppm": 4266.67,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santo Antão e São Julião do Tojal",
+      "count": 103,
+      "median_ppm": 4266.0,
+      "median_preco": 450000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Pontinha e Famões",
+      "count": 27,
+      "median_ppm": 4263.57,
+      "median_preco": 330000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro das Colónias (Anjos)",
+      "count": 5,
+      "median_ppm": 4250.0,
+      "median_preco": 425000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Centro (Bobadela)",
+      "count": 3,
+      "median_ppm": 4224.14,
+      "median_preco": 325000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Algés (Santa Maria de Belém)",
+      "count": 3,
+      "median_ppm": 4218.75,
+      "median_preco": 1890000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Queluz de Baixo",
+      "count": 5,
+      "median_ppm": 4217.39,
+      "median_preco": 485000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Vialonga",
+      "count": 417,
+      "median_ppm": 4212.06,
+      "median_preco": 480000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Alfragide",
+      "count": 194,
+      "median_ppm": 4210.53,
+      "median_preco": 425000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Quinta Grande",
+      "count": 3,
+      "median_ppm": 4203.22,
+      "median_preco": 483750.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Ericeira Centro",
+      "count": 5,
+      "median_ppm": 4190.45,
+      "median_preco": 837500.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Loures/Infantado",
+      "count": 10,
+      "median_ppm": 4168.62,
+      "median_preco": 417000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "União das freguesias de Pontinha e Famões",
+      "count": 5,
+      "median_ppm": 4166.67,
+      "median_preco": 364900
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Venda do Pinheiro e Santo Estêvão das Galés",
+      "count": 4,
+      "median_ppm": 4163.76,
+      "median_preco": 325000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santa Iria de Azoia",
+      "count": 63,
+      "median_ppm": 4142.86,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Centro (Venteira)",
+      "count": 22,
+      "median_ppm": 4132.74,
+      "median_preco": 329000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Encosta do Sol",
+      "count": 6,
+      "median_ppm": 4125.0,
+      "median_preco": 450000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "União das freguesias de Póvoa de Santo Adrião e Olival Basto",
+      "count": 12,
+      "median_ppm": 4116.07,
+      "median_preco": 302000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "União das freguesias de Camarate",
+      "count": 18,
+      "median_ppm": 4115.05,
+      "median_preco": 380000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Vila Chã (Mina)",
+      "count": 6,
+      "median_ppm": 4105.26,
+      "median_preco": 390000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Sâo Jorge de Arroios (São Jorge de Arroios)",
+      "count": 6,
+      "median_ppm": 4090.91,
+      "median_preco": 450000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Almargem do Bispo",
+      "count": 23,
+      "median_ppm": 4076.09,
+      "median_preco": 337000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Serra de Carnaxide (Carnaxide)",
+      "count": 23,
+      "median_ppm": 4059.41,
+      "median_preco": 430000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Belas",
+      "count": 127,
+      "median_ppm": 4046.15,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Castanheira do Ribatejo e Cachoeiras",
+      "count": 120,
+      "median_ppm": 4046.01,
+      "median_preco": 374500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Hospital São José (Pena)",
+      "count": 9,
+      "median_ppm": 4043.33,
+      "median_preco": 606500
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Águas Livres",
+      "count": 1107,
+      "median_ppm": 4043.13,
+      "median_preco": 315000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Bairro Codivel",
+      "count": 4,
+      "median_ppm": 4030.98,
+      "median_preco": 299500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Barcarena",
+      "count": 166,
+      "median_ppm": 4026.88,
+      "median_preco": 460000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Mem Martins",
+      "count": 19,
+      "median_ppm": 4017.54,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "S. Maria, S. Miguel, S. Martinho e S. Pedro de Penaferrim",
+      "count": 216,
+      "median_ppm": 4000.0,
+      "median_preco": 689000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Falagueira-Venda Nova",
+      "count": 417,
+      "median_ppm": 3985.71,
+      "median_preco": 290000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Alta de Lisboa (Charneca)",
+      "count": 6,
+      "median_ppm": 3984.0,
+      "median_preco": 494000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Montelavar",
+      "count": 4,
+      "median_ppm": 3979.93,
+      "median_preco": 356500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Almargem do Bispo, Pêro Pinheiro e Montelavar",
+      "count": 12,
+      "median_ppm": 3975.57,
+      "median_preco": 305000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Centro (Venda Nova)",
+      "count": 4,
+      "median_ppm": 3969.07,
+      "median_preco": 385000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "CP (Venteira)",
+      "count": 9,
+      "median_ppm": 3966.67,
+      "median_preco": 238000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Buraca",
+      "count": 15,
+      "median_ppm": 3955.88,
+      "median_preco": 269000.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Mafra",
+      "count": 234,
+      "median_ppm": 3954.55,
+      "median_preco": 520000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arroios (Anjos)",
+      "count": 4,
+      "median_ppm": 3950.0,
+      "median_preco": 790000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Santa Iria de Azoia, São João da Talha e Bobadela",
+      "count": 269,
+      "median_ppm": 3947.37,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Encosta do Sol",
+      "count": 252,
+      "median_ppm": 3931.11,
+      "median_preco": 330000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Cacém e São Marcos",
+      "count": 823,
+      "median_ppm": 3920.0,
+      "median_preco": 302000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Pontinha",
+      "count": 11,
+      "median_ppm": 3915.59,
+      "median_preco": 295000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Queluz e Belas",
+      "count": 957,
+      "median_ppm": 3908.26,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "União das freguesias de Santa Iria de Azoia",
+      "count": 27,
+      "median_ppm": 3896.82,
+      "median_preco": 590000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "União das freguesias de Alverca do Ribatejo e Sobralinho",
+      "count": 56,
+      "median_ppm": 3859.58,
+      "median_preco": 460000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Póvoa de Santo Adrião e Olival Basto",
+      "count": 289,
+      "median_ppm": 3857.14,
+      "median_preco": 374500.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Igreja Nova e Cheleiros",
+      "count": 4,
+      "median_ppm": 3852.61,
+      "median_preco": 429500.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Encarnação",
+      "count": 6,
+      "median_ppm": 3851.65,
+      "median_preco": 334500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Fitares (Rio de Mouro)",
+      "count": 65,
+      "median_ppm": 3845.9,
+      "median_preco": 353400
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Mina de Água",
+      "count": 877,
+      "median_ppm": 3842.11,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Piscinas (Reboleira)",
+      "count": 5,
+      "median_ppm": 3831.17,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Queluz",
+      "count": 125,
+      "median_ppm": 3828.57,
+      "median_preco": 290000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "União das freguesias de A dos Cunhados e Maceira",
+      "count": 20,
+      "median_ppm": 3819.87,
+      "median_preco": 400000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Urbanização Neudel",
+      "count": 14,
+      "median_ppm": 3815.79,
+      "median_preco": 580000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Algueirão Mem Martins",
+      "count": 34,
+      "median_ppm": 3812.5,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Cacém e São Marcos",
+      "count": 46,
+      "median_ppm": 3797.5,
+      "median_preco": 312500.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Centro (São João da Talha)",
+      "count": 15,
+      "median_ppm": 3774.51,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Portela",
+      "count": 10,
+      "median_ppm": 3768.84,
+      "median_preco": 505000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Arroja",
+      "count": 4,
+      "median_ppm": 3768.72,
+      "median_preco": 292500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Quinta da Samaritana",
+      "count": 3,
+      "median_ppm": 3768.12,
+      "median_preco": 263000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro (Queluz)",
+      "count": 3,
+      "median_ppm": 3750.0,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Prodac",
+      "count": 4,
+      "median_ppm": 3734.11,
+      "median_preco": 304500.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "União das freguesias de Póvoa de Santa Iria e Forte da Casa",
+      "count": 26,
+      "median_ppm": 3732.72,
+      "median_preco": 375500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "União das freguesias de Massamá e Monte Abraão",
+      "count": 21,
+      "median_ppm": 3731.34,
+      "median_preco": 330000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Algueirão",
+      "count": 10,
+      "median_ppm": 3724.15,
+      "median_preco": 324950.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Amadora",
+      "count": 16,
+      "median_ppm": 3710.64,
+      "median_preco": 259500.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Falagueira - Venda Nova",
+      "count": 21,
+      "median_ppm": 3701.61,
+      "median_preco": 279000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Arredores (Venteira)",
+      "count": 4,
+      "median_ppm": 3701.3,
+      "median_preco": 285000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "A dos Cunhados e Maceira",
+      "count": 46,
+      "median_ppm": 3678.57,
+      "median_preco": 415000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Camarate",
+      "count": 57,
+      "median_ppm": 3677.4,
+      "median_preco": 360000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "União das freguesias de Sintra (Santa Maria e São Miguel",
+      "count": 6,
+      "median_ppm": 3666.95,
+      "median_preco": 552500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Idanha (Belas)",
+      "count": 4,
+      "median_ppm": 3655.17,
+      "median_preco": 318000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Póvoa de Santa Iria e Forte da Casa",
+      "count": 244,
+      "median_ppm": 3654.65,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Rinchoa (Rio de Mouro)",
+      "count": 46,
+      "median_ppm": 3637.76,
+      "median_preco": 335000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Rio de Mouro",
+      "count": 1477,
+      "median_ppm": 3636.36,
+      "median_preco": 325000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "Ota",
+      "count": 4,
+      "median_ppm": 3633.57,
+      "median_preco": 240000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Santa Maria, São Pedro e Matacães",
+      "count": 59,
+      "median_ppm": 3624.45,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Alverca do Ribatejo e Sobralinho",
+      "count": 433,
+      "median_ppm": 3618.18,
+      "median_preco": 460000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "União das freguesias de Lourinhã e Atalaia",
+      "count": 9,
+      "median_ppm": 3617.02,
+      "median_preco": 425000
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Centro (Póvoa de Santo Adrião)",
+      "count": 18,
+      "median_ppm": 3609.84,
+      "median_preco": 500000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Casal da Cavaleira",
+      "count": 18,
+      "median_ppm": 3606.08,
+      "median_preco": 306000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Damaia de Cima",
+      "count": 24,
+      "median_ppm": 3600.0,
+      "median_preco": 299900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Bairro da Calçada dos Mestres",
+      "count": 4,
+      "median_ppm": 3595.51,
+      "median_preco": 320000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Casal de Cambra",
+      "count": 5,
+      "median_ppm": 3583.33,
+      "median_preco": 430000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Serra das Minas (Rio de Mouro)",
+      "count": 23,
+      "median_ppm": 3580.25,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Tapada da Mercês",
+      "count": 21,
+      "median_ppm": 3578.95,
+      "median_preco": 299000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Outurela (Carnaxide)",
+      "count": 3,
+      "median_ppm": 3569.62,
+      "median_preco": 282000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Venda Nova",
+      "count": 3,
+      "median_ppm": 3566.04,
+      "median_preco": 189000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Damaia de Baixo",
+      "count": 14,
+      "median_ppm": 3561.22,
+      "median_preco": 349000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Santa Maria",
+      "count": 13,
+      "median_ppm": 3558.56,
+      "median_preco": 375000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "S.Maria e S.Miguel, S.Martinho, S.Pedro Penaferrim",
+      "count": 47,
+      "median_ppm": 3551.55,
+      "median_preco": 659000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Silveira",
+      "count": 73,
+      "median_ppm": 3543.53,
+      "median_preco": 435000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Moinho do Guizo (São Brás)",
+      "count": 4,
+      "median_ppm": 3523.81,
+      "median_preco": 370000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Correios (Massamá)",
+      "count": 3,
+      "median_ppm": 3518.52,
+      "median_preco": 380000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Póvoa de Santa Iria e Forte Da Casa",
+      "count": 3,
+      "median_ppm": 3505.15,
+      "median_preco": 355000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Reboleira",
+      "count": 22,
+      "median_ppm": 3500.0,
+      "median_preco": 279500.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Colina do Sol (Alfornelos)",
+      "count": 24,
+      "median_ppm": 3494.62,
+      "median_preco": 345000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "São Marcos",
+      "count": 6,
+      "median_ppm": 3493.98,
+      "median_preco": 288500.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Morais Soares (Penha de França)",
+      "count": 3,
+      "median_ppm": 3483.15,
+      "median_preco": 620000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Damaia",
+      "count": 29,
+      "median_ppm": 3470.59,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Odivelas",
+      "count": 9,
+      "median_ppm": 3454.55,
+      "median_preco": 380000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Algueirão-Mem Martins",
+      "count": 1457,
+      "median_ppm": 3452.13,
+      "median_preco": 298000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "União das freguesias de Agualva e Mira Sintra",
+      "count": 15,
+      "median_ppm": 3443.33,
+      "median_preco": 282500
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Massamá e Monte Abraão",
+      "count": 13,
+      "median_ppm": 3439.66,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Apelação",
+      "count": 4,
+      "median_ppm": 3437.5,
+      "median_preco": 330000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Camarate, Unhos e Apelação",
+      "count": 293,
+      "median_ppm": 3437.5,
+      "median_preco": 399000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Mercês",
+      "count": 12,
+      "median_ppm": 3434.06,
+      "median_preco": 273000.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Malveira e São Miguel de Alcainça",
+      "count": 152,
+      "median_ppm": 3432,
+      "median_preco": 448250.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Moinho do Guizo (A-Da-Beja)",
+      "count": 4,
+      "median_ppm": 3428.57,
+      "median_preco": 360000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Monte Abraão",
+      "count": 35,
+      "median_ppm": 3426.92,
+      "median_preco": 253000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Serra das Minas",
+      "count": 7,
+      "median_ppm": 3421.05,
+      "median_preco": 260000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Ramada e Caneças",
+      "count": 6,
+      "median_ppm": 3402.77,
+      "median_preco": 575000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Agualva e Mira-Sintra",
+      "count": 858,
+      "median_ppm": 3400.0,
+      "median_preco": 275000
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Lourinhã e Atalaia",
+      "count": 129,
+      "median_ppm": 3400.0,
+      "median_preco": 400000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Vila Chã (São Brás)",
+      "count": 5,
+      "median_ppm": 3388.89,
+      "median_preco": 305000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Massamá e Monte Abraão",
+      "count": 715,
+      "median_ppm": 3362.07,
+      "median_preco": 315000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Cacém de Cima (Cacém)",
+      "count": 6,
+      "median_ppm": 3352.28,
+      "median_preco": 297000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Várzea de Sintra (Santa Maria e São Miguel)",
+      "count": 6,
+      "median_ppm": 3334.98,
+      "median_preco": 800000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Casal da Granja (São Martinho)",
+      "count": 4,
+      "median_ppm": 3333.33,
+      "median_preco": 800000.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Venda do Pinheiro e Santo Estêvão das Galés",
+      "count": 35,
+      "median_ppm": 3333.33,
+      "median_preco": 400000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Alhandra, São João dos Montes e Calhandriz",
+      "count": 42,
+      "median_ppm": 3333.33,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "União das freguesias de Malveira e São Miguel de Alcainça",
+      "count": 5,
+      "median_ppm": 3329.67,
+      "median_preco": 370000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Enxara do Bispo, Gradil e Vila Franca do Rosário",
+      "count": 9,
+      "median_ppm": 3298.33,
+      "median_preco": 245000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Ramalhal",
+      "count": 23,
+      "median_ppm": 3274.34,
+      "median_preco": 370000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Agualva",
+      "count": 23,
+      "median_ppm": 3273.81,
+      "median_preco": 249000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Várzea de Sintra (São Pedro Penaferrim)",
+      "count": 4,
+      "median_ppm": 3250.0,
+      "median_preco": 780000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Famões",
+      "count": 20,
+      "median_ppm": 3209.88,
+      "median_preco": 565000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Casal da Silveira (Famões)",
+      "count": 5,
+      "median_ppm": 3192.09,
+      "median_preco": 565000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Centro",
+      "count": 4,
+      "median_ppm": 3191.97,
+      "median_preco": 282500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Sintra",
+      "count": 5,
+      "median_ppm": 3191.49,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Carvoeira",
+      "count": 12,
+      "median_ppm": 3165.04,
+      "median_preco": 397450.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Queluz (Massamá)",
+      "count": 5,
+      "median_ppm": 3155.34,
+      "median_preco": 325000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro (Agualva)",
+      "count": 3,
+      "median_ppm": 3150.68,
+      "median_preco": 230000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "freguesia": "Vila Franca de Xira",
+      "count": 216,
+      "median_ppm": 3137.25,
+      "median_preco": 325750.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Galamares (São Martinho)",
+      "count": 3,
+      "median_ppm": 3130.84,
+      "median_preco": 335000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Sobral de Monte Agraço",
+      "count": 6,
+      "median_ppm": 3125.38,
+      "median_preco": 298250.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Lourinhã",
+      "count": 77,
+      "median_ppm": 3119.11,
+      "median_preco": 495000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Moinhos da Falagueira (Falagueira)",
+      "count": 6,
+      "median_ppm": 3113.21,
+      "median_preco": 330000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Tapada das Mercês",
+      "count": 4,
+      "median_ppm": 3106.72,
+      "median_preco": 294425.0
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "União das freguesias de Venda do Pinheiro e Santo Estêvão das Galés",
+      "count": 3,
+      "median_ppm": 3063.06,
+      "median_preco": 340000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Azueira e Sobral da Abelheira",
+      "count": 5,
+      "median_ppm": 3027.52,
+      "median_preco": 330000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Cacém (Agualva)",
+      "count": 25,
+      "median_ppm": 3003.48,
+      "median_preco": 250000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Bairro da Mina (Mina)",
+      "count": 4,
+      "median_ppm": 3000.0,
+      "median_preco": 210000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Codivel",
+      "count": 3,
+      "median_ppm": 3000.0,
+      "median_preco": 240000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Sapataria",
+      "count": 3,
+      "median_ppm": 2990.4,
+      "median_preco": 359000
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "União das freguesias de Carregado e Cadafais",
+      "count": 22,
+      "median_ppm": 2990.0,
+      "median_preco": 277000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Ribamar",
+      "count": 4,
+      "median_ppm": 2984.39,
+      "median_preco": 359000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Pendão",
+      "count": 7,
+      "median_ppm": 2977.01,
+      "median_preco": 259000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "freguesia": "Arruda dos Vinhos",
+      "count": 38,
+      "median_ppm": 2975.32,
+      "median_preco": 315000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Vale Flores",
+      "count": 3,
+      "median_ppm": 2967.48,
+      "median_preco": 365000
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "Ribafria e Pereiro de Palhacana",
+      "count": 3,
+      "median_ppm": 2961.73,
+      "median_preco": 239900
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "União das freguesias de Alenquer (Santo Estêvão e Triana)",
+      "count": 11,
+      "median_ppm": 2936.5,
+      "median_preco": 276000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro (Cacém)",
+      "count": 7,
+      "median_ppm": 2929.41,
+      "median_preco": 325000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Turcifal",
+      "count": 3,
+      "median_ppm": 2910.89,
+      "median_preco": 365000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "A dos Cunhados",
+      "count": 38,
+      "median_ppm": 2898.55,
+      "median_preco": 487500.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Colaride",
+      "count": 3,
+      "median_ppm": 2892.56,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Brandoa",
+      "count": 31,
+      "median_ppm": 2884.62,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "União Freguesias Santa Maria, São Pedro e Matacães",
+      "count": 57,
+      "median_ppm": 2869.73,
+      "median_preco": 379900
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "Alenquer (Santo Estêvão e Triana)",
+      "count": 125,
+      "median_ppm": 2838.13,
+      "median_preco": 297000
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "Carregado e Cadafais",
+      "count": 243,
+      "median_ppm": 2832.0,
+      "median_preco": 270000
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Miragaia e Marteleira",
+      "count": 6,
+      "median_ppm": 2805.72,
+      "median_preco": 360000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Barcarena",
+      "count": 19,
+      "median_ppm": 2763.16,
+      "median_preco": 420000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Casal de Cambra",
+      "count": 94,
+      "median_ppm": 2760.0,
+      "median_preco": 297000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Bucelas",
+      "count": 10,
+      "median_ppm": 2757.94,
+      "median_preco": 298000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Torres Vedras (São Pedro, Santiago, Santa Maria do Castelo e São Miguel) e Matacães",
+      "count": 17,
+      "median_ppm": 2735.85,
+      "median_preco": 379000.0
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Centro (Massamá)",
+      "count": 14,
+      "median_ppm": 2694.97,
+      "median_preco": 355000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Ponte do Rol",
+      "count": 11,
+      "median_ppm": 2669.4,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Agualva - Cacém",
+      "count": 3,
+      "median_ppm": 2659.57,
+      "median_preco": 250000
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Atalaia",
+      "count": 5,
+      "median_ppm": 2605.63,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Terrugem",
+      "count": 6,
+      "median_ppm": 2605.24,
+      "median_preco": 575000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Urb. Colinas do Cruzeiro",
+      "count": 3,
+      "median_ppm": 2583.33,
+      "median_preco": 620000
+    },
+    {
+      "concelho": "Mafra",
+      "freguesia": "Milharado",
+      "count": 88,
+      "median_ppm": 2569.21,
+      "median_preco": 415000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "freguesia": "Quinta das Piçarras (Caneças)",
+      "count": 8,
+      "median_ppm": 2558.82,
+      "median_preco": 435000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Ameixoeira",
+      "count": 5,
+      "median_ppm": 2541.82,
+      "median_preco": 699000.0
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Lousa",
+      "count": 4,
+      "median_ppm": 2428.57,
+      "median_preco": 187000.0
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Falagueira",
+      "count": 9,
+      "median_ppm": 2404.39,
+      "median_preco": 147450.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Reguengo Grande",
+      "count": 3,
+      "median_ppm": 2372.15,
+      "median_preco": 247500
+    },
+    {
+      "concelho": "Azambuja",
+      "freguesia": "Azambuja",
+      "count": 187,
+      "median_ppm": 2354.84,
+      "median_preco": 292000
+    },
+    {
+      "concelho": "Lourinhã",
+      "freguesia": "Vimeiro",
+      "count": 7,
+      "median_ppm": 2330.1,
+      "median_preco": 219000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Cadaval e Pêro Moniz",
+      "count": 21,
+      "median_ppm": 2311.93,
+      "median_preco": 285000
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Quinta da Fidalga (Agualva)",
+      "count": 6,
+      "median_ppm": 2309.01,
+      "median_preco": 177500.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "São Pedro da Cadeira",
+      "count": 6,
+      "median_ppm": 2241.38,
+      "median_preco": 530000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "freguesia": "Aveiras de Cima",
+      "count": 9,
+      "median_ppm": 2237.07,
+      "median_preco": 295000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Maceira",
+      "count": 3,
+      "median_ppm": 2170.07,
+      "median_preco": 319000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "Campelos e Outeiro da Cabeça",
+      "count": 9,
+      "median_ppm": 1898.73,
+      "median_preco": 345000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Bairro do Bosque (Falagueira)",
+      "count": 4,
+      "median_ppm": 1542.86,
+      "median_preco": 54000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Arco do Carvalhão",
+      "count": 4,
+      "median_ppm": 1374.5,
+      "median_preco": 690000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "freguesia": "Olhalvo",
+      "count": 5,
+      "median_ppm": 842.86,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Urbanização Alto da Mira",
+      "count": 4,
+      "median_ppm": null,
+      "median_preco": null
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "Centro (Alfornelos)",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 300000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Avenida Braamcamp (Coração de Jesus)",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": null
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Calçada do Tojal",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 549900
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "Santa Marta (São José)",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": null
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "Quinta da Cavaleira",
+      "count": 6,
+      "median_ppm": null,
+      "median_preco": null
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "São Carlos",
+      "count": 4,
+      "median_ppm": null,
+      "median_preco": null
+    },
+    {
+      "concelho": "Amadora",
+      "freguesia": "em novo empreendimento",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 550000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "freguesia": "Moradia T3 em Santo Quintino",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 437000
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "freguesia": "Moradia T4 em Sobral de Monte Agraço",
+      "count": 4,
+      "median_ppm": null,
+      "median_preco": 668000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "freguesia": "São João dos Montes e Calhandriz",
+      "count": 6,
+      "median_ppm": null,
+      "median_preco": 483000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "freguesia": "Moradia T2 em Arruda dos Vinhos",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 265000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T3 em Vermelha",
+      "count": 4,
+      "median_ppm": null,
+      "median_preco": 464500.0
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T3 em Lamas e Cercal",
+      "count": 7,
+      "median_ppm": null,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T4 em Cadaval e Pêro Moniz",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 375000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T0 em Lamas e Cercal",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 45000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T4 em Lamas e Cercal",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 479000
+    },
+    {
+      "concelho": "Cadaval",
+      "freguesia": "Moradia T3 em Alguber",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 349000
+    },
+    {
+      "concelho": "Cascais",
+      "freguesia": "no 345 Alagoa Living Flats",
+      "count": 7,
+      "median_ppm": null,
+      "median_preco": 535000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "estacionamento",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 780000
+    },
+    {
+      "concelho": "Lisboa",
+      "freguesia": "no Andrade Corvo 4",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 1950000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "Unhos e Apelação",
+      "count": 7,
+      "median_ppm": null,
+      "median_preco": 435000
+    },
+    {
+      "concelho": "Loures",
+      "freguesia": "São João da Talha e Bobadela",
+      "count": 11,
+      "median_ppm": null,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Paço de Arcos e Caxias",
+      "count": 40,
+      "median_ppm": null,
+      "median_preco": 475000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "freguesia": "Linda-a-Velha e Cruz Quebrada-Dafundo",
+      "count": 25,
+      "median_ppm": null,
+      "median_preco": 1204500
+    },
+    {
+      "concelho": "Sintra",
+      "freguesia": "S.Pedro Penaferrim",
+      "count": 8,
+      "median_ppm": null,
+      "median_preco": 715000.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Moradia T4 em Sobral de Monte Agraço",
+      "count": 6,
+      "median_ppm": null,
+      "median_preco": 668000.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Gradil e Vila Franca do Rosário",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 2950000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Moradia T2 em Sobral de Monte Agraço",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 250000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Moradia T2 em Santo Quintino",
+      "count": 3,
+      "median_ppm": null,
+      "median_preco": 295000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "freguesia": "Moradia T3 em Santo Quintino",
+      "count": 5,
+      "median_ppm": null,
+      "median_preco": 350000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "freguesia": "São Pedro e Matacães",
+      "count": 10,
+      "median_ppm": null,
+      "median_preco": 410000.0
+    }
+  ],
+  "by_origem": [
+    {
+      "origem": "Imovirtual",
+      "count": 28753,
+      "median_ppm": 5912.09,
+      "median_preco": 549900.0
+    },
+    {
+      "origem": "Supercasa",
+      "count": 7931,
+      "median_ppm": 4709.56,
+      "median_preco": 510000
+    },
+    {
+      "origem": "Remax",
+      "count": 4725,
+      "median_ppm": 5214.12,
+      "median_preco": 494600.0
+    },
+    {
+      "origem": "Sapo",
+      "count": 2757,
+      "median_ppm": 4593.45,
+      "median_preco": 395000.0
+    },
+    {
+      "origem": "Century21",
+      "count": 1821,
+      "median_ppm": 5420.56,
+      "median_preco": 474500.0
+    },
+    {
+      "origem": "ERA",
+      "count": 1471,
+      "median_ppm": 4662.34,
+      "median_preco": 395000.0
+    }
+  ],
+  "by_concelho_origem": [
+    {
+      "concelho": "Alenquer",
+      "origem": "Century21",
+      "count": 35,
+      "median_ppm": 2990.0,
+      "median_preco": 277000
+    },
+    {
+      "concelho": "Alenquer",
+      "origem": "ERA",
+      "count": 3,
+      "median_ppm": 2765.49,
+      "median_preco": 312500
+    },
+    {
+      "concelho": "Alenquer",
+      "origem": "Imovirtual",
+      "count": 196,
+      "median_ppm": 2835.05,
+      "median_preco": 275000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "origem": "Remax",
+      "count": 73,
+      "median_ppm": 2961.73,
+      "median_preco": 275000.0
+    },
+    {
+      "concelho": "Alenquer",
+      "origem": "Supercasa",
+      "count": 128,
+      "median_ppm": 2742.57,
+      "median_preco": 279500.0
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "Century21",
+      "count": 104,
+      "median_ppm": 4405.31,
+      "median_preco": 320000
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "ERA",
+      "count": 186,
+      "median_ppm": 3780.49,
+      "median_preco": 270000
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "Imovirtual",
+      "count": 1708,
+      "median_ppm": 4317.57,
+      "median_preco": 320000
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "Remax",
+      "count": 191,
+      "median_ppm": 3950.5,
+      "median_preco": 300000.0
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "Sapo",
+      "count": 477,
+      "median_ppm": 4328.95,
+      "median_preco": 317000
+    },
+    {
+      "concelho": "Amadora",
+      "origem": "Supercasa",
+      "count": 576,
+      "median_ppm": 3992.54,
+      "median_preco": 319000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "origem": "Imovirtual",
+      "count": 23,
+      "median_ppm": 2798.22,
+      "median_preco": 389500.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "origem": "Remax",
+      "count": 8,
+      "median_ppm": 3159.35,
+      "median_preco": 280000.0
+    },
+    {
+      "concelho": "Arruda dos Vinhos",
+      "origem": "Supercasa",
+      "count": 67,
+      "median_ppm": 3027.11,
+      "median_preco": 420000
+    },
+    {
+      "concelho": "Azambuja",
+      "origem": "Century21",
+      "count": 28,
+      "median_ppm": 2354.84,
+      "median_preco": 297000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "origem": "Imovirtual",
+      "count": 84,
+      "median_ppm": 2349.59,
+      "median_preco": 292000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "origem": "Remax",
+      "count": 31,
+      "median_ppm": 2378.79,
+      "median_preco": 290000.0
+    },
+    {
+      "concelho": "Azambuja",
+      "origem": "Supercasa",
+      "count": 70,
+      "median_ppm": 2348.48,
+      "median_preco": 292000.0
+    },
+    {
+      "concelho": "Cadaval",
+      "origem": "Century21",
+      "count": 1,
+      "median_ppm": 2441.82,
+      "median_preco": 320000
+    },
+    {
+      "concelho": "Cadaval",
+      "origem": "Imovirtual",
+      "count": 16,
+      "median_ppm": 2377.34,
+      "median_preco": 272000.0
+    },
+    {
+      "concelho": "Cadaval",
+      "origem": "Remax",
+      "count": 2,
+      "median_ppm": 2272.35,
+      "median_preco": 255500.0
+    },
+    {
+      "concelho": "Cadaval",
+      "origem": "Supercasa",
+      "count": 83,
+      "median_ppm": 1952.05,
+      "median_preco": 318000
+    },
+    {
+      "concelho": "Cascais",
+      "origem": "Century21",
+      "count": 161,
+      "median_ppm": 7397.74,
+      "median_preco": 830000
+    },
+    {
+      "concelho": "Cascais",
+      "origem": "ERA",
+      "count": 92,
+      "median_ppm": 5484.9,
+      "median_preco": 675000
+    },
+    {
+      "concelho": "Cascais",
+      "origem": "Imovirtual",
+      "count": 1555,
+      "median_ppm": 7717.44,
+      "median_preco": 980000.0
+    },
+    {
+      "concelho": "Cascais",
+      "origem": "Remax",
+      "count": 362,
+      "median_ppm": 6444.98,
+      "median_preco": 780000.0
+    },
+    {
+      "concelho": "Cascais",
+      "origem": "Supercasa",
+      "count": 1363,
+      "median_ppm": 6300.81,
+      "median_preco": 990000
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "Century21",
+      "count": 696,
+      "median_ppm": 7062.55,
+      "median_preco": 599900.0
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "ERA",
+      "count": 628,
+      "median_ppm": 5845.33,
+      "median_preco": 490000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "Imovirtual",
+      "count": 14608,
+      "median_ppm": 7141.67,
+      "median_preco": 675000
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "Remax",
+      "count": 1948,
+      "median_ppm": 6941.18,
+      "median_preco": 645000.0
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "Sapo",
+      "count": 133,
+      "median_ppm": 7525.0,
+      "median_preco": 718000
+    },
+    {
+      "concelho": "Lisboa",
+      "origem": "Supercasa",
+      "count": 1875,
+      "median_ppm": 6789.47,
+      "median_preco": 698000
+    },
+    {
+      "concelho": "Loures",
+      "origem": "Century21",
+      "count": 132,
+      "median_ppm": 4546.78,
+      "median_preco": 439000
+    },
+    {
+      "concelho": "Loures",
+      "origem": "ERA",
+      "count": 88,
+      "median_ppm": 4193.18,
+      "median_preco": 397500.0
+    },
+    {
+      "concelho": "Loures",
+      "origem": "Imovirtual",
+      "count": 2365,
+      "median_ppm": 4855.07,
+      "median_preco": 479710
+    },
+    {
+      "concelho": "Loures",
+      "origem": "Remax",
+      "count": 478,
+      "median_ppm": 4777.08,
+      "median_preco": 477375.0
+    },
+    {
+      "concelho": "Loures",
+      "origem": "Sapo",
+      "count": 488,
+      "median_ppm": 4608.7,
+      "median_preco": 465000.0
+    },
+    {
+      "concelho": "Loures",
+      "origem": "Supercasa",
+      "count": 562,
+      "median_ppm": 3733.33,
+      "median_preco": 467000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "origem": "Century21",
+      "count": 9,
+      "median_ppm": 3617.02,
+      "median_preco": 425000
+    },
+    {
+      "concelho": "Lourinhã",
+      "origem": "ERA",
+      "count": 14,
+      "median_ppm": 2991.67,
+      "median_preco": 349000
+    },
+    {
+      "concelho": "Lourinhã",
+      "origem": "Imovirtual",
+      "count": 111,
+      "median_ppm": 3398.72,
+      "median_preco": 382750.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "origem": "Remax",
+      "count": 22,
+      "median_ppm": 3157.18,
+      "median_preco": 438000.0
+    },
+    {
+      "concelho": "Lourinhã",
+      "origem": "Supercasa",
+      "count": 104,
+      "median_ppm": 2925.53,
+      "median_preco": 425000.0
+    },
+    {
+      "concelho": "Mafra",
+      "origem": "Century21",
+      "count": 29,
+      "median_ppm": 4677.44,
+      "median_preco": 445000
+    },
+    {
+      "concelho": "Mafra",
+      "origem": "ERA",
+      "count": 23,
+      "median_ppm": 3008.62,
+      "median_preco": 417500.0
+    },
+    {
+      "concelho": "Mafra",
+      "origem": "Imovirtual",
+      "count": 452,
+      "median_ppm": 4471.54,
+      "median_preco": 513500.0
+    },
+    {
+      "concelho": "Mafra",
+      "origem": "Remax",
+      "count": 186,
+      "median_ppm": 3876.37,
+      "median_preco": 504412.5
+    },
+    {
+      "concelho": "Mafra",
+      "origem": "Supercasa",
+      "count": 339,
+      "median_ppm": 3625.95,
+      "median_preco": 500000
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "Century21",
+      "count": 89,
+      "median_ppm": 4568.53,
+      "median_preco": 368000
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "ERA",
+      "count": 77,
+      "median_ppm": 3750.0,
+      "median_preco": 327000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "Imovirtual",
+      "count": 1287,
+      "median_ppm": 4615.38,
+      "median_preco": 455000
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "Remax",
+      "count": 184,
+      "median_ppm": 4358.81,
+      "median_preco": 390000.0
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "Sapo",
+      "count": 322,
+      "median_ppm": 4746.84,
+      "median_preco": 551400
+    },
+    {
+      "concelho": "Odivelas",
+      "origem": "Supercasa",
+      "count": 386,
+      "median_ppm": 3841.02,
+      "median_preco": 522500.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "Century21",
+      "count": 130,
+      "median_ppm": 6006.09,
+      "median_preco": 737625.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "ERA",
+      "count": 96,
+      "median_ppm": 4882.28,
+      "median_preco": 477000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "Imovirtual",
+      "count": 2186,
+      "median_ppm": 6145.2,
+      "median_preco": 708750.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "Remax",
+      "count": 384,
+      "median_ppm": 6082.82,
+      "median_preco": 700000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "Sapo",
+      "count": 478,
+      "median_ppm": 6119.79,
+      "median_preco": 680000.0
+    },
+    {
+      "concelho": "Oeiras",
+      "origem": "Supercasa",
+      "count": 644,
+      "median_ppm": 5219.78,
+      "median_preco": 737500.0
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "Century21",
+      "count": 199,
+      "median_ppm": 4124.41,
+      "median_preco": 324500.0
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "ERA",
+      "count": 201,
+      "median_ppm": 3656.49,
+      "median_preco": 305000
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "Imovirtual",
+      "count": 3306,
+      "median_ppm": 3764.71,
+      "median_preco": 315000
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "Remax",
+      "count": 573,
+      "median_ppm": 3586.67,
+      "median_preco": 309000.0
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "Sapo",
+      "count": 859,
+      "median_ppm": 3752.94,
+      "median_preco": 320000
+    },
+    {
+      "concelho": "Sintra",
+      "origem": "Supercasa",
+      "count": 1037,
+      "median_ppm": 3472.95,
+      "median_preco": 315000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "origem": "Imovirtual",
+      "count": 5,
+      "median_ppm": 3125.38,
+      "median_preco": 280000
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "origem": "Remax",
+      "count": 4,
+      "median_ppm": 3109.9,
+      "median_preco": 277500.0
+    },
+    {
+      "concelho": "Sobral de Monte Agraço",
+      "origem": "Supercasa",
+      "count": 65,
+      "median_ppm": null,
+      "median_preco": 493000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "origem": "Century21",
+      "count": 34,
+      "median_ppm": 3677.62,
+      "median_preco": 375000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "origem": "ERA",
+      "count": 14,
+      "median_ppm": 3542.68,
+      "median_preco": 377500.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "origem": "Imovirtual",
+      "count": 155,
+      "median_ppm": 3556.83,
+      "median_preco": 395000
+    },
+    {
+      "concelho": "Torres Vedras",
+      "origem": "Remax",
+      "count": 28,
+      "median_ppm": 2708.28,
+      "median_preco": 387000.0
+    },
+    {
+      "concelho": "Torres Vedras",
+      "origem": "Supercasa",
+      "count": 180,
+      "median_ppm": 2818.18,
+      "median_preco": 395000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "origem": "Century21",
+      "count": 174,
+      "median_ppm": 4144.14,
+      "median_preco": 460000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "origem": "ERA",
+      "count": 49,
+      "median_ppm": 3391.35,
+      "median_preco": 325000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "origem": "Imovirtual",
+      "count": 696,
+      "median_ppm": 3752.45,
+      "median_preco": 419000
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "origem": "Remax",
+      "count": 251,
+      "median_ppm": 3923.08,
+      "median_preco": 370000.0
+    },
+    {
+      "concelho": "Vila Franca de Xira",
+      "origem": "Supercasa",
+      "count": 452,
+      "median_ppm": 3476.19,
+      "median_preco": 441000.0
+    }
+  ],
+  "trend": [
+    {
+      "data": "20260719",
+      "concelho": "Alenquer",
+      "count": 435,
+      "median_ppm": 2857.14
+    },
+    {
+      "data": "20250923",
+      "concelho": "Amadora",
+      "count": 400,
+      "median_ppm": 3784.81
+    },
+    {
+      "data": "20250924",
+      "concelho": "Amadora",
+      "count": 400,
+      "median_ppm": 3784.81
+    },
+    {
+      "data": "20250929",
+      "concelho": "Amadora",
+      "count": 350,
+      "median_ppm": 3823.28
+    },
+    {
+      "data": "20251016",
+      "concelho": "Amadora",
+      "count": 310,
+      "median_ppm": 3930.95
+    },
+    {
+      "data": "20260713",
+      "concelho": "Amadora",
+      "count": 853,
+      "median_ppm": 4311.25
+    },
+    {
+      "data": "20260718",
+      "concelho": "Amadora",
+      "count": 1523,
+      "median_ppm": 4285.71
+    },
+    {
+      "data": "20260719",
+      "concelho": "Amadora",
+      "count": 866,
+      "median_ppm": 4021.51
+    },
+    {
+      "data": "20260719",
+      "concelho": "Arruda dos Vinhos",
+      "count": 98,
+      "median_ppm": 2975.32
+    },
+    {
+      "data": "20260719",
+      "concelho": "Azambuja",
+      "count": 213,
+      "median_ppm": 2349.59
+    },
+    {
+      "data": "20260719",
+      "concelho": "Cadaval",
+      "count": 102,
+      "median_ppm": 2272.35
+    },
+    {
+      "data": "20260719",
+      "concelho": "Cascais",
+      "count": 3533,
+      "median_ppm": 6987.95
+    },
+    {
+      "data": "20250924",
+      "concelho": "Lisboa",
+      "count": 6156,
+      "median_ppm": 7504.76
+    },
+    {
+      "data": "20251016",
+      "concelho": "Lisboa",
+      "count": 5363,
+      "median_ppm": 7458.33
+    },
+    {
+      "data": "20251106",
+      "concelho": "Lisboa",
+      "count": 5451,
+      "median_ppm": 7432.8
+    },
+    {
+      "data": "20260713",
+      "concelho": "Lisboa",
+      "count": 7145,
+      "median_ppm": 7102.72
+    },
+    {
+      "data": "20260714",
+      "concelho": "Lisboa",
+      "count": 133,
+      "median_ppm": 7525.0
+    },
+    {
+      "data": "20260718",
+      "concelho": "Lisboa",
+      "count": 1948,
+      "median_ppm": 6941.18
+    },
+    {
+      "data": "20260719",
+      "concelho": "Lisboa",
+      "count": 10662,
+      "median_ppm": 7057.65
+    },
+    {
+      "data": "20251106",
+      "concelho": "Loures",
+      "count": 553,
+      "median_ppm": 4300.86
+    },
+    {
+      "data": "20260713",
+      "concelho": "Loures",
+      "count": 1120,
+      "median_ppm": 4752.48
+    },
+    {
+      "data": "20260718",
+      "concelho": "Loures",
+      "count": 2211,
+      "median_ppm": 4802.63
+    },
+    {
+      "data": "20260719",
+      "concelho": "Loures",
+      "count": 782,
+      "median_ppm": 3975.0
+    },
+    {
+      "data": "20260719",
+      "concelho": "Lourinhã",
+      "count": 260,
+      "median_ppm": 3170.37
+    },
+    {
+      "data": "20260719",
+      "concelho": "Mafra",
+      "count": 1029,
+      "median_ppm": 4117.39
+    },
+    {
+      "data": "20250925",
+      "concelho": "Odivelas",
+      "count": 289,
+      "median_ppm": 4166.67
+    },
+    {
+      "data": "20260713",
+      "concelho": "Odivelas",
+      "count": 643,
+      "median_ppm": 4612.66
+    },
+    {
+      "data": "20260718",
+      "concelho": "Odivelas",
+      "count": 1150,
+      "median_ppm": 4591.06
+    },
+    {
+      "data": "20260719",
+      "concelho": "Odivelas",
+      "count": 552,
+      "median_ppm": 3944.44
+    },
+    {
+      "data": "20250925",
+      "concelho": "Oeiras",
+      "count": 501,
+      "median_ppm": 5682.46
+    },
+    {
+      "data": "20250929",
+      "concelho": "Oeiras",
+      "count": 498,
+      "median_ppm": 5749.72
+    },
+    {
+      "data": "20251016",
+      "concelho": "Oeiras",
+      "count": 451,
+      "median_ppm": 5852.74
+    },
+    {
+      "data": "20251106",
+      "concelho": "Oeiras",
+      "count": 416,
+      "median_ppm": 5676.92
+    },
+    {
+      "data": "20260713",
+      "concelho": "Oeiras",
+      "count": 1059,
+      "median_ppm": 6068.43
+    },
+    {
+      "data": "20260718",
+      "concelho": "Oeiras",
+      "count": 1511,
+      "median_ppm": 6195.2
+    },
+    {
+      "data": "20260719",
+      "concelho": "Oeiras",
+      "count": 1348,
+      "median_ppm": 5710.09
+    },
+    {
+      "data": "20250925",
+      "concelho": "Sintra",
+      "count": 714,
+      "median_ppm": 3461.54
+    },
+    {
+      "data": "20251016",
+      "concelho": "Sintra",
+      "count": 707,
+      "median_ppm": 3392.86
+    },
+    {
+      "data": "20251106",
+      "concelho": "Sintra",
+      "count": 730,
+      "median_ppm": 3510.49
+    },
+    {
+      "data": "20260713",
+      "concelho": "Sintra",
+      "count": 1623,
+      "median_ppm": 3753.25
+    },
+    {
+      "data": "20260718",
+      "concelho": "Sintra",
+      "count": 2256,
+      "median_ppm": 3701.3
+    },
+    {
+      "data": "20260719",
+      "concelho": "Sintra",
+      "count": 2296,
+      "median_ppm": 3642.86
+    },
+    {
+      "data": "20260719",
+      "concelho": "Sobral de Monte Agraço",
+      "count": 74,
+      "median_ppm": 3125.38
+    },
+    {
+      "data": "20260719",
+      "concelho": "Torres Vedras",
+      "count": 411,
+      "median_ppm": 3170.73
+    },
+    {
+      "data": "20260719",
+      "concelho": "Vila Franca de Xira",
+      "count": 1622,
+      "median_ppm": 3750.0
+    }
+  ],
+  "by_tipologia": [
+    {
+      "tipologia": "T0",
+      "count": 1610
+    },
+    {
+      "tipologia": "T1",
+      "count": 9171
+    },
+    {
+      "tipologia": "T10",
+      "count": 25
+    },
+    {
+      "tipologia": "T11",
+      "count": 1
+    },
+    {
+      "tipologia": "T12",
+      "count": 2
+    },
+    {
+      "tipologia": "T13",
+      "count": 3
+    },
+    {
+      "tipologia": "T2",
+      "count": 25363
+    },
+    {
+      "tipologia": "T21",
+      "count": 1
+    },
+    {
+      "tipologia": "T22",
+      "count": 3
+    },
+    {
+      "tipologia": "T3",
+      "count": 22681
+    },
+    {
+      "tipologia": "T4",
+      "count": 6066
+    },
+    {
+      "tipologia": "T45",
+      "count": 4
+    },
+    {
+      "tipologia": "T5",
+      "count": 1258
+    },
+    {
+      "tipologia": "T6",
+      "count": 395
+    },
+    {
+      "tipologia": "T7",
+      "count": 149
+    },
+    {
+      "tipologia": "T8",
+      "count": 63
+    },
+    {
+      "tipologia": "T9",
+      "count": 38
+    }
+  ]
+}

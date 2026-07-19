@@ -39,7 +39,31 @@ ADDRESS_IDS = {
     "odivelas": "1116",
     "oeiras": "1110",
     "sintra": "1111",
+    "alenquer": "1101",
+    "arruda-dos-vinhos": "1102",
+    "azambuja": "1103",
+    "cadaval": "1104",
+    "cascais": "1105",
+    "lourinha": "1108",
+    "mafra": "1109",
+    "sobral-de-monte-agraco": "1112",
+    "torres-vedras": "1113",
+    "vila-franca-de-xira": "1114",
 }
+
+# "concelho.capitalize()" chega para nomes de uma palavra, mas não para os
+# compostos (ex. "arruda-dos-vinhos" -> "Arruda Dos Vinhos" ficaria errado).
+NOME_CONCELHO = {
+    "arruda-dos-vinhos": "Arruda dos Vinhos",
+    "lourinha": "Lourinhã",
+    "sobral-de-monte-agraco": "Sobral de Monte Agraço",
+    "torres-vedras": "Torres Vedras",
+    "vila-franca-de-xira": "Vila Franca de Xira",
+}
+
+
+def _nome_concelho(concelho):
+    return NOME_CONCELHO.get(concelho, concelho.capitalize())
 
 PAGE_SIZE = 100
 
@@ -53,7 +77,7 @@ def _freguesia_lookup(concelho):
     """Devolve {codigo_ad_3_id: nome_freguesia} para um concelho, via a mesma API
     de autocompletar do campo de pesquisa do site. O nome vem como "Freguesia,
     Concelho" — guarda-se só a parte da freguesia."""
-    params = {"searchrefs": "", "q": concelho, "limit": 50}
+    params = {"searchrefs": "", "q": _nome_concelho(concelho), "limit": 50}
     r = requests.get(AUTOCOMPLETE_URL, headers=HEADERS, params=params, timeout=15, verify=False)
     r.raise_for_status()
     return {
@@ -101,7 +125,7 @@ def _fetch_page_data(concelho, page, freguesias, page_size=PAGE_SIZE):
 
     params = {
         "addresses": address_id,
-        "address_names": concelho.capitalize(),
+        "address_names": _nome_concelho(concelho),
         "ad_type": "sell",
         "asset_type": "apartment",
         "limit": page_size,
@@ -114,7 +138,7 @@ def _fetch_page_data(concelho, page, freguesias, page_size=PAGE_SIZE):
 
     data = r.json()
     items = [
-        _parse_listing(item, freguesias, concelho.capitalize(), pagina=page)
+        _parse_listing(item, freguesias, _nome_concelho(concelho), pagina=page)
         for item in data.get("data", [])
     ]
     return items, data.get("total")

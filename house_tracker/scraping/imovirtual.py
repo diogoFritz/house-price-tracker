@@ -85,7 +85,9 @@ def fetch_json_ld(url, timeout=30):
 
 
 def _location_field(item, level):
-    locations = item.get("location", {}).get("reverseGeocoding", {}).get("locations", [])
+    location = item.get("location") or {}
+    reverse_geocoding = location.get("reverseGeocoding") or {}
+    locations = reverse_geocoding.get("locations") or []
     for loc in locations:
         if loc.get("locationLevel") == level:
             return loc.get("name")
@@ -101,7 +103,9 @@ def _parse_listing(item, pagina=None):
     quartos = _ROOMS_MAP.get(item.get("roomsNumber"), item.get("roomsNumber"))
     tipologia = f"T{quartos - 1}" if isinstance(quartos, int) else None
 
-    street = item.get("location", {}).get("address", {}).get("street", {}) or {}
+    location = item.get("location") or {}
+    address = location.get("address") or {}
+    street = address.get("street") or {}
     morada = " ".join(part for part in [street.get("name"), street.get("number")] if part).strip() or None
 
     return {
@@ -153,8 +157,11 @@ def _fetch_page_data(concelho, distrito, page):
     search_ads = (
         data.get("props", {}).get("pageProps", {}).get("data", {}).get("searchAds", {})
     )
-    items = search_ads.get("items", [])
-    pagination = search_ads.get("pagination", {})
+    # .get("items", []) não chega: quando a página está fora do intervalo real
+    # de resultados, o Imovirtual às vezes devolve "items": null explicitamente
+    # (chave presente, valor None) em vez de a omitir.
+    items = search_ads.get("items") or []
+    pagination = search_ads.get("pagination") or {}
     return [_parse_listing(item, pagina=page) for item in items], pagination
 
 

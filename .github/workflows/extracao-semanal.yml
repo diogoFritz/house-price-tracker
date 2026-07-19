@@ -1,0 +1,42 @@
+name: Extração semanal de imóveis
+
+on:
+  schedule:
+    # 08:00 UTC toda a segunda-feira (~9h em Portugal, ±1h consoante o horário de verão).
+    - cron: "0 8 * * 1"
+  workflow_dispatch: {}  # permite correr manualmente a partir do separador Actions no GitHub
+
+permissions:
+  contents: write  # necessário para o passo de commit/push no fim
+
+jobs:
+  extracao:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install requests beautifulsoup4 tqdm
+
+      - name: Correr extração semanal
+        run: python scripts/run_semanal.py
+
+      - name: Guardar log como artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: log-extracao-semanal
+          path: logs/*.log
+
+      - name: Commit e push dos dados novos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add imovirtual/json/*.json remax/json/*.json century21/json/*.json era/json/*.json supercasa/json/*.json
+          git diff --cached --quiet && echo "Sem alterações a commitar." || git commit -m "Extração semanal automática ($(date +%Y-%m-%d))"
+          git push

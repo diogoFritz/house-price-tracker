@@ -17,6 +17,8 @@ __pycache__
 /imovirtual/json/*/
 /remax/json/*/
 /century21/json/*/
+/era/json/*/
+/supercasa/json/*/
 
 /idealista/html/*
 !/idealista/html/exemplo_pagina.html

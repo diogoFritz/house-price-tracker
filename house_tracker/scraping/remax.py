@@ -43,6 +43,16 @@ REGION_IDS = {
     "odivelas": "965",
     "oeiras": "541",
     "sintra": "542",
+    "alenquer": "531",
+    "arruda-dos-vinhos": "533",
+    "azambuja": "534",
+    "cadaval": "535",
+    "cascais": "536",
+    "lourinha": "539",
+    "mafra": "540",
+    "sobral-de-monte-agraco": "543",
+    "torres-vedras": "544",
+    "vila-franca-de-xira": "545",
 }
 
 PAGE_SIZE = 100
