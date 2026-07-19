@@ -32,6 +32,11 @@ BASE_URL = "https://casa.sapo.pt/comprar-apartamentos/{concelho}/?pn={page}"
 # e evitar o bloqueio por limite de pedidos (HTTP 429) do casa.sapo.pt.
 REQUEST_DELAY_RANGE = (2.0, 4.0)
 
+# O casa.sapo.pt bloqueia com 429 depois de ~5 páginas seguidas — em vez de
+# desistir, espera-se e repete a mesma página automaticamente.
+RATE_LIMIT_WAIT_S = 90
+RATE_LIMIT_MAX_TENTATIVAS = 10
+
 # Sessão partilhada: mantém cookies entre pedidos, tal como um browser real.
 _session = requests.Session()
 _session.headers.update(HEADERS)
@@ -221,10 +226,19 @@ def download_sapo_all(concelho="amadora", pasta="sapo/html/", forcar_novo=False)
             page += 1
             continue
 
-        inicio = time.time()
         url = f"https://casa.sapo.pt/comprar-apartamentos/{concelho}/?pn={page}"
-        resp = _get(url)
-        duracao = time.time() - inicio
+        for tentativa in range(1, RATE_LIMIT_MAX_TENTATIVAS + 1):
+            inicio = time.time()
+            resp = _get(url)
+            duracao = time.time() - inicio
+            if resp.status_code != 429:
+                break
+            tqdm.write(
+                f"429 (rate limit) na página {page}, tentativa {tentativa}/{RATE_LIMIT_MAX_TENTATIVAS} — "
+                f"a aguardar {RATE_LIMIT_WAIT_S}s antes de repetir."
+            )
+            time.sleep(RATE_LIMIT_WAIT_S)
+
         if resp.status_code != 200:
             tqdm.write(f"Erro {resp.status_code} ao aceder {url} ({duracao:.1f}s)")
             break

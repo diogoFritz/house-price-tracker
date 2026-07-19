@@ -20,14 +20,14 @@ import functools
 import json
 import logging
 import os
+import ssl
 import tempfile
 import time
 
 import requests
+import undetected_chromedriver as uc
 from dotenv import load_dotenv
-from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from tqdm import tqdm
 from twocaptcha import TwoCaptcha
@@ -66,6 +66,19 @@ def _sem_verificacao_ssl():
         yield
     finally:
         requests.post, requests.get = original_post, original_get
+
+
+@contextlib.contextmanager
+def _sem_verificacao_ssl_urllib():
+    """O undetected-chromedriver usa urllib (não requests) para consultar a versão
+    mais recente do chromedriver a descarregar — mesmo problema de certificados
+    deste PC, mas noutra biblioteca, por isso precisa do seu próprio contorno."""
+    original_context = ssl._create_default_https_context
+    ssl._create_default_https_context = ssl._create_unverified_context
+    try:
+        yield
+    finally:
+        ssl._create_default_https_context = original_context
 
 
 def _parse_proxy_uri(uri):
@@ -131,20 +144,42 @@ def _build_proxy_auth_extension(host, porta, user, senha):
     return ext_dir
 
 
-def _new_driver(usar_proxy=False):
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
-    options.add_argument(f"user-agent={USER_AGENT}")
+def _chrome_major_version():
+    """Deteta a versão principal do Chrome instalado (via registo do Windows), para
+    o undetected-chromedriver descarregar o chromedriver certo — sem isto, tenta
+    sempre a versão mais recente, que pode não corresponder ao Chrome instalado
+    (ex.: chromedriver 151 vs Chrome 150) e falha a criar sessão."""
+    import re
+    import subprocess
+    import winreg
 
-    # O DataDome usa navigator.webdriver e as flags de automação do Chrome como
-    # sinal de deteção de bot — sem isto, pedidos são silenciosamente
-    # redirecionados para a homepage (sem sequer mostrar CAPTCHA) ou desafiados
-    # com mais frequência.
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option("useAutomationExtension", False)
+    try:
+        with winreg.OpenKey(
+            winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe",
+        ) as key:
+            chrome_path = winreg.QueryValue(key, None)
+        # "chrome.exe --version" abre uma janela normal do browser em vez de
+        # imprimir a versão e sair (ao contrário do Linux) — lê-se antes a versão
+        # dos metadados do ficheiro via PowerShell.
+        saida = subprocess.check_output(
+            ["powershell", "-NoProfile", "-Command",
+             f"(Get-Item '{chrome_path}').VersionInfo.ProductVersion"],
+            text=True,
+        )
+        match = re.search(r"(\d+)\.", saida)
+        return int(match.group(1)) if match else None
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def _new_driver(usar_proxy=False):
+    """Usa undetected-chromedriver em vez do Selenium normal: o Idealista estava a
+    detetar o Chrome headless comum (via fingerprint, não só navigator.webdriver) e
+    a devolver silenciosamente a homepage em vez dos resultados, mesmo sem mostrar
+    CAPTCHA. O undetected-chromedriver aplica os patches anti-deteção internamente."""
+    options = uc.ChromeOptions()
+    options.add_argument(f"user-agent={USER_AGENT}")
 
     # Não precisamos das fotos dos imóveis, só do texto/HTML — bloquear imagens
     # poupa a grande maioria do tráfego que passa pelo proxy (pago por GB).
@@ -163,12 +198,8 @@ def _new_driver(usar_proxy=False):
         ext_dir = _build_proxy_auth_extension(host, porta, user, senha)
         options.add_argument(f"--load-extension={ext_dir}")
 
-    driver = webdriver.Chrome(options=options)
-    driver.execute_cdp_cmd(
-        "Page.addScriptToEvaluateOnNewDocument",
-        {"source": "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"},
-    )
-    return driver
+    with _sem_verificacao_ssl_urllib():
+        return uc.Chrome(options=options, headless=True, version_main=_chrome_major_version())
 
 
 def _find_captcha_iframe(driver):
@@ -222,17 +253,45 @@ class CaptchaFalhouError(Exception):
     """O CAPTCHA apareceu mas não foi possível resolvê-lo (2Captcha falhou ou esgotaram-se as tentativas)."""
 
 
-def fetch_page(url):
+class PaginaGenericaError(Exception):
+    """O DataDome serviu a homepage genérica em vez da página pedida, sem mostrar
+    CAPTCHA — um bloqueio silencioso ("chamariz") que não dá hipótese de resolver."""
+
+
+# Título da homepage genérica que o DataDome serve como "chamariz" quando decide
+# bloquear silenciosamente em vez de desafiar com CAPTCHA.
+_HOMEPAGE_TITLE = "www.idealista.pt — Casas venda. Casas arrendar. Apartamentos. Moradias — idealista"
+
+
+def _aquecer_sessao(driver):
+    """Visita a homepage antes da página de resultados, para parecer navegação
+    humana em vez de um pedido direto a um link profundo (deep link) — um dos
+    sinais que o DataDome usa para decidir se serve a homepage "chamariz"."""
+    driver.get("https://www.idealista.pt/")
+    time.sleep(4)
+    _dismiss_cookie_banner(driver)
+    driver.execute_script("window.scrollBy(0, 400);")
+    time.sleep(2)
+    driver.execute_script("window.scrollBy(0, 400);")
+    time.sleep(3)
+
+
+def fetch_page(url, aquecer=True):
     """Vai buscar uma página do Idealista, resolvendo o CAPTCHA DataDome via 2Captcha se aparecer.
 
     Sem retries: se o CAPTCHA aparecer e o 2Captcha não conseguir resolvê-lo à
-    primeira, desiste logo (lança CaptchaFalhouError). Erros de rede/browser
-    propagam normalmente (WebDriverException, etc.) — quem chama esta função
-    decide como lidar com eles (ver fetch_all_pages).
+    primeira, desiste logo (lança CaptchaFalhouError). Se o DataDome servir a
+    homepage genérica sem CAPTCHA, lança PaginaGenericaError (não há nada para
+    resolver, é um bloqueio silencioso). Erros de rede/browser propagam
+    normalmente (WebDriverException, etc.) — quem chama esta função decide como
+    lidar com eles (ver fetch_all_pages).
     """
     inicio = time.time()
     driver = _new_driver(usar_proxy=True)
     try:
+        if aquecer:
+            _aquecer_sessao(driver)
+
         driver.get(url)
         time.sleep(3)
         _dismiss_cookie_banner(driver)
@@ -240,6 +299,10 @@ def fetch_page(url):
         iframe = _find_captcha_iframe(driver)
         if iframe is None:
             duracao = time.time() - inicio
+            if driver.title.strip() == _HOMEPAGE_TITLE and url != "https://www.idealista.pt/":
+                raise PaginaGenericaError(
+                    f"DataDome serviu a homepage genérica em vez de {url} ({duracao:.1f}s decorridos)."
+                )
             logging.info(f"[Idealista] Sem CAPTCHA, página carregada normalmente ({duracao:.1f}s).")
             return driver.page_source
 
@@ -262,8 +325,17 @@ def fetch_page(url):
         driver.quit()
 
 
+# Caminho do concelho na URL — por omissão é só "{concelho}/", mas Lisboa (onde
+# o concelho tem o mesmo nome do distrito) precisa do caminho duplicado
+# "lisboa/lisboa/". Vão-se acrescentando exceções à medida que se confirmam.
+_CONCELHO_PATH = {
+    "lisboa": "lisboa/lisboa",
+}
+
+
 def _url_pagina(concelho, page):
-    base = f"https://www.idealista.pt/comprar-casas/{concelho}/{concelho}/"
+    caminho = _CONCELHO_PATH.get(concelho, concelho)
+    base = f"https://www.idealista.pt/comprar-casas/{caminho}/"
     if page == 1:
         return base
     return f"{base}pagina-{page}.htm"
@@ -285,7 +357,7 @@ def fetch_all_pages(concelho="lisboa", max_paginas=20, pasta_saida="idealista/ht
     concelho_dir = os.path.join(pasta_saida, concelho)
     os.makedirs(concelho_dir, exist_ok=True)
 
-    resultado = {"sucesso": [], "falha_captcha": [], "falha_outra": []}
+    resultado = {"sucesso": [], "falha_captcha": [], "falha_generica": [], "falha_outra": []}
     barra = tqdm(range(1, max_paginas + 1), desc=f"Idealista [{concelho}]", unit="página")
 
     for page in barra:
@@ -305,6 +377,9 @@ def fetch_all_pages(concelho="lisboa", max_paginas=20, pasta_saida="idealista/ht
         except CaptchaFalhouError as e:
             motivo_falha = ("captcha", str(e))
             tqdm.write(f"[Idealista] Página {page}: CAPTCHA — {e}")
+        except PaginaGenericaError as e:
+            motivo_falha = ("generica", str(e))
+            tqdm.write(f"[Idealista] Página {page}: homepage genérica (bloqueio silencioso) — {e}")
         except WebDriverException as e:
             motivo_falha = ("rede/browser", str(e).splitlines()[0])
             tqdm.write(f"[Idealista] Página {page}: erro de rede/browser — {motivo_falha[1]}")
@@ -319,6 +394,9 @@ def fetch_all_pages(concelho="lisboa", max_paginas=20, pasta_saida="idealista/ht
         elif motivo_falha and motivo_falha[0] == "captcha":
             resultado["falha_captcha"].append({"pagina": page, "motivo": motivo_falha[1], "duracao_s": round(duracao, 1)})
             barra.set_postfix_str(f"pág {page} CAPTCHA (saltada), {duracao:.1f}s")
+        elif motivo_falha and motivo_falha[0] == "generica":
+            resultado["falha_generica"].append({"pagina": page, "motivo": motivo_falha[1], "duracao_s": round(duracao, 1)})
+            barra.set_postfix_str(f"pág {page} homepage genérica (saltada), {duracao:.1f}s")
         else:
             motivo_txt = motivo_falha[1] if motivo_falha else "desconhecido"
             resultado["falha_outra"].append({"pagina": page, "motivo": motivo_txt, "duracao_s": round(duracao, 1)})
@@ -326,14 +404,17 @@ def fetch_all_pages(concelho="lisboa", max_paginas=20, pasta_saida="idealista/ht
 
     barra.close()
 
-    total = len(resultado["sucesso"]) + len(resultado["falha_captcha"]) + len(resultado["falha_outra"])
+    total = len(resultado["sucesso"]) + len(resultado["falha_captcha"]) + len(resultado["falha_generica"]) + len(resultado["falha_outra"])
     logging.info(
         f"[Idealista] Resumo {concelho}: {len(resultado['sucesso'])}/{total} sucesso, "
         f"{len(resultado['falha_captcha'])} falharam por CAPTCHA, "
+        f"{len(resultado['falha_generica'])} devolveram homepage genérica, "
         f"{len(resultado['falha_outra'])} falharam por outro motivo."
     )
     for f in resultado["falha_captcha"]:
         logging.info(f"  - página {f['pagina']}: CAPTCHA — {f['motivo']} ({f['duracao_s']}s)")
+    for f in resultado["falha_generica"]:
+        logging.info(f"  - página {f['pagina']}: homepage genérica ({f['duracao_s']}s)")
     for f in resultado["falha_outra"]:
         logging.info(f"  - página {f['pagina']}: {f['motivo']} ({f['duracao_s']}s)")
 

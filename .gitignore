@@ -12,5 +12,11 @@ __pycache__
 !/sapo/html/exemplo_pagina.html
 !/imovirtual/html/exemplo_pagina.html
 
-# Checkpoints por página da extração do Imovirtual (redundantes com o JSON consolidado)
+# Checkpoints por página da extração (redundantes com o JSON consolidado) —
+# servem só para retomar uma extração interrompida sem repetir pedidos já feitos.
 /imovirtual/json/*/
+/remax/json/*/
+/century21/json/*/
+
+/idealista/html/*
+!/idealista/html/exemplo_pagina.html

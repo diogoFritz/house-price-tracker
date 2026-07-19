@@ -5,6 +5,7 @@ requests==2.31.0
 beautifulsoup4==4.12.2
 
 selenium==4.46.0
+undetected-chromedriver==3.5.5
 2captcha-python==2.0.9
 geopandas==1.1.4
 tqdm==4.68.4

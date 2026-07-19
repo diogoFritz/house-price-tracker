@@ -121,6 +121,9 @@ def _parse_listing(item, pagina=None):
         "concelho": _location_field(item, "council"),
         "distrito": _location_field(item, "district"),
         "agencia": (item.get("agency") or {}).get("name"),
+        # Quando não há agência formal (privado ou promotor de um empreendimento
+        # novo), o nome do anunciante vem em "advertOwner", não em "agency".
+        "anunciante": (item.get("advertOwner") or {}).get("name"),
         "destacado": item.get("isPromoted"),
         "oferta_privada": item.get("isPrivateOwner"),
         "num_fotos": item.get("totalPossibleImages"),
