@@ -1,0 +1,42 @@
+[
+  {
+    "id": 635273,
+    "pagina": 1,
+    "titulo": "Moradia T5",
+    "link": "https://www.century21.pt/ref/C0525-GERE-00367",
+    "tipologia": "T5",
+    "quartos": 5,
+    "tamanho": 208,
+    "preco": null,
+    "preco_por_metro": null,
+    "morada": "Rua do Sossego",
+    "freguesia": "Santo Quintino",
+    "concelho": "Sobral de Monte Agraço",
+    "distrito": "Lisboa",
+    "agencia": "CENTURY 21 NextLevel",
+    "agente": "Filipa Neves",
+    "data_publicacao": "2024-10-29T07:27:58.337Z",
+    "data_extracao": "20260724",
+    "origem": "Century21"
+  },
+  {
+    "id": 616673,
+    "pagina": 1,
+    "titulo": "T2 remodelado com 82,5 m2, junto ao Pingo Doce da Bobadela, numa zona privilegiada",
+    "link": "https://www.century21.pt/ref/0741-01996",
+    "tipologia": "T2",
+    "quartos": 2,
+    "tamanho": 82.5,
+    "preco": 300000,
+    "preco_por_metro": 3636.36,
+    "morada": "Rua Senhora da Conceição",
+    "freguesia": "Sobral de Monte Agraço",
+    "concelho": "Sobral de Monte Agraço",
+    "distrito": "Lisboa",
+    "agencia": "CENTURY 21 Catisol",
+    "agente": "Agência",
+    "data_publicacao": "2024-07-25T11:17:10.987Z",
+    "data_extracao": "20260724",
+    "origem": "Century21"
+  }
+]

@@ -8,11 +8,34 @@ from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parent.parent
 PORTAL_DIRS = ["sapo", "imovirtual", "century21", "era", "remax", "supercasa"]
+PORTAL_ORIGEM = {
+    "sapo": "Sapo", "imovirtual": "Imovirtual", "century21": "Century21",
+    "era": "ERA", "remax": "Remax", "supercasa": "Supercasa",
+}
 
 
 def median(values):
     values = [v for v in values if v is not None]
     return round(statistics.median(values), 2) if values else None
+
+
+def mean(values):
+    values = [v for v in values if v is not None]
+    return round(statistics.fmean(values), 2) if values else None
+
+
+def percentile(values, pct):
+    values = sorted(v for v in values if v is not None)
+    if not values:
+        return None
+    if len(values) == 1:
+        return round(values[0], 2)
+    k = (len(values) - 1) * pct
+    lo, hi = int(k), min(int(k) + 1, len(values) - 1)
+    if lo == hi:
+        return round(values[lo], 2)
+    frac = k - lo
+    return round(values[lo] + (values[hi] - values[lo]) * frac, 2)
 
 
 MIN_PPM = 300
@@ -107,10 +130,129 @@ def load_all():
                     "preco": preco,
                     "tamanho": tamanho,
                     "preco_por_metro": ppm,
-                    "origem": r.get("origem"),
+                    # tal como o concelho, o nome da pasta é a fonte fiável do portal:
+                    # scrapes antigos do Sapo (antes de 20260714) nunca tiveram este campo
+                    "origem": r.get("origem") or PORTAL_ORIGEM.get(portal),
                     "data_extracao": date,
+                    "titulo": r.get("titulo"),
+                    "link": r.get("link"),
                 })
     return rows
+
+
+def latest_snapshot_rows(rows):
+    """Para cada (portal, concelho), mantém só os anúncios da recolha mais recente
+    desse par — evita misturar anúncios repetidos de recolhas antigas na análise
+    de desvio face à média, que deve refletir o mercado atual."""
+    latest_date = {}
+    for r in rows:
+        key = (r["origem"], r["concelho"])
+        if r["data_extracao"] and (key not in latest_date or r["data_extracao"] > latest_date[key]):
+            latest_date[key] = r["data_extracao"]
+    return [r for r in rows if latest_date.get((r["origem"], r["concelho"])) == r["data_extracao"]]
+
+
+MIN_GROUP_FOR_STATS = 8
+MIN_GROUP_FOR_DEALS = 8
+DEALS_PER_SIDE = 60
+MIN_PRECO_ABSOLUTO = 20000
+
+# intervalos de área plausíveis por tipologia (m²) — usados só para a análise de
+# valor (média/desvio), que é sensível a outliers; a mediana usada no resto do
+# dashboard já é robusta a estes casos
+TAMANHO_RANGE = {
+    "T0": (15, 120), "T1": (25, 160), "T2": (40, 220), "T3": (55, 300),
+    "T4": (70, 400), "T5": (90, 500),
+}
+TAMANHO_RANGE_DEFAULT = (110, 800)  # T6 e acima
+
+
+def plausible_for_value_analysis(r):
+    # descarta timeshares/frações (preço muito abaixo do custo de uma fração real)
+    if r["preco"] is not None and r["preco"] < MIN_PRECO_ABSOLUTO:
+        return False
+    titulo_lower = (r["titulo"] or "").lower()
+    if re.search(r"time[\s-]?shar", titulo_lower):
+        return False
+    # descarta prédios/edifícios inteiros (preço total não comparável a uma fração)
+    if re.search(r"\bpr[eé]dio\b", titulo_lower):
+        return False
+    # descarta áreas implausíveis para a tipologia (erro de scraping, ex. T0 de 720 m²)
+    if r["tamanho"] is not None and r["tipologia"]:
+        lo, hi = TAMANHO_RANGE.get(r["tipologia"], TAMANHO_RANGE_DEFAULT)
+        if not (lo <= r["tamanho"] <= hi):
+            return False
+    return True
+
+
+def build_value_analysis(rows):
+    """Estatística de mercado por concelho + lista de anúncios concretos mais
+    abaixo/acima da média local (mesmo concelho e tipologia), usando só o
+    snapshot mais recente de cada portal para refletir o mercado atual."""
+    latest = [r for r in latest_snapshot_rows(rows) if plausible_for_value_analysis(r)]
+    concelhos = sorted({r["concelho"] for r in latest if r["concelho"]})
+
+    concelho_stats = []
+    for c in concelhos:
+        ppms = [r["preco_por_metro"] for r in latest if r["concelho"] == c and r["preco_por_metro"] is not None]
+        if len(ppms) < MIN_GROUP_FOR_STATS:
+            continue
+        m = mean(ppms)
+        above = sum(1 for v in ppms if v > m)
+        below = sum(1 for v in ppms if v < m)
+        concelho_stats.append({
+            "concelho": c,
+            "count": len(ppms),
+            "mean_ppm": m,
+            "median_ppm": median(ppms),
+            "p25_ppm": percentile(ppms, 0.25),
+            "p75_ppm": percentile(ppms, 0.75),
+            "min_ppm": round(min(ppms), 2),
+            "max_ppm": round(max(ppms), 2),
+            "pct_above_mean": round(100 * above / len(ppms), 1),
+            "pct_below_mean": round(100 * below / len(ppms), 1),
+        })
+    concelho_stats.sort(key=lambda x: x["mean_ppm"], reverse=True)
+
+    groups = defaultdict(list)
+    for r in latest:
+        if r["preco_por_metro"] is not None and r["tipologia"]:
+            groups[(r["concelho"], r["tipologia"])].append(r)
+
+    deals = []
+    for (c, t), sub in groups.items():
+        if len(sub) < MIN_GROUP_FOR_DEALS:
+            continue
+        m = mean([r["preco_por_metro"] for r in sub])
+        for r in sub:
+            deviation_pct = round(100 * (r["preco_por_metro"] - m) / m, 1)
+            deals.append({
+                "titulo": (r["titulo"] or "").strip(),
+                "link": r["link"],
+                "concelho": c,
+                "freguesia": r["freguesia"],
+                "tipologia": t,
+                "tamanho": r["tamanho"],
+                "preco": r["preco"],
+                "preco_por_metro": r["preco_por_metro"],
+                "group_mean_ppm": round(m, 2),
+                "deviation_pct": deviation_pct,
+                "origem": r["origem"],
+                "data_extracao": r["data_extracao"],
+            })
+    deals.sort(key=lambda x: x["deviation_pct"])
+    best_deals = deals[:DEALS_PER_SIDE]
+    overpriced = list(reversed(deals[-DEALS_PER_SIDE:]))
+
+    return {
+        "concelho_stats": concelho_stats,
+        "best_deals": best_deals,
+        "overpriced": overpriced,
+        "deals_meta": {
+            "latest_snapshot_count": len(latest),
+            "min_group_size": MIN_GROUP_FOR_DEALS,
+        },
+    }
 
 
 def build_aggregates(rows):
@@ -215,6 +357,8 @@ def build_aggregates(rows):
             tip_counts[r["tipologia"]] += 1
     by_tipologia = [{"tipologia": t, "count": n} for t, n in sorted(tip_counts.items())]
 
+    value_analysis = build_value_analysis(rows)
+
     return {
         "overview": overview,
         "by_concelho": by_concelho,
@@ -224,6 +368,7 @@ def build_aggregates(rows):
         "by_concelho_origem": by_concelho_origem,
         "trend": trend,
         "by_tipologia": by_tipologia,
+        "value_analysis": value_analysis,
     }
 
 
