@@ -26,6 +26,9 @@ jobs:
       - name: Correr extração semanal
         run: python scripts/run_semanal.py
 
+      - name: Atualizar dados agregados do dashboard
+        run: python scripts/build_dashboard_data.py
+
       - name: Guardar log como artifact
         if: always()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
@@ -37,6 +40,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add imovirtual/json/*.json remax/json/*.json century21/json/*.json era/json/*.json supercasa/json/*.json
+          git add imovirtual/json/*.json remax/json/*.json century21/json/*.json era/json/*.json supercasa/json/*.json scripts/dashboard_data.json
           git diff --cached --quiet && echo "Sem alterações a commitar." || git commit -m "Extração semanal automática ($(date +%Y-%m-%d))"
           git push
