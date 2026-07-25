@@ -375,7 +375,7 @@ def build_aggregates(rows):
 def main():
     rows = load_all()
     agg = build_aggregates(rows)
-    out_path = ROOT / "scripts" / "dashboard_data.json"
+    out_path = ROOT / "docs" / "dashboard_data.json"
     out_path.write_text(json.dumps(agg, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(rows)} registos processados -> {out_path}")
     print(json.dumps(agg["overview"], ensure_ascii=False, indent=2))

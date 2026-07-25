@@ -1,0 +1,1245 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mercado de Habitação — AML</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f9f9f7;
+    --surface:     #fcfcfb;
+    --surface-2:   #f3f2ee;
+    --ink:         #0b0b0b;
+    --ink-2:       #52514e;
+    --ink-muted:   #898781;
+    --grid:        #e1e0d9;
+    --baseline:    #c3c2b7;
+    --border:      rgba(11,11,11,0.10);
+    --accent:      #2a78d6;
+    --accent-wash: rgba(42,120,214,0.10);
+    --accent-fill: rgba(42,120,214,0.12);
+    --good:        #006300;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page:        #0d0d0d;
+      --surface:     #1a1a19;
+      --surface-2:   #232322;
+      --ink:         #ffffff;
+      --ink-2:       #c3c2b7;
+      --ink-muted:   #898781;
+      --grid:        #2c2c2a;
+      --baseline:    #383835;
+      --border:      rgba(255,255,255,0.10);
+      --accent:      #3987e5;
+      --accent-wash: rgba(57,135,229,0.14);
+      --accent-fill: rgba(57,135,229,0.16);
+      --good:        #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:        #0d0d0d;
+    --surface:     #1a1a19;
+    --surface-2:   #232322;
+    --ink:         #ffffff;
+    --ink-2:       #c3c2b7;
+    --ink-muted:   #898781;
+    --grid:        #2c2c2a;
+    --baseline:    #383835;
+    --border:      rgba(255,255,255,0.10);
+    --accent:      #3987e5;
+    --accent-wash: rgba(57,135,229,0.14);
+    --accent-fill: rgba(57,135,229,0.16);
+    --good:        #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding: 28px 20px 64px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  header.top { margin-bottom: 24px; }
+  header.top h1 {
+    font-size: 26px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  header.top p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 14.5px;
+    max-width: 65ch;
+    line-height: 1.5;
+  }
+  header.top .eyebrow {
+    font-size: 11.5px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 22px 0;
+  }
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .tile .label {
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  .tile .value {
+    font-size: 24px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+  }
+  .tile .sub {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 3px;
+  }
+
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 20px;
+    flex-wrap: wrap;
+  }
+  .filters label {
+    font-size: 13px;
+    color: var(--ink-2);
+    font-weight: 550;
+  }
+  select, input[type="search"] {
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+  select:focus-visible, input:focus-visible, button:focus-visible, th button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  .filters .clear-btn {
+    font-size: 12.5px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 2px;
+    font-weight: 550;
+  }
+  .filters .clear-btn:hover { text-decoration: underline; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+  }
+  .card.full { grid-column: 1 / -1; }
+  .card h2 {
+    font-size: 14.5px;
+    font-weight: 650;
+    margin: 0 0 2px;
+  }
+  .card .card-sub {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin: 0 0 12px;
+  }
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .table-toggle {
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 9px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .table-toggle:hover { background: var(--accent-wash); }
+
+  svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+  svg.chart text {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    fill: var(--ink-2);
+  }
+  svg.chart .axis-label { fill: var(--ink-muted); font-size: 10.5px; }
+  svg.chart .value-label { fill: var(--ink); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  svg.chart .cat-label { fill: var(--ink-2); font-size: 11px; }
+  svg.chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  svg.chart .baseline { stroke: var(--baseline); stroke-width: 1; }
+
+  .bar-rect { transition: opacity 0.15s ease; cursor: pointer; }
+  .bar-rect.dim { opacity: 0.35; }
+  .bar-hit { fill: transparent; cursor: pointer; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-2);
+    cursor: pointer;
+    user-select: none;
+    background: none;
+    border: none;
+    padding: 3px 4px;
+    font-family: inherit;
+  }
+  .legend-item.off { opacity: 0.4; }
+  .legend-item .swatch {
+    width: 14px;
+    height: 2.5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--page);
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 8px;
+    padding: 8px 11px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    max-width: 240px;
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip .tt-title { font-weight: 650; margin-bottom: 3px; }
+  .tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+  .tooltip .tt-key { width: 10px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+  .tooltip .tt-val { font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tooltip .tt-sub { color: var(--baseline); }
+
+  .trend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .trend-mini {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px 6px;
+    background: var(--surface-2);
+    cursor: pointer;
+  }
+  .trend-mini:hover { border-color: var(--accent); }
+  .trend-mini .tm-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .trend-mini .tm-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .trend-mini .tm-value {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .trend-mini .tm-delta { font-size: 11px; font-variant-numeric: tabular-nums; }
+  .trend-mini .tm-delta.up { color: var(--good); }
+  .trend-mini .tm-delta.down { color: var(--ink-muted); }
+
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 8px;
+  }
+  .mini-table th, .mini-table td {
+    text-align: right;
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .mini-table th:first-child, .mini-table td:first-child { text-align: left; font-variant-numeric: normal; }
+  .mini-table th { color: var(--ink-muted); font-weight: 550; font-size: 11px; }
+  .mini-table-wrap { overflow-x: auto; }
+
+  .explorer {
+    margin-top: 6px;
+  }
+  .explorer-head {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .explorer-head input[type="search"] { min-width: 220px; flex: 1; }
+  .table-scroll {
+    overflow: auto;
+    max-height: 480px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.data-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-2);
+    text-align: right;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--ink-2);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  table.data-table thead th:first-child, table.data-table thead th:nth-child(2) { text-align: left; }
+  table.data-table thead th button {
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  table.data-table tbody td {
+    padding: 8px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  table.data-table tbody td:first-child, table.data-table tbody td:nth-child(2) {
+    text-align: left;
+    font-variant-numeric: normal;
+    white-space: normal;
+  }
+  table.data-table tbody tr:hover td { background: var(--accent-wash); }
+  table.data-table tbody td.muted { color: var(--ink-muted); }
+  .explorer-count { font-size: 12px; color: var(--ink-muted); margin-top: 8px; }
+
+  .deals-scroll { max-height: 360px; }
+  .deal-link {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 550;
+    border-bottom: 1px solid var(--border);
+  }
+  .deal-link:hover { color: var(--accent); border-color: var(--accent); }
+  .deal-loc { color: var(--ink-muted); font-size: 11.5px; margin-top: 1px; }
+  .deviation { font-weight: 650; }
+  .deviation.neg { color: var(--good); }
+  .deviation.pos { color: var(--ink-2); }
+
+  .range-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+  .range-row .r-label { width: 130px; flex-shrink: 0; font-size: 11.5px; color: var(--ink-2); text-align: right;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .range-row svg { flex: 1; min-width: 0; display: block; height: 26px; overflow: visible; }
+
+  footer.note {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+    max-width: 75ch;
+  }
+
+  @media (max-width: 760px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">House Price Tracker</p>
+    <h1>Mercado de habitação — Área Metropolitana de Lisboa</h1>
+    <p id="subtitle">A carregar dados…</p>
+  </header>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="filters">
+    <label for="concelho-filter">Concelho</label>
+    <select id="concelho-filter">
+      <option value="">Todos os concelhos</option>
+    </select>
+    <button class="clear-btn" id="clear-filter" style="display:none;">Limpar filtro</button>
+  </section>
+
+  <section class="grid-2">
+    <div class="card full">
+      <h2>Preço mediano por m², por concelho</h2>
+      <p class="card-sub">Ordenado do mais caro ao mais barato — clique numa barra para filtrar o resto do painel</p>
+      <div id="chart-concelho"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2>Preço mediano por m², por portal</h2>
+      <p class="card-sub" id="portal-sub">Comparação entre fontes de dados</p>
+      <div id="chart-origem"></div>
+    </div>
+    <div class="card">
+      <h2>Anúncios por tipologia</h2>
+      <p class="card-sub" id="tipologia-sub">Distribuição do volume de anúncios</p>
+      <div id="chart-tipologia"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card full">
+      <div class="card-head">
+        <div>
+          <h2 id="trend-title">Evolução do preço mediano por m²</h2>
+          <p class="card-sub" id="trend-sub">Cada ponto é uma recolha efetiva</p>
+        </div>
+        <button class="table-toggle" id="trend-table-toggle">Ver tabela</button>
+      </div>
+      <div id="chart-trend"></div>
+      <div class="mini-table-wrap" id="trend-table" style="display:none;"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2>Freguesias mais caras</h2>
+      <p class="card-sub" id="top-freg-sub">Preço mediano por m², mínimo 3 anúncios</p>
+      <div id="chart-top-freguesias"></div>
+    </div>
+    <div class="card">
+      <h2>Freguesias mais acessíveis</h2>
+      <p class="card-sub" id="bottom-freg-sub">Preço mediano por m², mínimo 3 anúncios</p>
+      <div id="chart-bottom-freguesias"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card full">
+      <h2>Preço/m² vs. média do concelho</h2>
+      <p class="card-sub" id="range-sub">
+        Caixa = do 1º ao 3º quartil (onde estão 50% dos anúncios) · traço = mediana · ponto = média ·
+        linha fina = mínimo–máximo. Baseado só na recolha mais recente de cada portal.
+      </p>
+      <div id="chart-range"></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card full">
+      <div class="card-head">
+        <div>
+          <h2>Melhores negócios</h2>
+          <p class="card-sub" id="deals-sub">Anúncios mais abaixo da média do concelho para a mesma tipologia</p>
+        </div>
+      </div>
+      <div class="table-scroll deals-scroll">
+        <table class="data-table" id="deals-table-best">
+          <thead><tr>
+            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Portal</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="explorer-count" id="deals-best-count"></p>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card full">
+      <div class="card-head">
+        <div>
+          <h2>Mais acima da média</h2>
+          <p class="card-sub" id="overpriced-sub">Anúncios mais acima da média do concelho para a mesma tipologia — nem sempre "caro demais", muitas vezes reflete acabamento/vista premium</p>
+        </div>
+      </div>
+      <div class="table-scroll deals-scroll">
+        <table class="data-table" id="deals-table-over">
+          <thead><tr>
+            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Portal</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="explorer-count" id="deals-over-count"></p>
+    </div>
+  </section>
+
+  <section class="card full explorer">
+    <h2>Explorador de freguesias</h2>
+    <p class="card-sub">Pesquise e ordene todas as freguesias com dados suficientes</p>
+    <div class="explorer-head">
+      <input type="search" id="freg-search" placeholder="Pesquisar freguesia…">
+    </div>
+    <div class="table-scroll">
+      <table class="data-table" id="freg-table">
+        <thead><tr>
+          <th data-key="freguesia">Freguesia</th>
+          <th data-key="concelho">Concelho</th>
+          <th data-key="count"><button data-sort="count">Anúncios ↕</button></th>
+          <th data-key="median_ppm"><button data-sort="median_ppm">€/m² mediano ↕</button></th>
+          <th data-key="median_preco"><button data-sort="median_preco">Preço mediano ↕</button></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="explorer-count" id="freg-count"></p>
+  </section>
+
+  <footer class="note">
+    Dados agregados a partir de 6 portais imobiliários (Sapo, Imovirtual, Century21, ERA, Remax, Supercasa),
+    recolhidos entre <span id="footer-range"></span>. Preços por m² fora do intervalo plausível (300–20 000 €/m²,
+    ou área declarada abaixo de 10 m²) foram excluídos dos agregados por indicarem erro de recolha, não de mercado.
+    Freguesias com menos de 3 anúncios não são apresentadas individualmente.
+  </footer>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(function (DATA) {
+"use strict";
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  // ordem = preço mediano por m² desc (mesma ordem do gráfico de concelhos), para que
+  // o filtro, a legenda e as grelhas de pequenos múltiplos leiam de forma consistente
+  const CONCELHO_ORDER = DATA.by_concelho.map(d => d.concelho);
+
+  const MONTHS = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  function parseYmd(s) {
+    return { y: +s.slice(0,4), m: +s.slice(4,6), d: +s.slice(6,8) };
+  }
+  function formatDate(s, withYear) {
+    const { y, m, d } = parseYmd(s);
+    return d + " " + MONTHS[m-1] + (withYear ? " " + y : "");
+  }
+  function formatEUR(v) {
+    if (v == null) return "—";
+    return Math.round(v).toLocaleString("pt-PT") + " €";
+  }
+  function formatCompactEUR(v) {
+    if (v == null) return "—";
+    if (v >= 1e6) return (v/1e6).toFixed(1).replace(/\.0$/,"") + "M €";
+    if (v >= 1e3) return (v/1e3).toFixed(0) + "K €";
+    return Math.round(v) + " €";
+  }
+  function formatInt(v) {
+    if (v == null) return "—";
+    return Math.round(v).toLocaleString("pt-PT");
+  }
+  function summarizeList(items, n) {
+    if (items.length <= n) return items.join(", ");
+    return items.slice(0, n).join(", ") + " e mais " + (items.length - n);
+  }
+
+  const tooltip = document.getElementById("tooltip");
+  function showTooltip(x, y, html) {
+    tooltip.innerHTML = html;
+    tooltip.classList.add("show");
+    const rect = tooltip.getBoundingClientRect();
+    let left = x + 14, top = y + 14;
+    if (left + rect.width > window.innerWidth - 10) left = x - rect.width - 14;
+    if (top + rect.height > window.innerHeight - 10) top = y - rect.height - 14;
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+  }
+  function hideTooltip() { tooltip.classList.remove("show"); }
+
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(svgNS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  // ---------- overview + tiles ----------
+  function renderOverview() {
+    const ov = DATA.overview;
+    document.getElementById("subtitle").textContent =
+      formatInt(ov.total_listings) + " anúncios de venda em " + ov.concelhos.length +
+      " concelhos, agregados de " + ov.origens.length + " portais imobiliários. " +
+      ov.n_dates + " recolhas entre " + formatDate(ov.date_min, true) + " e " + formatDate(ov.date_max, true) + ".";
+    document.getElementById("footer-range").textContent =
+      formatDate(ov.date_min, true) + " e " + formatDate(ov.date_max, true);
+
+    const tiles = [
+      { label: "Anúncios analisados", value: formatInt(ov.total_listings), sub: "após limpeza de outliers" },
+      { label: "Concelhos cobertos", value: ov.concelhos.length, sub: summarizeList(CONCELHO_ORDER, 3) },
+      { label: "Portais consultados", value: ov.origens.length, sub: ov.origens.join(", ") },
+      { label: "Última recolha", value: formatDate(ov.date_max, false), sub: ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true) },
+    ];
+    const wrap = document.getElementById("tiles");
+    tiles.forEach(t => {
+      const d = document.createElement("div");
+      d.className = "tile";
+      d.innerHTML = '<div class="label">' + t.label + '</div><div class="value"></div><div class="sub"></div>';
+      d.querySelector(".value").textContent = t.value;
+      d.querySelector(".sub").textContent = t.sub;
+      wrap.appendChild(d);
+    });
+
+    const sel = document.getElementById("concelho-filter");
+    CONCELHO_ORDER.forEach(c => {
+      const o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      sel.appendChild(o);
+    });
+  }
+
+  // ---------- generic column (vertical bar) chart ----------
+  // items: [{label, value, color, valueLabel}]
+  function renderColumnChart(container, items, opts) {
+    opts = opts || {};
+    container.innerHTML = "";
+    const width = 520, barGap = 10;
+    const padL = 4, padR = 4, padT = 22, padB = 30;
+    const n = items.length;
+    const plotW = width - padL - padR;
+    const barW = Math.min(24, (plotW - barGap * (n - 1)) / n);
+    const rowW = plotW / n;
+    const maxV = Math.max(1, ...items.map(d => d.value || 0));
+    const plotH = opts.height || 180;
+    const height = plotH + padT + padB;
+
+    const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " " + height, role: "img",
+      "aria-label": opts.ariaLabel || "" });
+    container.appendChild(svg);
+
+    // gridlines (3 steps)
+    const steps = 3;
+    for (let i = 0; i <= steps; i++) {
+      const y = padT + plotH - (plotH * i / steps);
+      el("line", { x1: padL, x2: width - padR, y1: y, y2: y, class: i === 0 ? "baseline" : "gridline" }, svg);
+    }
+
+    items.forEach((d, i) => {
+      const cx = padL + rowW * i + rowW / 2;
+      const h = maxV > 0 ? (d.value / maxV) * plotH : 0;
+      const y = padT + plotH - h;
+      const color = d.color || "var(--accent)";
+      const dim = opts.dimmed && opts.dimmed(d) ? " dim" : "";
+
+      const rect = el("rect", {
+        x: cx - barW/2, y: y, width: barW, height: Math.max(h, 1),
+        rx: 4, ry: 4, fill: color, class: "bar-rect" + dim
+      }, svg);
+
+      const hit = el("rect", {
+        x: padL + rowW * i, y: padT, width: rowW, height: plotH,
+        class: "bar-hit"
+      }, svg);
+      hit.addEventListener("pointerenter", (e) => {
+        rect.style.opacity = "0.85";
+        showTooltip(e.clientX, e.clientY, opts.tooltip ? opts.tooltip(d) :
+          '<div class="tt-title">' + d.label + '</div><div class="tt-val">' + (d.valueLabel || d.value) + '</div>');
+      });
+      hit.addEventListener("pointermove", (e) => {
+        showTooltip(e.clientX, e.clientY, opts.tooltip ? opts.tooltip(d) :
+          '<div class="tt-title">' + d.label + '</div><div class="tt-val">' + (d.valueLabel || d.value) + '</div>');
+      });
+      hit.addEventListener("pointerleave", () => { rect.style.opacity = ""; hideTooltip(); });
+      if (opts.onClick) hit.addEventListener("click", () => opts.onClick(d));
+
+      // value label on cap
+      const labelText = d.valueLabel != null ? d.valueLabel : d.value;
+      el("text", { x: cx, y: y - 6, "text-anchor": "middle", class: "value-label" }, svg).textContent = labelText;
+
+      // category label
+      const catLabel = el("text", { x: cx, y: padT + plotH + 16, "text-anchor": "middle", class: "cat-label" }, svg);
+      catLabel.textContent = d.label.length > 10 ? d.label.slice(0, 9) + "…" : d.label;
+    });
+
+    return svg;
+  }
+
+  // ---------- generic horizontal bar chart (ranked lists, long labels) ----------
+  // items: [{label, sublabel, value, valueLabel, color}]
+  function renderHBarChart(container, items, opts) {
+    opts = opts || {};
+    container.innerHTML = "";
+    const labelW = opts.labelW || 150;
+    const width = 520, padL = 4, padR = 56, padT = 4, padB = 4;
+    const rowH = 26, gap = 6;
+    const n = items.length;
+    const height = n * rowH + Math.max(0, n - 1) * gap + padT + padB;
+    const plotW = width - padL - padR - labelW;
+    const maxV = Math.max(1, ...items.map(d => d.value || 0));
+
+    const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " " + Math.max(height, 40),
+      role: "img", "aria-label": opts.ariaLabel || "" });
+    container.appendChild(svg);
+
+    items.forEach((d, i) => {
+      const y = padT + i * (rowH + gap);
+      const w = Math.max((d.value / maxV) * plotW, 2);
+      const dim = opts.dimmed && opts.dimmed(d) ? " dim" : "";
+      const maxChars = Math.floor(labelW / 6.2);
+      el("text", { x: labelW - 8, y: y + rowH/2 + 4, "text-anchor": "end", class: "cat-label" }, svg)
+        .textContent = d.label.length > maxChars ? d.label.slice(0, maxChars - 1) + "…" : d.label;
+      const rect = el("rect", {
+        x: labelW, y: y + rowH/2 - 8, width: w, height: 16, rx: 4, ry: 4,
+        fill: d.color || "var(--accent)", class: "bar-rect" + dim
+      }, svg);
+      el("text", { x: labelW + w + 8, y: y + rowH/2 + 4, class: "value-label" }, svg)
+        .textContent = d.valueLabel != null ? d.valueLabel : d.value;
+      const hit = el("rect", { x: 0, y: y, width: width, height: rowH, class: "bar-hit" }, svg);
+      const tt = () => opts.tooltip ? opts.tooltip(d) :
+        '<div class="tt-title">' + d.label + '</div><div class="tt-val">' + (d.valueLabel || d.value) + '</div>';
+      hit.addEventListener("pointerenter", (e) => { rect.style.opacity = "0.85"; showTooltip(e.clientX, e.clientY, tt()); });
+      hit.addEventListener("pointermove", (e) => showTooltip(e.clientX, e.clientY, tt()));
+      hit.addEventListener("pointerleave", () => { rect.style.opacity = ""; hideTooltip(); });
+      if (opts.onClick) hit.addEventListener("click", () => opts.onClick(d));
+    });
+  }
+
+  // ---------- concelho price chart ----------
+  let concelhoFilter = "";
+
+  function renderConcelhoChart() {
+    const items = DATA.by_concelho.map(d => ({
+      label: d.concelho, value: d.median_ppm || 0,
+      color: concelhoFilter && concelhoFilter !== d.concelho ? "var(--baseline)" : "var(--accent)",
+      valueLabel: formatEUR(d.median_ppm).replace(" €",""), raw: d
+    }));
+    renderHBarChart(document.getElementById("chart-concelho"), items, {
+      ariaLabel: "Preço mediano por metro quadrado por concelho",
+      labelW: 130,
+      tooltip: (d) => '<div class="tt-title">' + d.raw.concelho + '</div>' +
+        '<div class="tt-row"><span class="tt-val">' + formatEUR(d.raw.median_ppm) + '</span><span class="tt-sub">/m²</span></div>' +
+        '<div class="tt-sub">Preço mediano ' + formatEUR(d.raw.median_preco) + ' · ' + formatInt(d.raw.count) + ' anúncios</div>',
+      onClick: (d) => setConcelhoFilter(concelhoFilter === d.raw.concelho ? "" : d.raw.concelho),
+    });
+  }
+
+  // ---------- portal (origem) chart ----------
+  function renderOrigemChart() {
+    const rows = concelhoFilter
+      ? DATA.by_concelho_origem.filter(r => r.concelho === concelhoFilter)
+      : DATA.by_origem;
+    const sorted = rows.slice().sort((a,b) => (b.median_ppm||0) - (a.median_ppm||0));
+    document.getElementById("portal-sub").textContent = concelhoFilter
+      ? "Comparação entre fontes de dados — " + concelhoFilter
+      : "Comparação entre fontes de dados";
+    const items = sorted.map(d => ({
+      label: d.origem, value: d.median_ppm || 0, color: "var(--accent)",
+      valueLabel: formatEUR(d.median_ppm).replace(" €",""), raw: d
+    }));
+    renderColumnChart(document.getElementById("chart-origem"), items, {
+      ariaLabel: "Preço mediano por metro quadrado por portal",
+      tooltip: (d) => '<div class="tt-title">' + d.raw.origem + '</div>' +
+        '<div class="tt-row"><span class="tt-val">' + formatEUR(d.raw.median_ppm) + '</span><span class="tt-sub">/m²</span></div>' +
+        '<div class="tt-sub">' + formatInt(d.raw.count) + ' anúncios</div>',
+    });
+  }
+
+  // ---------- tipologia chart ----------
+  function bucketTipologia(rows) {
+    const buckets = { T0: 0, T1: 0, T2: 0, T3: 0, T4: 0, T5: 0, "T6+": 0 };
+    rows.forEach(r => {
+      const key = ["T0","T1","T2","T3","T4","T5"].includes(r.tipologia) ? r.tipologia : "T6+";
+      buckets[key] = (buckets[key] || 0) + r.count;
+    });
+    return Object.keys(buckets).map(k => ({ tipologia: k, count: buckets[k] }));
+  }
+  function renderTipologiaChart() {
+    let rows;
+    if (concelhoFilter) {
+      rows = DATA.by_concelho_tipologia.filter(r => r.concelho === concelhoFilter);
+      document.getElementById("tipologia-sub").textContent = "Distribuição do volume de anúncios — " + concelhoFilter;
+    } else {
+      rows = DATA.by_tipologia;
+      document.getElementById("tipologia-sub").textContent = "Distribuição do volume de anúncios";
+    }
+    const bucketed = bucketTipologia(rows);
+    const items = bucketed.map(d => ({
+      label: d.tipologia, value: d.count, color: "var(--accent)",
+      valueLabel: formatInt(d.count), raw: d
+    }));
+    renderColumnChart(document.getElementById("chart-tipologia"), items, {
+      ariaLabel: "Número de anúncios por tipologia",
+      tooltip: (d) => '<div class="tt-title">' + d.raw.tipologia + '</div>' +
+        '<div class="tt-val">' + formatInt(d.raw.count) + ' anúncios</div>',
+    });
+  }
+
+  // ---------- top / bottom freguesias charts ----------
+  function fregTooltip(d) {
+    return '<div class="tt-title">' + d.freguesia + '</div>' +
+      '<div class="tt-sub">' + d.concelho + '</div>' +
+      '<div class="tt-row"><span class="tt-val">' + formatEUR(d.median_ppm) + '</span><span class="tt-sub">/m²</span></div>' +
+      '<div class="tt-sub">Preço mediano ' + formatEUR(d.median_preco) + ' · ' + formatInt(d.count) + ' anúncios</div>';
+  }
+
+  function renderTopFreguesias() {
+    const pool = concelhoFilter
+      ? DATA.by_freguesia.filter(r => r.concelho === concelhoFilter)
+      : DATA.by_freguesia;
+    const valid = pool.filter(r => r.median_ppm != null).slice(0, 8);
+    document.getElementById("top-freg-sub").textContent = concelhoFilter
+      ? "Preço mediano por m² — " + concelhoFilter
+      : "Preço mediano por m², mínimo 3 anúncios";
+    const items = valid.map(d => ({ label: d.freguesia, value: d.median_ppm,
+      valueLabel: formatEUR(d.median_ppm).replace(" €",""), raw: d }));
+    renderHBarChart(document.getElementById("chart-top-freguesias"), items, {
+      ariaLabel: "Freguesias mais caras por preço ao metro quadrado",
+      tooltip: (d) => fregTooltip(d.raw),
+    });
+  }
+
+  function renderBottomFreguesias() {
+    const pool = concelhoFilter
+      ? DATA.by_freguesia.filter(r => r.concelho === concelhoFilter)
+      : DATA.by_freguesia;
+    const valid = pool.filter(r => r.median_ppm != null).slice(-8).reverse();
+    document.getElementById("bottom-freg-sub").textContent = concelhoFilter
+      ? "Preço mediano por m² — " + concelhoFilter
+      : "Preço mediano por m², mínimo 3 anúncios";
+    const items = valid.map(d => ({ label: d.freguesia, value: d.median_ppm,
+      valueLabel: formatEUR(d.median_ppm).replace(" €",""), raw: d }));
+    renderHBarChart(document.getElementById("chart-bottom-freguesias"), items, {
+      ariaLabel: "Freguesias mais acessíveis por preço ao metro quadrado",
+      tooltip: (d) => fregTooltip(d.raw),
+    });
+  }
+
+  // ---------- price vs. concelho mean: range (box) chart ----------
+  function renderRangeChart() {
+    const container = document.getElementById("chart-range");
+    container.innerHTML = "";
+    const rows = concelhoFilter
+      ? DATA.value_analysis.concelho_stats.filter(r => r.concelho === concelhoFilter)
+      : DATA.value_analysis.concelho_stats;
+    document.getElementById("range-sub").textContent =
+      "Caixa = do 1º ao 3º quartil (onde estão 50% dos anúncios) · traço = mediana · ponto = média · " +
+      "linha fina = mínimo–máximo. Baseado só na recolha mais recente de cada portal" +
+      (concelhoFilter ? " — " + concelhoFilter + "." : ".");
+
+    const globalMax = Math.max(1, ...DATA.value_analysis.concelho_stats.map(r => r.max_ppm));
+    const width = 1000;
+    const xScale = (v) => (v / globalMax) * (width - 8);
+
+    rows.forEach(r => {
+      const wrap = document.createElement("div");
+      wrap.className = "range-row";
+      const label = document.createElement("div");
+      label.className = "r-label";
+      label.textContent = r.concelho;
+      wrap.appendChild(label);
+
+      const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " 26", preserveAspectRatio: "none",
+        role: "img", "aria-label": r.concelho + ": dispersão do preço por m²" });
+      wrap.appendChild(svg);
+
+      el("line", { x1: xScale(r.min_ppm), x2: xScale(r.max_ppm), y1: 13, y2: 13, stroke: "var(--baseline)", "stroke-width": 1 }, svg);
+      el("rect", { x: xScale(r.p25_ppm), y: 6, width: Math.max(xScale(r.p75_ppm) - xScale(r.p25_ppm), 2), height: 14,
+        rx: 4, ry: 4, fill: "var(--accent-fill)", stroke: "var(--accent)", "stroke-width": 1.5 }, svg);
+      el("line", { x1: xScale(r.median_ppm), x2: xScale(r.median_ppm), y1: 6, y2: 20, stroke: "var(--accent)", "stroke-width": 2 }, svg);
+      el("circle", { cx: xScale(r.mean_ppm), cy: 13, r: 4, fill: "var(--ink)", stroke: "var(--surface)", "stroke-width": 1.5 }, svg);
+
+      const hit = el("rect", { x: 0, y: 0, width, height: 26, fill: "transparent" }, svg);
+      const tt = '<div class="tt-title">' + r.concelho + '</div>' +
+        '<div class="tt-row"><span class="tt-val">' + formatEUR(r.mean_ppm) + '</span><span class="tt-sub">média /m²</span></div>' +
+        '<div class="tt-sub">Mediana ' + formatEUR(r.median_ppm) + ' · P25 ' + formatEUR(r.p25_ppm) + ' · P75 ' + formatEUR(r.p75_ppm) + '</div>' +
+        '<div class="tt-sub">Amplitude ' + formatEUR(r.min_ppm) + ' – ' + formatEUR(r.max_ppm) + '</div>' +
+        '<div class="tt-sub">' + r.pct_below_mean + '% dos anúncios abaixo da média · ' + r.pct_above_mean + '% acima · ' + formatInt(r.count) + ' anúncios</div>';
+      hit.addEventListener("pointerenter", (e) => showTooltip(e.clientX, e.clientY, tt));
+      hit.addEventListener("pointermove", (e) => showTooltip(e.clientX, e.clientY, tt));
+      hit.addEventListener("pointerleave", hideTooltip);
+
+      const value = document.createElement("div");
+      value.style.cssText = "width:56px;flex-shrink:0;font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--ink-2);";
+      value.textContent = formatEUR(r.mean_ppm).replace(" €", "");
+      wrap.appendChild(value);
+
+      container.appendChild(wrap);
+    });
+  }
+
+  // ---------- deals tables (best / overpriced vs. concelho+tipologia mean) ----------
+  function dealLabel(d) {
+    return d.tipologia + (d.freguesia ? " em " + d.freguesia : " em " + d.concelho);
+  }
+  function renderDealsTable(tbodyId, countId, rows, subtitleId, subtitleBase) {
+    const filtered = concelhoFilter ? rows.filter(r => r.concelho === concelhoFilter) : rows;
+    document.getElementById(subtitleId).textContent = subtitleBase + (concelhoFilter ? " — " + concelhoFilter : "");
+    const tbody = document.querySelector("#" + tbodyId + " tbody");
+    tbody.innerHTML = "";
+    filtered.forEach(d => {
+      const tr = document.createElement("tr");
+
+      const tdLabel = document.createElement("td");
+      const a = document.createElement("a");
+      a.className = "deal-link";
+      a.href = d.link || "#";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = dealLabel(d);
+      a.title = d.titulo || "";
+      tdLabel.appendChild(a);
+      const loc = document.createElement("div");
+      loc.className = "deal-loc";
+      loc.textContent = d.concelho;
+      tdLabel.appendChild(loc);
+      tr.appendChild(tdLabel);
+
+      const cells = [
+        d.tipologia || "—",
+        d.tamanho != null ? Math.round(d.tamanho) + " m²" : "—",
+        formatEUR(d.preco),
+        formatEUR(d.preco_por_metro),
+      ];
+      cells.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
+
+      const tdDev = document.createElement("td");
+      const span = document.createElement("span");
+      span.className = "deviation " + (d.deviation_pct < 0 ? "neg" : "pos");
+      span.textContent = (d.deviation_pct >= 0 ? "+" : "") + d.deviation_pct.toFixed(1) + "%";
+      tdDev.appendChild(span);
+      tr.appendChild(tdDev);
+
+      const tdOrigem = document.createElement("td");
+      tdOrigem.textContent = d.origem || "—";
+      tr.appendChild(tdOrigem);
+
+      tbody.appendChild(tr);
+    });
+    document.getElementById(countId).textContent = filtered.length.toLocaleString("pt-PT") +
+      " anúncios (recolha mais recente de cada portal, grupos com mínimo 8 anúncios da mesma tipologia)";
+  }
+  function renderDealsTables() {
+    renderDealsTable("deals-table-best", "deals-best-count", DATA.value_analysis.best_deals,
+      "deals-sub", "Anúncios mais abaixo da média do concelho para a mesma tipologia");
+    renderDealsTable("deals-table-over", "deals-over-count", DATA.value_analysis.overpriced,
+      "overpriced-sub", "Anúncios mais acima da média do concelho para a mesma tipologia");
+  }
+
+  // ---------- trend chart: small multiples (overview) or single detail (filtered) ----------
+  function trendByConcelho() {
+    const map = {};
+    CONCELHO_ORDER.forEach(c => { map[c] = []; });
+    DATA.trend.forEach(r => { if (map[r.concelho]) map[r.concelho].push(r); });
+    Object.keys(map).forEach(c => map[c].sort((a,b) => a.data.localeCompare(b.data)));
+    return map;
+  }
+
+  function renderTrendChart() {
+    const container = document.getElementById("chart-trend");
+    container.innerHTML = "";
+    const allDates = Array.from(new Set(DATA.trend.map(r => r.data))).sort();
+    const byConcelho = trendByConcelho();
+
+    if (concelhoFilter) {
+      document.getElementById("trend-title").textContent = "Evolução do preço mediano por m² — " + concelhoFilter;
+      document.getElementById("trend-sub").textContent = "Cada ponto é uma recolha efetiva";
+      renderTrendDetail(container, allDates, byConcelho[concelhoFilter] || [], concelhoFilter);
+    } else {
+      document.getElementById("trend-title").textContent = "Evolução do preço mediano por m²";
+      document.getElementById("trend-sub").textContent = "Um mini-gráfico por concelho — clique para ver em detalhe";
+      renderTrendGrid(container, allDates, byConcelho);
+    }
+    renderTrendTable(allDates, byConcelho);
+  }
+
+  function renderTrendGrid(container, allDates, byConcelho) {
+    const grid = document.createElement("div");
+    grid.className = "trend-grid";
+    container.appendChild(grid);
+
+    CONCELHO_ORDER.forEach(c => {
+      const pts = byConcelho[c].filter(r => r.median_ppm != null);
+      const card = document.createElement("div");
+      card.className = "trend-mini";
+      card.addEventListener("click", () => setConcelhoFilter(c));
+
+      const head = document.createElement("div");
+      head.className = "tm-head";
+      const last = pts[pts.length - 1], first = pts[0];
+      let deltaHtml = "";
+      if (last && first && pts.length > 1) {
+        const pct = ((last.median_ppm - first.median_ppm) / first.median_ppm) * 100;
+        const cls = pct >= 0 ? "up" : "down";
+        deltaHtml = '<span class="tm-delta ' + cls + '">' + (pct >= 0 ? "+" : "") + pct.toFixed(1) + "%</span>";
+      }
+      head.innerHTML = '<span class="tm-name"></span><span class="tm-value"></span>';
+      head.querySelector(".tm-name").textContent = c;
+      head.querySelector(".tm-value").textContent = last ? formatEUR(last.median_ppm).replace(" €", "") : "—";
+      card.appendChild(head);
+      if (deltaHtml) {
+        const d = document.createElement("div");
+        d.innerHTML = deltaHtml;
+        card.appendChild(d.firstChild);
+      }
+
+      const svgWrap = document.createElement("div");
+      card.appendChild(svgWrap);
+      grid.appendChild(card);
+
+      if (pts.length < 2) {
+        svgWrap.innerHTML = '<p class="card-sub" style="margin:8px 0 2px;">dados insuficientes para tendência</p>';
+        return;
+      }
+
+      const width = 200, height = 56, pad = 4;
+      const maxV = Math.max(...pts.map(r => r.median_ppm));
+      const minV = Math.min(...pts.map(r => r.median_ppm));
+      const span = Math.max(maxV - minV, 1);
+      const xScale = (date) => pad + (allDates.indexOf(date) / Math.max(1, allDates.length - 1)) * (width - pad * 2);
+      const yScale = (v) => height - pad - ((v - minV) / span) * (height - pad * 2);
+
+      const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " " + height,
+        role: "img", "aria-label": c + ": evolução do preço mediano por m²" });
+      svgWrap.appendChild(svg);
+
+      const linePath = pts.map((r, i) => (i === 0 ? "M" : "L") + xScale(r.data) + "," + yScale(r.median_ppm)).join(" ");
+      const areaPath = linePath + " L " + xScale(pts[pts.length-1].data) + "," + (height - pad) +
+        " L " + xScale(pts[0].data) + "," + (height - pad) + " Z";
+      el("path", { d: areaPath, fill: "var(--accent-fill)", stroke: "none" }, svg);
+      el("path", { d: linePath, fill: "none", stroke: "var(--accent)", "stroke-width": 2,
+        "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
+      const lastPt = pts[pts.length - 1];
+      el("circle", { cx: xScale(lastPt.data), cy: yScale(lastPt.median_ppm), r: 3.5,
+        fill: "var(--accent)", stroke: "var(--surface-2)", "stroke-width": 1.5 }, svg);
+
+      const hit = el("rect", { x: 0, y: 0, width, height, fill: "transparent" }, svg);
+      hit.addEventListener("pointerenter", (e) => showTooltip(e.clientX, e.clientY,
+        '<div class="tt-title">' + c + '</div><div class="tt-sub">' +
+        formatDate(pts[0].data, true) + ' → ' + formatDate(lastPt.data, true) + '</div>' +
+        '<div class="tt-val">' + formatEUR(lastPt.median_ppm) + ' /m² (última recolha)</div>'));
+      hit.addEventListener("pointermove", (e) => showTooltip(e.clientX, e.clientY,
+        '<div class="tt-title">' + c + '</div><div class="tt-sub">' +
+        formatDate(pts[0].data, true) + ' → ' + formatDate(lastPt.data, true) + '</div>' +
+        '<div class="tt-val">' + formatEUR(lastPt.median_ppm) + ' /m² (última recolha)</div>'));
+      hit.addEventListener("pointerleave", hideTooltip);
+    });
+  }
+
+  function renderTrendDetail(container, allDates, pts, concelho) {
+    pts = pts.filter(r => r.median_ppm != null);
+    const width = 1080, height = 260;
+    const padL = 44, padR = 16, padT = 16, padB = 30;
+    const plotW = width - padL - padR, plotH = height - padT - padB;
+    const maxV = Math.max(1, ...pts.map(r => r.median_ppm));
+
+    const xScale = (date) => padL + (allDates.indexOf(date) / Math.max(1, allDates.length - 1)) * plotW;
+    const yScale = (v) => padT + plotH - (v / maxV) * plotH;
+
+    const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " " + height,
+      role: "img", "aria-label": "Evolução do preço mediano por metro quadrado em " + concelho });
+    container.appendChild(svg);
+
+    const steps = 4;
+    for (let i = 0; i <= steps; i++) {
+      const v = maxV * i / steps;
+      const y = yScale(v);
+      el("line", { x1: padL, x2: width - padR, y1: y, y2: y, class: i === 0 ? "baseline" : "gridline" }, svg);
+      el("text", { x: padL - 8, y: y + 3, "text-anchor": "end", class: "axis-label" }, svg)
+        .textContent = Math.round(v).toLocaleString("pt-PT");
+    }
+    allDates.forEach(d => {
+      el("text", { x: xScale(d), y: height - 8, "text-anchor": "middle", class: "axis-label" }, svg)
+        .textContent = formatDate(d, false);
+    });
+
+    if (!pts.length) {
+      el("text", { x: width/2, y: height/2, "text-anchor": "middle", class: "cat-label" }, svg)
+        .textContent = "Sem dados suficientes para " + concelho;
+      return;
+    }
+
+    const linePath = pts.map((r, i) => (i === 0 ? "M" : "L") + xScale(r.data) + "," + yScale(r.median_ppm)).join(" ");
+    const areaPath = linePath + " L " + xScale(pts[pts.length-1].data) + "," + (padT + plotH) +
+      " L " + xScale(pts[0].data) + "," + (padT + plotH) + " Z";
+    el("path", { d: areaPath, fill: "var(--accent-fill)", stroke: "none" }, svg);
+    el("path", { d: linePath, fill: "none", stroke: "var(--accent)", "stroke-width": 2,
+      "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
+
+    pts.forEach(r => {
+      const cx = xScale(r.data), cy = yScale(r.median_ppm);
+      el("circle", { cx, cy, r: 5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 2 }, svg);
+      const hit = el("circle", { cx, cy, r: 12, fill: "transparent", class: "bar-hit" }, svg);
+      const tt = '<div class="tt-title">' + concelho + ' · ' + formatDate(r.data, true) + '</div>' +
+        '<div class="tt-val">' + formatEUR(r.median_ppm) + ' /m²</div>' +
+        '<div class="tt-sub">' + formatInt(r.count) + ' anúncios nesta recolha</div>';
+      hit.addEventListener("pointerenter", (e) => showTooltip(e.clientX, e.clientY, tt));
+      hit.addEventListener("pointermove", (e) => showTooltip(e.clientX, e.clientY, tt));
+      hit.addEventListener("pointerleave", hideTooltip);
+    });
+    const lastLabel = el("text", { x: xScale(pts[pts.length-1].data), y: yScale(pts[pts.length-1].median_ppm) - 10,
+      "text-anchor": "middle", class: "value-label" }, svg);
+    lastLabel.textContent = formatEUR(pts[pts.length-1].median_ppm).replace(" €", "");
+  }
+
+  function renderTrendTable(allDates, byConcelho) {
+    const wrap = document.getElementById("trend-table");
+    let html = '<table class="mini-table"><thead><tr><th>Concelho</th>';
+    allDates.forEach(d => { html += "<th>" + formatDate(d, false) + "</th>"; });
+    html += "</tr></thead><tbody>";
+    CONCELHO_ORDER.forEach(c => {
+      const map = {};
+      byConcelho[c].forEach(r => { map[r.data] = r.median_ppm; });
+      html += "<tr><td>" + c + "</td>";
+      allDates.forEach(d => { html += "<td>" + (map[d] != null ? formatEUR(map[d]) : "—") + "</td>"; });
+      html += "</tr>";
+    });
+    html += "</tbody></table>";
+    wrap.innerHTML = html;
+  }
+
+  document.getElementById("trend-table-toggle").addEventListener("click", (e) => {
+    const t = document.getElementById("trend-table");
+    const showing = t.style.display !== "none";
+    t.style.display = showing ? "none" : "block";
+    e.target.textContent = showing ? "Ver tabela" : "Ocultar tabela";
+  });
+
+  // ---------- freguesia explorer ----------
+  let sortKey = "median_ppm", sortDir = -1, searchTerm = "";
+
+  function renderFregTable() {
+    let rows = DATA.by_freguesia.slice();
+    if (concelhoFilter) rows = rows.filter(r => r.concelho === concelhoFilter);
+    if (searchTerm) {
+      const q = searchTerm.toLocaleLowerCase("pt-PT");
+      rows = rows.filter(r => r.freguesia.toLocaleLowerCase("pt-PT").includes(q));
+    }
+    rows.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === "string") return av.localeCompare(bv) * sortDir;
+      return (av - bv) * sortDir;
+    });
+
+    const tbody = document.querySelector("#freg-table tbody");
+    tbody.innerHTML = "";
+    rows.forEach(r => {
+      const tr = document.createElement("tr");
+      const cells = [
+        r.freguesia,
+        r.concelho,
+        formatInt(r.count),
+        r.median_ppm != null ? formatEUR(r.median_ppm) : "—",
+        r.median_preco != null ? formatEUR(r.median_preco) : "—",
+      ];
+      cells.forEach((c, i) => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        if (i >= 3 && c === "—") td.classList.add("muted");
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    document.getElementById("freg-count").textContent = rows.length.toLocaleString("pt-PT") + " freguesias";
+  }
+
+  document.querySelectorAll("#freg-table th button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.sort;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = -1; }
+      renderFregTable();
+    });
+  });
+  document.getElementById("freg-search").addEventListener("input", (e) => {
+    searchTerm = e.target.value;
+    renderFregTable();
+  });
+
+  // ---------- filter wiring ----------
+  function setConcelhoFilter(c) {
+    concelhoFilter = c;
+    document.getElementById("concelho-filter").value = c;
+    document.getElementById("clear-filter").style.display = c ? "inline" : "none";
+    renderAll();
+  }
+  document.getElementById("concelho-filter").addEventListener("change", (e) => setConcelhoFilter(e.target.value));
+  document.getElementById("clear-filter").addEventListener("click", () => setConcelhoFilter(""));
+
+  function renderAll() {
+    renderConcelhoChart();
+    renderOrigemChart();
+    renderTipologiaChart();
+    renderTopFreguesias();
+    renderBottomFreguesias();
+    renderRangeChart();
+    renderDealsTables();
+    renderTrendChart();
+    renderFregTable();
+  }
+
+  renderOverview();
+  renderAll();
+  window.addEventListener("resize", renderAll);
+});
+</script>
+</body>
+</html>
