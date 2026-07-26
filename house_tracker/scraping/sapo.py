@@ -13,6 +13,8 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+from .classificacao import tem_usufruto
+
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -134,6 +136,14 @@ def _parse_listing(prop, pagina, idx, concelho=None):
 
     preco_por_metro = round(preco / tamanho, 2) if preco and tamanho else None
 
+    desc_tag = prop.find("div", class_="property-description")
+    descricao = desc_tag.get_text(" ", strip=True) if desc_tag else None
+
+    # Contagem best-effort: só as fotos do carrossel de preview do cartão, não
+    # o total real de fotos do anúncio (esse só está na página de detalhe).
+    # As fotos ficam fora de "property-info-content", no <div class="property"> pai.
+    num_fotos = len(prop.parent.find_all("picture", class_="property-photos")) if prop.parent else None
+
     return {
         "pagina": pagina,
         "id": idx,
@@ -148,6 +158,9 @@ def _parse_listing(prop, pagina, idx, concelho=None):
         "desconto": desconto,
         "localizacao": localizacao,
         "agencia": agencia,
+        "descricao": descricao,
+        "num_fotos": num_fotos,
+        "usufruto": tem_usufruto(f"{titulo or ''} {descricao or ''}"),
         "data_publicacao": data_pub,
         "data_extracao": date.today().strftime("%Y%m%d"),
         "origem": "Sapo",

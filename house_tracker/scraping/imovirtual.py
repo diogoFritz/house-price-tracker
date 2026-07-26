@@ -10,6 +10,8 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+from .classificacao import tem_usufruto
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Intervalo entre pedidos sucessivos ao percorrer várias páginas, para não
@@ -131,6 +133,8 @@ def _parse_listing(item, pagina=None):
         "destacado": item.get("isPromoted"),
         "oferta_privada": item.get("isPrivateOwner"),
         "num_fotos": item.get("totalPossibleImages"),
+        "descricao": item.get("shortDescription"),
+        "usufruto": tem_usufruto(f"{item.get('title') or ''} {item.get('shortDescription') or ''}"),
         "data_publicacao": item.get("dateCreated"),
         "data_extracao": date.today().strftime("%Y%m%d"),
         "origem": "Imovirtual",

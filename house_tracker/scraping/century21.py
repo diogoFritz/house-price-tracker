@@ -108,6 +108,7 @@ def _parse_listing(item, freguesias, concelho_nome, pagina=None):
         "distrito": DISTRITO,
         "agencia": (item.get("agency") or {}).get("name"),
         "agente": (item.get("agent") or {}).get("name"),
+        "num_fotos": len(item.get("images") or []),
         "data_publicacao": item.get("entered_market"),
         "data_extracao": date.today().strftime("%Y%m%d"),
         "origem": "Century21",

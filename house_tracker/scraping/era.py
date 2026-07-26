@@ -148,6 +148,7 @@ def _parse_listing(item, concelho_nome, pagina=None):
         "concelho": concelho_nome,
         "distrito": "Lisboa",
         "agencia": (item.get("RealEstate") or {}).get("Name"),
+        "num_fotos": len(item.get("Gallery") or []),
         "lat": _parse_coord(item.get("Lat")),
         "lng": _parse_coord(item.get("Lng")),
         "data_extracao": date.today().strftime("%Y%m%d"),
@@ -167,6 +168,7 @@ def _fetch_page_data(session, concelho, page):
     payload = {
         "page": page,
         "propertiesTypeId": [1],  # 1 = Apartamento
+        "businessTypeId": [1],  # 1 = Comprar — sem isto a API devolve Comprar+Arrendar misturados
         "locationId": [location_id],
         "onlyDevelopments": False,
         "order": 3,

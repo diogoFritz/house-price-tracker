@@ -100,6 +100,7 @@ def _parse_listing(item, pagina=None):
         "distrito": item.get("regionName1"),
         "agencia": item.get("officeName"),
         "agente": item.get("userName"),
+        "num_fotos": len(item.get("listingPictures") or []),
         "data_publicacao": item.get("publishDate"),
         "data_extracao": date.today().strftime("%Y%m%d"),
         "origem": "Remax",

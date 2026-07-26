@@ -15,6 +15,8 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+from .classificacao import tem_usufruto
+
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -90,6 +92,10 @@ def _parse_listing(card, pagina=None):
             freguesia = freguesia or partes[-2]
             concelho_nome = concelho_nome or partes[-1]
 
+    # Só os cartões "premium" completos têm descrição — os compactos "featured" não.
+    desc_tag = card.select_one(".property-card__description")
+    descricao = desc_tag.get_text(" ", strip=True) if desc_tag else None
+
     return {
         "id": int(id_match.group(1)) if id_match else None,
         "pagina": pagina,
@@ -106,6 +112,8 @@ def _parse_listing(card, pagina=None):
         "agencia": agencia,
         "lat": lat,
         "lng": lng,
+        "descricao": descricao,
+        "usufruto": tem_usufruto(f"{titulo or ''} {descricao or ''}"),
         "data_extracao": date.today().strftime("%Y%m%d"),
         "origem": "Supercasa",
     }
