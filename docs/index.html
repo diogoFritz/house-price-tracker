@@ -119,7 +119,12 @@
     margin-top: 3px;
   }
   .tile .sub .sub-line + .sub-line {
-    margin-top: 4px;
+    margin-top: 2px;
+  }
+  .tile .sub .sub-line:last-child {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
   }
 
   .filters {
@@ -690,7 +695,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
         label: "Última recolha",
         value: formatDate(ov.date_max, false),
         sub: [
-          ov.origens.map(o => o + " " + formatDate((ov.date_max_by_origem || {})[o], false)).join(" · "),
+          ...ov.origens.map(o => o + " " + formatDate((ov.date_max_by_origem || {})[o], false)),
           ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true),
         ],
       },
