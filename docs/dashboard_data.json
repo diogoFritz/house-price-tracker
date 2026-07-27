@@ -29,6 +29,14 @@
     ],
     "date_min": "20250923",
     "date_max": "20260727",
+    "date_max_by_origem": {
+      "Century21": "20260727",
+      "ERA": "20260727",
+      "Imovirtual": "20260727",
+      "Remax": "20260727",
+      "Sapo": "20260719",
+      "Supercasa": "20260719"
+    },
     "n_dates": 12
   },
   "by_concelho": [

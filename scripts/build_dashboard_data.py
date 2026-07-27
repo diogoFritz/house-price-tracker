@@ -291,12 +291,18 @@ def build_aggregates(rows):
     origens = sorted({r["origem"] for r in rows if r["origem"]})
     dates = sorted({r["data_extracao"] for r in rows if r["data_extracao"]})
 
+    date_max_by_origem = {}
+    for o in origens:
+        datas_origem = [r["data_extracao"] for r in rows if r["origem"] == o and r["data_extracao"]]
+        date_max_by_origem[o] = max(datas_origem) if datas_origem else None
+
     overview = {
         "total_listings": len(rows),
         "concelhos": concelhos,
         "origens": origens,
         "date_min": dates[0] if dates else None,
         "date_max": dates[-1] if dates else None,
+        "date_max_by_origem": date_max_by_origem,
         "n_dates": len(dates),
     }
 

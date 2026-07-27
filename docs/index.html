@@ -675,7 +675,12 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
       { label: "Anúncios analisados", value: formatInt(ov.total_listings), sub: "após limpeza de outliers" },
       { label: "Concelhos cobertos", value: ov.concelhos.length, sub: summarizeList(CONCELHO_ORDER, 3) },
       { label: "Portais consultados", value: ov.origens.length, sub: ov.origens.join(", ") },
-      { label: "Última recolha", value: formatDate(ov.date_max, false), sub: ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true) },
+      {
+        label: "Última recolha",
+        value: formatDate(ov.date_max, false),
+        sub: ov.origens.map(o => o + " " + formatDate(ov.date_max_by_origem[o], false)).join(" · ") +
+          " — " + ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true),
+      },
     ];
     const wrap = document.getElementById("tiles");
     tiles.forEach(t => {
