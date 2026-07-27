@@ -136,6 +136,8 @@ def load_all():
                     "data_extracao": date,
                     "titulo": r.get("titulo"),
                     "link": r.get("link"),
+                    "agencia": r.get("agencia") or r.get("anunciante"),
+                    "num_fotos": r.get("num_fotos"),
                 })
     return rows
 
@@ -156,6 +158,12 @@ MIN_GROUP_FOR_STATS = 8
 MIN_GROUP_FOR_DEALS = 8
 DEALS_PER_SIDE = 60
 MIN_PRECO_ABSOLUTO = 20000
+# Agências com só 1 anúncio no grupo dão uma "melhor oferta" pouco significativa
+# (não há nada para comparar dentro da própria agência) — exige pelo menos 2.
+MIN_LISTINGS_PER_AGENCIA = 2
+# Quantas candidatas por agência se guardam, para os filtros client-side
+# (fotos/preço) ainda encontrarem uma oferta válida por agência.
+N_CANDIDATOS_POR_AGENCIA = 5
 
 # intervalos de área plausíveis por tipologia (m²) — usados só para a análise de
 # valor (média/desvio), que é sensível a outliers; a mediana usada no resto do
@@ -235,19 +243,42 @@ def build_value_analysis(rows):
                 "tamanho": r["tamanho"],
                 "preco": r["preco"],
                 "preco_por_metro": r["preco_por_metro"],
+                "num_fotos": r["num_fotos"],
                 "group_mean_ppm": round(m, 2),
                 "deviation_pct": deviation_pct,
                 "origem": r["origem"],
+                "agencia": (r["agencia"] or "").strip() or None,
                 "data_extracao": r["data_extracao"],
             })
     deals.sort(key=lambda x: x["deviation_pct"])
     best_deals = deals[:DEALS_PER_SIDE]
     overpriced = list(reversed(deals[-DEALS_PER_SIDE:]))
 
+    # Uma oferta por agência (a melhor que a agência tem) — em vez de só os
+    # negócios globais mais baratos, que tendem a ficar dominados por 1-2
+    # agências muito agressivas no preço, dá para navegar por agência e ter
+    # mais opções de escolha espalhadas pelo mercado.
+    por_agencia = defaultdict(list)
+    for d in deals:
+        if d["agencia"]:
+            por_agencia[d["agencia"]].append(d)
+    # Guardam-se as N melhores candidatas por agência (não só a 1ª) para que os
+    # filtros de fotos/preço no dashboard (aplicados no browser) ainda consigam
+    # encontrar uma oferta válida dessa agência, em vez de a agência desaparecer
+    # só porque a sua oferta nº1 falhou o filtro.
+    best_by_agencia = [
+        {**oferta, "num_anuncios_agencia": len(ofertas)}
+        for ofertas in por_agencia.values()
+        if len(ofertas) >= MIN_LISTINGS_PER_AGENCIA
+        for oferta in sorted(ofertas, key=lambda x: x["deviation_pct"])[:N_CANDIDATOS_POR_AGENCIA]
+    ]
+    best_by_agencia.sort(key=lambda x: x["deviation_pct"])
+
     return {
         "concelho_stats": concelho_stats,
         "best_deals": best_deals,
         "overpriced": overpriced,
+        "best_by_agencia": best_by_agencia,
         "deals_meta": {
             "latest_snapshot_count": len(latest),
             "min_group_size": MIN_GROUP_FOR_DEALS,

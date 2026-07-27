@@ -131,7 +131,7 @@
     color: var(--ink-2);
     font-weight: 550;
   }
-  select, input[type="search"] {
+  select, input[type="search"], input[type="number"] {
     font: inherit;
     font-size: 13.5px;
     color: var(--ink);
@@ -140,6 +140,7 @@
     border-radius: 8px;
     padding: 7px 10px;
   }
+  input[type="number"] { width: 110px; }
   select:focus-visible, input:focus-visible, button:focus-visible, th button:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
@@ -433,7 +434,21 @@
       <option value="">Todos os concelhos</option>
     </select>
     <button class="clear-btn" id="clear-filter" style="display:none;">Limpar filtro</button>
+
+    <label for="min-fotos-filter">Mín. fotos</label>
+    <select id="min-fotos-filter">
+      <option value="0">Todos</option>
+      <option value="3">3+</option>
+      <option value="5">5+</option>
+      <option value="10">10+</option>
+    </select>
+
+    <label for="preco-min-filter">Preço min.</label>
+    <input type="number" id="preco-min-filter" placeholder="0" min="0" step="10000">
+    <label for="preco-max-filter">Preço máx.</label>
+    <input type="number" id="preco-max-filter" placeholder="sem limite" min="0" step="10000">
   </section>
+  <p class="card-sub" style="margin: -14px 0 20px;">Os filtros de fotos e preço aplicam-se às tabelas de negócios e agências abaixo (não têm dados por fonte suficientes para os gráficos e médias por concelho).</p>
 
   <section class="grid-2">
     <div class="card full">
@@ -505,7 +520,7 @@
       <div class="table-scroll deals-scroll">
         <table class="data-table" id="deals-table-best">
           <thead><tr>
-            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Portal</th>
+            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Agência</th><th>Portal</th>
           </tr></thead>
           <tbody></tbody>
         </table>
@@ -525,13 +540,38 @@
       <div class="table-scroll deals-scroll">
         <table class="data-table" id="deals-table-over">
           <thead><tr>
-            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Portal</th>
+            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Agência</th><th>Portal</th>
           </tr></thead>
           <tbody></tbody>
         </table>
       </div>
       <p class="explorer-count" id="deals-over-count"></p>
     </div>
+  </section>
+
+  <section class="card full explorer">
+    <h2>Melhores negócios por agência</h2>
+    <p class="card-sub">Até 5 melhores ofertas de cada agência (mín. 2 anúncios) — para teres várias opções por agência, não só as mais baratas no global</p>
+    <div class="explorer-head">
+      <input type="search" id="agencia-search" placeholder="Pesquisar agência…">
+    </div>
+    <div class="table-scroll">
+      <table class="data-table" id="agencia-table">
+        <thead><tr>
+          <th data-key="agencia">Agência</th>
+          <th data-key="num_anuncios_agencia"><button data-sort="num_anuncios_agencia">Anúncios ↕</button></th>
+          <th data-key="titulo">Melhor oferta</th>
+          <th data-key="concelho">Concelho</th>
+          <th data-key="tipologia">Tipologia</th>
+          <th data-key="preco"><button data-sort="preco">Preço ↕</button></th>
+          <th data-key="preco_por_metro"><button data-sort="preco_por_metro">€/m² ↕</button></th>
+          <th data-key="deviation_pct"><button data-sort="deviation_pct">vs. média ↕</button></th>
+          <th data-key="origem">Portal</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="explorer-count" id="agencia-count"></p>
   </section>
 
   <section class="card full explorer">
@@ -764,6 +804,17 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
   // ---------- concelho price chart ----------
   let concelhoFilter = "";
 
+  // ---------- listing-level filters (fotos mín. + preço) — só afetam as
+  // tabelas de negócios e agências, que trabalham com anúncios individuais ----------
+  let minFotosFilter = 0, precoMinFilter = null, precoMaxFilter = null;
+
+  function passesListingFilters(r) {
+    if (minFotosFilter > 0 && (r.num_fotos == null || r.num_fotos < minFotosFilter)) return false;
+    if (precoMinFilter != null && (r.preco == null || r.preco < precoMinFilter)) return false;
+    if (precoMaxFilter != null && (r.preco == null || r.preco > precoMaxFilter)) return false;
+    return true;
+  }
+
   function renderConcelhoChart() {
     const items = DATA.by_concelho.map(d => ({
       label: d.concelho, value: d.median_ppm || 0,
@@ -929,7 +980,8 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     return d.tipologia + (d.freguesia ? " em " + d.freguesia : " em " + d.concelho);
   }
   function renderDealsTable(tbodyId, countId, rows, subtitleId, subtitleBase) {
-    const filtered = concelhoFilter ? rows.filter(r => r.concelho === concelhoFilter) : rows;
+    let filtered = concelhoFilter ? rows.filter(r => r.concelho === concelhoFilter) : rows;
+    filtered = filtered.filter(passesListingFilters);
     document.getElementById(subtitleId).textContent = subtitleBase + (concelhoFilter ? " — " + concelhoFilter : "");
     const tbody = document.querySelector("#" + tbodyId + " tbody");
     tbody.innerHTML = "";
@@ -966,6 +1018,10 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
       tdDev.appendChild(span);
       tr.appendChild(tdDev);
 
+      const tdAgencia = document.createElement("td");
+      tdAgencia.textContent = d.agencia || "—";
+      tr.appendChild(tdAgencia);
+
       const tdOrigem = document.createElement("td");
       tdOrigem.textContent = d.origem || "—";
       tr.appendChild(tdOrigem);
@@ -981,6 +1037,86 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     renderDealsTable("deals-table-over", "deals-over-count", DATA.value_analysis.overpriced,
       "overpriced-sub", "Anúncios mais acima da média do concelho para a mesma tipologia");
   }
+
+  // ---------- agency explorer: best deal per agency ----------
+  let agenciaSortKey = "deviation_pct", agenciaSortDir = 1, agenciaSearchTerm = "";
+
+  function renderAgenciaTable() {
+    // Até N_CANDIDATOS_POR_AGENCIA (5) ofertas por agência — não só a melhor —
+    // para dar mais opções de escolha dentro da mesma agência.
+    let rows = DATA.value_analysis.best_by_agencia || [];
+    if (concelhoFilter) rows = rows.filter(r => r.concelho === concelhoFilter);
+    rows = rows.filter(passesListingFilters);
+
+    if (agenciaSearchTerm) {
+      const q = agenciaSearchTerm.toLocaleLowerCase("pt-PT");
+      rows = rows.filter(r => r.agencia.toLocaleLowerCase("pt-PT").includes(q));
+    }
+    rows = rows.slice().sort((a, b) => {
+      const av = a[agenciaSortKey], bv = b[agenciaSortKey];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === "string") return av.localeCompare(bv) * agenciaSortDir;
+      return (av - bv) * agenciaSortDir;
+    });
+
+    const tbody = document.querySelector("#agencia-table tbody");
+    tbody.innerHTML = "";
+    rows.forEach(r => {
+      const tr = document.createElement("tr");
+
+      const tdAgencia = document.createElement("td");
+      tdAgencia.textContent = r.agencia;
+      tr.appendChild(tdAgencia);
+
+      const tdNum = document.createElement("td");
+      tdNum.textContent = formatInt(r.num_anuncios_agencia);
+      tr.appendChild(tdNum);
+
+      const tdOferta = document.createElement("td");
+      const a = document.createElement("a");
+      a.className = "deal-link";
+      a.href = r.link || "#";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = r.tamanho != null ? Math.round(r.tamanho) + " m²" : (r.titulo || "ver anúncio");
+      a.title = r.titulo || "";
+      tdOferta.appendChild(a);
+      tr.appendChild(tdOferta);
+
+      const cells = [r.concelho, r.tipologia || "—", formatEUR(r.preco), formatEUR(r.preco_por_metro)];
+      cells.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
+
+      const tdDev = document.createElement("td");
+      const span = document.createElement("span");
+      span.className = "deviation " + (r.deviation_pct < 0 ? "neg" : "pos");
+      span.textContent = (r.deviation_pct >= 0 ? "+" : "") + r.deviation_pct.toFixed(1) + "%";
+      tdDev.appendChild(span);
+      tr.appendChild(tdDev);
+
+      const tdOrigem = document.createElement("td");
+      tdOrigem.textContent = r.origem || "—";
+      tr.appendChild(tdOrigem);
+
+      tbody.appendChild(tr);
+    });
+    const numAgencias = new Set(rows.map(r => r.agencia)).size;
+    document.getElementById("agencia-count").textContent =
+      rows.length.toLocaleString("pt-PT") + " ofertas de " + numAgencias.toLocaleString("pt-PT") + " agências";
+  }
+
+  document.querySelectorAll("#agencia-table th button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.dataset.sort;
+      if (agenciaSortKey === key) agenciaSortDir *= -1; else { agenciaSortKey = key; agenciaSortDir = key === "deviation_pct" ? 1 : -1; }
+      renderAgenciaTable();
+    });
+  });
+  document.getElementById("agencia-search").addEventListener("input", (e) => {
+    agenciaSearchTerm = e.target.value;
+    renderAgenciaTable();
+  });
 
   // ---------- trend chart: small multiples (overview) or single detail (filtered) ----------
   function trendByConcelho() {
@@ -1224,6 +1360,22 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
   document.getElementById("concelho-filter").addEventListener("change", (e) => setConcelhoFilter(e.target.value));
   document.getElementById("clear-filter").addEventListener("click", () => setConcelhoFilter(""));
 
+  document.getElementById("min-fotos-filter").addEventListener("change", (e) => {
+    minFotosFilter = parseInt(e.target.value, 10) || 0;
+    renderDealsTables();
+    renderAgenciaTable();
+  });
+  document.getElementById("preco-min-filter").addEventListener("input", (e) => {
+    precoMinFilter = e.target.value === "" ? null : Number(e.target.value);
+    renderDealsTables();
+    renderAgenciaTable();
+  });
+  document.getElementById("preco-max-filter").addEventListener("input", (e) => {
+    precoMaxFilter = e.target.value === "" ? null : Number(e.target.value);
+    renderDealsTables();
+    renderAgenciaTable();
+  });
+
   function renderAll() {
     renderConcelhoChart();
     renderOrigemChart();
@@ -1233,6 +1385,7 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     renderRangeChart();
     renderDealsTables();
     renderTrendChart();
+    renderAgenciaTable();
     renderFregTable();
   }
 
