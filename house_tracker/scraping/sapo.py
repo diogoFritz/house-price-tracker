@@ -37,7 +37,7 @@ REQUEST_DELAY_RANGE = (2.0, 4.0)
 # O casa.sapo.pt bloqueia com 429 depois de ~5 páginas seguidas — em vez de
 # desistir, espera-se e repete a mesma página automaticamente.
 RATE_LIMIT_WAIT_S = 90
-RATE_LIMIT_MAX_TENTATIVAS = 10
+RATE_LIMIT_MAX_TENTATIVAS = 2
 
 # Sessão partilhada: mantém cookies entre pedidos, tal como um browser real.
 _session = requests.Session()
