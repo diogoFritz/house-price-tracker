@@ -606,7 +606,7 @@
 <div class="tooltip" id="tooltip"></div>
 
 <script>
-fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(function (DATA) {
+fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r.json(); }).then(function (DATA) {
 "use strict";
   const svgNS = "http://www.w3.org/2000/svg";
 
@@ -619,6 +619,7 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     return { y: +s.slice(0,4), m: +s.slice(4,6), d: +s.slice(6,8) };
   }
   function formatDate(s, withYear) {
+    if (!s) return "—";
     const { y, m, d } = parseYmd(s);
     return d + " " + MONTHS[m-1] + (withYear ? " " + y : "");
   }
@@ -678,7 +679,7 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
       {
         label: "Última recolha",
         value: formatDate(ov.date_max, false),
-        sub: ov.origens.map(o => o + " " + formatDate(ov.date_max_by_origem[o], false)).join(" · ") +
+        sub: ov.origens.map(o => o + " " + formatDate((ov.date_max_by_origem || {})[o], false)).join(" · ") +
           " — " + ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true),
       },
     ];
