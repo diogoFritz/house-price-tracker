@@ -291,13 +291,21 @@ def build_aggregates(rows):
     origens = sorted({r["origem"] for r in rows if r["origem"]})
     dates = sorted({r["data_extracao"] for r in rows if r["data_extracao"]})
 
+    date_max_by_origem = {}
+    for o in origens:
+        datas_origem = [r["data_extracao"] for r in rows if r["origem"] == o and r["data_extracao"]]
+        date_max_by_origem[o] = max(datas_origem) if datas_origem else None
+
     overview = {
         "total_listings": len(rows),
         "concelhos": concelhos,
         "origens": origens,
         "date_min": dates[0] if dates else None,
         "date_max": dates[-1] if dates else None,
+        "date_max_by_origem": date_max_by_origem,
         "n_dates": len(dates),
+        # slug do URL (usado em docs/listings/<slug>.json) por nome de concelho
+        "concelho_slugs": {nome: slug for slug, nome in CONCELHO_NAMES.items()},
     }
 
     by_concelho = []
@@ -403,6 +411,43 @@ def build_aggregates(rows):
     }
 
 
+LISTING_FIELDS = [
+    "titulo", "link", "freguesia", "tipologia", "tamanho", "preco",
+    "preco_por_metro", "agencia", "origem", "num_fotos", "data_extracao",
+]
+
+
+def export_listings_by_concelho(rows):
+    """Grava um ficheiro por concelho (docs/listings/<slug>.json) com todos os
+    anúncios da recolha mais recente — carregado sob pedido pelo explorador de
+    imóveis do dashboard, em vez de ir tudo num único ficheiro (seria grande
+    demais: ~40 mil anúncios no total)."""
+    slug_by_nome = {nome: slug for slug, nome in CONCELHO_NAMES.items()}
+    latest = [r for r in latest_snapshot_rows(rows) if plausible_for_value_analysis(r)]
+
+    por_concelho = defaultdict(list)
+    for r in latest:
+        por_concelho[r["concelho"]].append({k: r.get(k) for k in LISTING_FIELDS})
+
+    listings_dir = ROOT / "docs" / "listings"
+    listings_dir.mkdir(exist_ok=True)
+    # limpa ficheiros de concelhos que já não têm dados (ex. slug mudou)
+    for f in listings_dir.glob("*.json"):
+        f.unlink()
+
+    resumo = []
+    for nome, anuncios in por_concelho.items():
+        slug = slug_by_nome.get(nome)
+        if slug is None:
+            continue
+        anuncios.sort(key=lambda a: (a["preco_por_metro"] is None, a["preco_por_metro"]))
+        (listings_dir / f"{slug}.json").write_text(
+            json.dumps(anuncios, ensure_ascii=False), encoding="utf-8"
+        )
+        resumo.append((slug, len(anuncios)))
+    return resumo
+
+
 def main():
     rows = load_all()
     agg = build_aggregates(rows)
@@ -410,6 +455,10 @@ def main():
     out_path.write_text(json.dumps(agg, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(rows)} registos processados -> {out_path}")
     print(json.dumps(agg["overview"], ensure_ascii=False, indent=2))
+
+    resumo = export_listings_by_concelho(rows)
+    total_listings = sum(n for _, n in resumo)
+    print(f"{total_listings} anúncios exportados em {len(resumo)} ficheiros -> docs/listings/")
 
 
 if __name__ == "__main__":

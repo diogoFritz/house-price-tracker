@@ -29,7 +29,33 @@
     ],
     "date_min": "20250923",
     "date_max": "20260727",
-    "n_dates": 12
+    "date_max_by_origem": {
+      "Century21": "20260727",
+      "ERA": "20260727",
+      "Imovirtual": "20260727",
+      "Remax": "20260727",
+      "Sapo": "20260719",
+      "Supercasa": "20260719"
+    },
+    "n_dates": 12,
+    "concelho_slugs": {
+      "Alenquer": "alenquer",
+      "Amadora": "amadora",
+      "Arruda dos Vinhos": "arruda-dos-vinhos",
+      "Azambuja": "azambuja",
+      "Cadaval": "cadaval",
+      "Cascais": "cascais",
+      "Lisboa": "lisboa",
+      "Loures": "loures",
+      "Lourinhã": "lourinha",
+      "Mafra": "mafra",
+      "Odivelas": "odivelas",
+      "Oeiras": "oeiras",
+      "Sintra": "sintra",
+      "Sobral de Monte Agraço": "sobral-de-monte-agraco",
+      "Torres Vedras": "torres-vedras",
+      "Vila Franca de Xira": "vila-franca-de-xira"
+    }
   },
   "by_concelho": [
     {
