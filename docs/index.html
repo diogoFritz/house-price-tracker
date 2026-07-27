@@ -196,21 +196,6 @@
     white-space: nowrap;
   }
   .table-toggle:hover { background: var(--accent-wash); }
-  .table-toggle:disabled { opacity: 0.4; cursor: default; }
-  .table-toggle:disabled:hover { background: none; }
-
-  .pager {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 12px;
-  }
-  .pager #listings-page-label {
-    font-size: 12.5px;
-    color: var(--ink-2);
-    font-variant-numeric: tabular-nums;
-  }
 
   svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
   svg.chart text {
@@ -463,33 +448,7 @@
     <label for="preco-max-filter">Preço máx.</label>
     <input type="number" id="preco-max-filter" placeholder="sem limite" min="0" step="10000">
   </section>
-  <p class="card-sub" style="margin: -14px 0 20px;">Os filtros de fotos e preço aplicam-se ao explorador de imóveis e às tabelas de negócios/agências abaixo (não aos gráficos e médias por concelho).</p>
-
-  <section class="card full explorer">
-    <h2>Explorador de imóveis</h2>
-    <p class="card-sub" id="listings-sub">Escolhe um concelho no filtro acima para ver todos os anúncios (não só os "melhores negócios")</p>
-    <div class="explorer-head">
-      <input type="search" id="listings-freguesia-search" placeholder="Pesquisar freguesia…">
-      <label for="listings-tipologia-filter">Tipologia</label>
-      <select id="listings-tipologia-filter">
-        <option value="">Todas</option>
-      </select>
-    </div>
-    <div class="table-scroll">
-      <table class="data-table" id="listings-table">
-        <thead><tr>
-          <th>Anúncio</th><th>Freguesia</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>Agência</th><th>Portal</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="pager" id="listings-pager" style="display:none;">
-      <button id="listings-prev" class="table-toggle">← Anterior</button>
-      <span id="listings-page-label"></span>
-      <button id="listings-next" class="table-toggle">Seguinte →</button>
-    </div>
-    <p class="explorer-count" id="listings-count"></p>
-  </section>
+  <p class="card-sub" style="margin: -14px 0 20px;">Os filtros de fotos e preço aplicam-se às tabelas de negócios e agências abaixo (não têm dados por fonte suficientes para os gráficos e médias por concelho).</p>
 
   <section class="grid-2">
     <div class="card full">
@@ -716,10 +675,7 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
       { label: "Anúncios analisados", value: formatInt(ov.total_listings), sub: "após limpeza de outliers" },
       { label: "Concelhos cobertos", value: ov.concelhos.length, sub: summarizeList(CONCELHO_ORDER, 3) },
       { label: "Portais consultados", value: ov.origens.length, sub: ov.origens.join(", ") },
-      {
-        label: "Última recolha", value: formatDate(ov.date_max, false),
-        sub: ov.origens.map(o => o + " " + formatDate(ov.date_max_by_origem[o], false)).join(" · "),
-      },
+      { label: "Última recolha", value: formatDate(ov.date_max, false), sub: ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true) },
     ];
     const wrap = document.getElementById("tiles");
     tiles.forEach(t => {
@@ -1394,116 +1350,11 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     renderFregTable();
   });
 
-  // ---------- listings explorer: every listing of a concelho, paginated ----------
-  const LISTINGS_PER_PAGE = 25;
-  let listingsCache = new Map(); // slug -> array de anúncios
-  let listingsPage = 1, listingsFregSearch = "", listingsTipologiaFilter = "";
-
-  document.getElementById("listings-tipologia-filter").innerHTML =
-    '<option value="">Todas</option>' +
-    DATA.by_tipologia.map(t => '<option value="' + t.tipologia + '">' + t.tipologia + '</option>').join("");
-
-  function renderListingsTable() {
-    const slug = concelhoFilter ? DATA.overview.concelho_slugs[concelhoFilter] : null;
-    const sub = document.getElementById("listings-sub");
-    const pager = document.getElementById("listings-pager");
-    const tbody = document.querySelector("#listings-table tbody");
-
-    if (!slug) {
-      sub.textContent = 'Escolhe um concelho no filtro acima para ver todos os anúncios (não só os "melhores negócios")';
-      tbody.innerHTML = "";
-      pager.style.display = "none";
-      document.getElementById("listings-count").textContent = "";
-      return;
-    }
-
-    if (!listingsCache.has(slug)) {
-      sub.textContent = "A carregar anúncios de " + concelhoFilter + "…";
-      tbody.innerHTML = "";
-      pager.style.display = "none";
-      listingsCache.set(slug, null); // evita pedidos repetidos enquanto está a carregar
-      fetch("listings/" + slug + ".json")
-        .then(r => r.json())
-        .then(data => {
-          listingsCache.set(slug, data);
-          listingsPage = 1;
-          renderListingsTable();
-        })
-        .catch(() => {
-          listingsCache.delete(slug);
-          sub.textContent = "Não foi possível carregar os anúncios de " + concelhoFilter + ".";
-        });
-      return;
-    }
-    if (listingsCache.get(slug) === null) return; // pedido já em curso
-
-    sub.textContent = "Todos os anúncios de " + concelhoFilter;
-    let rows = listingsCache.get(slug).filter(passesListingFilters);
-    if (listingsTipologiaFilter) rows = rows.filter(r => r.tipologia === listingsTipologiaFilter);
-    if (listingsFregSearch) {
-      const q = listingsFregSearch.toLocaleLowerCase("pt-PT");
-      rows = rows.filter(r => (r.freguesia || "").toLocaleLowerCase("pt-PT").includes(q));
-    }
-
-    const totalPages = Math.max(1, Math.ceil(rows.length / LISTINGS_PER_PAGE));
-    listingsPage = Math.min(Math.max(1, listingsPage), totalPages);
-    const start = (listingsPage - 1) * LISTINGS_PER_PAGE;
-    const pageRows = rows.slice(start, start + LISTINGS_PER_PAGE);
-
-    tbody.innerHTML = "";
-    pageRows.forEach(r => {
-      const tr = document.createElement("tr");
-      const tdA = document.createElement("td");
-      const a = document.createElement("a");
-      a.className = "deal-link";
-      a.href = r.link || "#";
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = r.titulo || "ver anúncio";
-      a.title = r.titulo || "";
-      tdA.appendChild(a);
-      tr.appendChild(tdA);
-
-      const cells = [
-        r.freguesia || "—",
-        r.tipologia || "—",
-        r.tamanho != null ? Math.round(r.tamanho) + " m²" : "—",
-        formatEUR(r.preco),
-        formatEUR(r.preco_por_metro),
-        r.agencia || "—",
-        r.origem || "—",
-      ];
-      cells.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
-      tbody.appendChild(tr);
-    });
-
-    document.getElementById("listings-count").textContent =
-      rows.length.toLocaleString("pt-PT") + " anúncios em " + concelhoFilter;
-    pager.style.display = rows.length ? "flex" : "none";
-    document.getElementById("listings-page-label").textContent = "Página " + listingsPage + " de " + totalPages;
-    document.getElementById("listings-prev").disabled = listingsPage <= 1;
-    document.getElementById("listings-next").disabled = listingsPage >= totalPages;
-  }
-
-  document.getElementById("listings-prev").addEventListener("click", () => { listingsPage--; renderListingsTable(); });
-  document.getElementById("listings-next").addEventListener("click", () => { listingsPage++; renderListingsTable(); });
-  document.getElementById("listings-freguesia-search").addEventListener("input", (e) => {
-    listingsFregSearch = e.target.value;
-    listingsPage = 1;
-    renderListingsTable();
-  });
-  document.getElementById("listings-tipologia-filter").addEventListener("change", (e) => {
-    listingsTipologiaFilter = e.target.value;
-    listingsPage = 1;
-    renderListingsTable();
-  });
-
   // ---------- filter wiring ----------
   function setConcelhoFilter(c) {
     concelhoFilter = c;
     document.getElementById("concelho-filter").value = c;
     document.getElementById("clear-filter").style.display = c ? "inline" : "none";
-    listingsPage = 1;
     renderAll();
   }
   document.getElementById("concelho-filter").addEventListener("change", (e) => setConcelhoFilter(e.target.value));
@@ -1511,24 +1362,18 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
 
   document.getElementById("min-fotos-filter").addEventListener("change", (e) => {
     minFotosFilter = parseInt(e.target.value, 10) || 0;
-    listingsPage = 1;
     renderDealsTables();
     renderAgenciaTable();
-    renderListingsTable();
   });
   document.getElementById("preco-min-filter").addEventListener("input", (e) => {
     precoMinFilter = e.target.value === "" ? null : Number(e.target.value);
-    listingsPage = 1;
     renderDealsTables();
     renderAgenciaTable();
-    renderListingsTable();
   });
   document.getElementById("preco-max-filter").addEventListener("input", (e) => {
     precoMaxFilter = e.target.value === "" ? null : Number(e.target.value);
-    listingsPage = 1;
     renderDealsTables();
     renderAgenciaTable();
-    renderListingsTable();
   });
 
   function renderAll() {
@@ -1541,7 +1386,6 @@ fetch("dashboard_data.json").then(function (r) { return r.json(); }).then(functi
     renderDealsTables();
     renderTrendChart();
     renderAgenciaTable();
-    renderListingsTable();
     renderFregTable();
   }
 
