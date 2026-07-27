@@ -176,12 +176,22 @@ def fetch_all_listings(concelho="lisboa", output_dir="supercasa/json"):
         items = _fetch_page(concelho, page)
         duracao = time.time() - inicio
         if items is None:
+            if page == 1:
+                raise RuntimeError(
+                    f"[Supercasa] Falha ao obter a página 1 de {concelho} — possível bloqueio do site. "
+                    "Não gravado como 0 imóveis para não mascarar a falha."
+                )
             tqdm.write(
                 f"[Supercasa] Falha na página {page} ({duracao:.1f}s). Progresso gravado até à página {page - 1}. "
                 "Chama fetch_all_listings outra vez mais tarde para retomar a partir daqui."
             )
             break
         if not items:
+            if page == 1:
+                raise RuntimeError(
+                    f"[Supercasa] Página 1 de {concelho} devolveu 0 imóveis — possível página de bloqueio "
+                    "servida com status 200. Não gravado como 0 imóveis para não mascarar a falha."
+                )
             break
 
         novos = sum(1 for item in items if item["id"] not in ids_vistos)
