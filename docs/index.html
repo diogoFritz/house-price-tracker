@@ -118,6 +118,9 @@
     color: var(--ink-muted);
     margin-top: 3px;
   }
+  .tile .sub .sub-line + .sub-line {
+    margin-top: 4px;
+  }
 
   .filters {
     display: flex;
@@ -600,6 +603,7 @@
     recolhidos entre <span id="footer-range"></span>. Preços por m² fora do intervalo plausível (300–20 000 €/m²,
     ou área declarada abaixo de 10 m²) foram excluídos dos agregados por indicarem erro de recolha, não de mercado.
     Freguesias com menos de 3 anúncios não são apresentadas individualmente.
+    Página atualizada em <span id="footer-generated"></span>.
   </footer>
 </div>
 
@@ -622,6 +626,11 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     if (!s) return "—";
     const { y, m, d } = parseYmd(s);
     return d + " " + MONTHS[m-1] + (withYear ? " " + y : "");
+  }
+  function formatDateTime(s) {
+    if (!s) return "—";
+    const [datePart, timePart] = s.split("T");
+    return formatDate(datePart.replace(/-/g, ""), true) + ", " + (timePart || "").slice(0, 5);
   }
   function formatEUR(v) {
     if (v == null) return "—";
@@ -671,6 +680,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       ov.n_dates + " recolhas entre " + formatDate(ov.date_min, true) + " e " + formatDate(ov.date_max, true) + ".";
     document.getElementById("footer-range").textContent =
       formatDate(ov.date_min, true) + " e " + formatDate(ov.date_max, true);
+    document.getElementById("footer-generated").textContent = formatDateTime(ov.generated_at);
 
     const tiles = [
       { label: "Anúncios analisados", value: formatInt(ov.total_listings), sub: "após limpeza de outliers" },
@@ -679,8 +689,10 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       {
         label: "Última recolha",
         value: formatDate(ov.date_max, false),
-        sub: ov.origens.map(o => o + " " + formatDate((ov.date_max_by_origem || {})[o], false)).join(" · ") +
-          " — " + ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true),
+        sub: [
+          ov.origens.map(o => o + " " + formatDate((ov.date_max_by_origem || {})[o], false)).join(" · "),
+          ov.n_dates + " recolhas desde " + formatDate(ov.date_min, true),
+        ],
       },
     ];
     const wrap = document.getElementById("tiles");
@@ -689,7 +701,17 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       d.className = "tile";
       d.innerHTML = '<div class="label">' + t.label + '</div><div class="value"></div><div class="sub"></div>';
       d.querySelector(".value").textContent = t.value;
-      d.querySelector(".sub").textContent = t.sub;
+      const subEl = d.querySelector(".sub");
+      if (Array.isArray(t.sub)) {
+        t.sub.forEach(line => {
+          const p = document.createElement("div");
+          p.className = "sub-line";
+          p.textContent = line;
+          subEl.appendChild(p);
+        });
+      } else {
+        subEl.textContent = t.sub;
+      }
       wrap.appendChild(d);
     });
 

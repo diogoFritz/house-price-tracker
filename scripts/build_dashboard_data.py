@@ -3,7 +3,9 @@ num único dataset normalizado e calcula os agregados usados pelo dashboard."""
 import json
 import re
 import statistics
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -412,6 +414,7 @@ def build_aggregates(rows):
 def main():
     rows = load_all()
     agg = build_aggregates(rows)
+    agg["overview"]["generated_at"] = datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%Y-%m-%dT%H:%M")
     out_path = ROOT / "docs" / "dashboard_data.json"
     out_path.write_text(json.dumps(agg, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(rows)} registos processados -> {out_path}")
