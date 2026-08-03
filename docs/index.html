@@ -1233,7 +1233,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     }
 
     title.textContent = "Melhores negócios por freguesia — " + concelhoFilter;
-    sub.textContent = "Até 5 melhores ofertas de cada freguesia de " + concelhoFilter + " (mín. 2 anúncios).";
+    sub.textContent = "Até 25 melhores ofertas de cada freguesia de " + concelhoFilter + " (mín. 2 anúncios).";
     controls.style.display = "flex";
 
     // Até N_CANDIDATOS_POR_FREGUESIA (5) ofertas por freguesia — não só a melhor —

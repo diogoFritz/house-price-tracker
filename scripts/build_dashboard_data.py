@@ -243,7 +243,7 @@ BEST_DEAL_MAX_PCT = -10.0
 MIN_LISTINGS_PER_FREGUESIA = 2
 # Quantas candidatas por freguesia se guardam, para os filtros client-side
 # (fotos/preço) ainda encontrarem uma oferta válida por freguesia.
-N_CANDIDATOS_POR_FREGUESIA = 5
+N_CANDIDATOS_POR_FREGUESIA = 25
 
 # intervalos de área plausíveis por tipologia (m²) — usados só para a análise de
 # valor (média/desvio), que é sensível a outliers; a mediana usada no resto do
