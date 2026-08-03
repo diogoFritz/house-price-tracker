@@ -544,17 +544,9 @@
 
   <section class="grid-2">
     <div class="card full">
-      <h2>Preço/m² por agência</h2>
-      <p class="card-sub" id="agencia-ppm-sub"></p>
-      <div id="chart-agencia-ppm"></div>
-    </div>
-  </section>
-
-  <section class="grid-2">
-    <div class="card full">
-      <h2>Área (m²) por agência</h2>
-      <p class="card-sub" id="agencia-tamanho-sub"></p>
-      <div id="chart-agencia-tamanho"></div>
+      <h2>Distribuição: área × preço</h2>
+      <p class="card-sub" id="scatter-sub"></p>
+      <div id="chart-scatter"></div>
     </div>
   </section>
 
@@ -599,28 +591,28 @@
   </section>
 
   <section class="card full explorer">
-    <h2>Melhores negócios por agência</h2>
-    <p class="card-sub">Até 5 melhores ofertas de cada agência (mín. 2 anúncios) — para teres várias opções por agência, não só as mais baratas no global</p>
-    <div class="explorer-head">
-      <input type="search" id="agencia-search" placeholder="Pesquisar agência…">
+    <h2 id="freguesia-deals-title">Melhores negócios por freguesia</h2>
+    <p class="card-sub" id="freguesia-deals-sub">Escolhe um concelho no filtro acima para ver as melhores ofertas de cada freguesia.</p>
+    <div class="explorer-head" id="freguesia-deals-controls" style="display:none;">
+      <input type="search" id="freguesia-deals-search" placeholder="Pesquisar freguesia…">
     </div>
     <div class="table-scroll">
-      <table class="data-table" id="agencia-table">
+      <table class="data-table" id="freguesia-deals-table">
         <thead><tr>
-          <th data-key="agencia">Agência</th>
-          <th data-key="num_anuncios_agencia"><button data-sort="num_anuncios_agencia">Anúncios ↕</button></th>
+          <th data-key="freguesia">Freguesia</th>
+          <th data-key="num_anuncios_freguesia"><button data-sort="num_anuncios_freguesia">Anúncios ↕</button></th>
           <th data-key="titulo">Melhor oferta</th>
-          <th data-key="concelho">Concelho</th>
           <th data-key="tipologia">Tipologia</th>
           <th data-key="preco"><button data-sort="preco">Preço ↕</button></th>
           <th data-key="preco_por_metro"><button data-sort="preco_por_metro">€/m² ↕</button></th>
           <th data-key="deviation_pct"><button data-sort="deviation_pct">vs. média ↕</button></th>
+          <th data-key="agencia">Agência</th>
           <th data-key="origem">Portal</th>
         </tr></thead>
         <tbody></tbody>
       </table>
     </div>
-    <p class="explorer-count" id="agencia-count"></p>
+    <p class="explorer-count" id="freguesia-deals-count"></p>
   </section>
 
   <section class="card full explorer">
@@ -1062,54 +1054,95 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     });
   }
 
-  // ---------- size / price distribution by agency ----------
-  const N_AGENCIAS_MOSTRADAS = 15;
-  function renderAgenciaDistCharts() {
-    const dist = DATA.value_analysis.agencia_distribution;
-    const rows = (concelhoFilter ? dist.by_concelho.filter(r => r.concelho === concelhoFilter) : dist.global)
-      .slice().sort((a,b) => b.count - a.count).slice(0, N_AGENCIAS_MOSTRADAS);
+  // ---------- scatter: área × preço, per listing ----------
+  const SCATTER_MAX_PONTOS = 1500;
 
-    const subSuffix = concelhoFilter ? " — " + concelhoFilter + "." : " — todos os concelhos.";
-    document.getElementById("agencia-ppm-sub").textContent =
-      "Top " + N_AGENCIAS_MOSTRADAS + " agências com mais anúncios" + subSuffix +
-      " Caixa = do 1º ao 3º quartil · traço = mediana · ponto = média · linha fina = mínimo–máximo.";
-    document.getElementById("agencia-tamanho-sub").textContent =
-      "Top " + N_AGENCIAS_MOSTRADAS + " agências com mais anúncios" + subSuffix +
-      " Caixa = do 1º ao 3º quartil · traço = mediana · ponto = média · linha fina = mínimo–máximo.";
+  function renderScatterChart() {
+    const container = document.getElementById("chart-scatter");
+    const sub = document.getElementById("scatter-sub");
+    container.innerHTML = "";
 
-    const width = 1000;
+    const slug = concelhoFilter ? DATA.overview.concelho_slugs[concelhoFilter] : null;
+    if (!slug) {
+      sub.textContent = "Escolhe um concelho no filtro acima para ver a distribuição de área e preço.";
+      return;
+    }
+    if (!concelhoDetailCache.has(slug) || concelhoDetailCache.get(slug) === null) {
+      sub.textContent = "A carregar anúncios de " + concelhoFilter + "…";
+      return;
+    }
 
-    const ppmContainer = document.getElementById("chart-agencia-ppm");
-    ppmContainer.innerHTML = "";
-    const ppmRowsSorted = rows.slice().sort((a,b) => b.mean_ppm - a.mean_ppm);
-    const ppmMax = Math.max(1, ...rows.map(r => r.max_ppm || 0));
-    const ppmScale = (v) => (v / ppmMax) * (width - 8);
-    ppmRowsSorted.forEach(r => {
-      const stats = { min: r.min_ppm, p25: r.p25_ppm, median: r.median_ppm, p75: r.p75_ppm, max: r.max_ppm, mean: r.mean_ppm };
-      const tt = '<div class="tt-title">' + r.agencia + '</div>' +
-        '<div class="tt-row"><span class="tt-val">' + formatEUR(r.mean_ppm) + '</span><span class="tt-sub">média /m²</span></div>' +
-        '<div class="tt-sub">Mediana ' + formatEUR(r.median_ppm) + ' · P25 ' + formatEUR(r.p25_ppm) + ' · P75 ' + formatEUR(r.p75_ppm) + '</div>' +
-        '<div class="tt-sub">Amplitude ' + formatEUR(r.min_ppm) + ' – ' + formatEUR(r.max_ppm) + '</div>' +
-        '<div class="tt-sub">' + formatInt(r.count) + ' anúncios</div>';
-      ppmContainer.appendChild(boxPlotRow(width, ppmScale, r.agencia, stats, v => formatEUR(v).replace(" €", ""), tt));
-    });
+    let points = concelhoDetailCache.get(slug).filter(passesListingFilters)
+      .filter(r => r.tamanho != null && r.preco != null && r.tamanho > 0 && r.preco > 0);
+    const total = points.length;
 
-    const tamanhoContainer = document.getElementById("chart-agencia-tamanho");
-    tamanhoContainer.innerHTML = "";
-    const tamanhoRowsSorted = rows.slice().sort((a,b) => b.mean_tamanho - a.mean_tamanho);
-    // Eixo ancorado ao P75 (não ao máximo absoluto): uma única agência com um
-    // imóvel de luxo fora do comum não deve esmagar a escala de todas as outras.
-    // As linhas finas que ultrapassem o domínio ficam truncadas na margem.
-    const tamanhoMax = Math.max(1, ...rows.map(r => r.p75_tamanho || 0)) * 1.6;
-    const tamanhoScale = (v) => (Math.min(v, tamanhoMax) / tamanhoMax) * (width - 8);
-    tamanhoRowsSorted.forEach(r => {
-      const stats = { min: r.min_tamanho, p25: r.p25_tamanho, median: r.median_tamanho, p75: r.p75_tamanho, max: r.max_tamanho, mean: r.mean_tamanho };
-      const tt = '<div class="tt-title">' + r.agencia + '</div>' +
-        '<div class="tt-row"><span class="tt-val">' + Math.round(r.mean_tamanho) + ' m²</span><span class="tt-sub">área média</span></div>' +
-        '<div class="tt-sub">Mediana ' + Math.round(r.median_tamanho) + ' m² · P25 ' + Math.round(r.p25_tamanho) + ' m² · P75 ' + Math.round(r.p75_tamanho) + ' m²</div>' +
-        '<div class="tt-sub">Amplitude ' + Math.round(r.min_tamanho) + ' – ' + Math.round(r.max_tamanho) + ' m²</div>' +
-        '<div class="tt-sub">' + formatInt(r.count) + ' anúncios</div>';
-      tamanhoContainer.appendChild(boxPlotRow(width, tamanhoScale, r.agencia, stats, v => Math.round(v) + " m²", tt));
+    // Recorta os valores mais extremos (P97) para o gráfico não ficar
+    // esmagado num canto por causa de uma ou duas moradias de luxo.
+    const percentil = (arr, p) => {
+      const s = arr.slice().sort((a, b) => a - b);
+      return s[Math.min(s.length - 1, Math.floor(s.length * p))];
+    };
+    const tamanhoCap = percentil(points.map(r => r.tamanho), 0.97) * 1.1;
+    const precoCap = percentil(points.map(r => r.preco), 0.97) * 1.1;
+    points = points.filter(r => r.tamanho <= tamanhoCap && r.preco <= precoCap);
+    const excluidos = total - points.length;
+
+    let amostra = points;
+    if (points.length > SCATTER_MAX_PONTOS) {
+      amostra = points.slice().sort(() => Math.random() - 0.5).slice(0, SCATTER_MAX_PONTOS);
+    }
+
+    sub.textContent = formatInt(points.length) + " anúncios de " + concelhoFilter +
+      (amostra.length < points.length ? " (amostra de " + formatInt(amostra.length) + ")" : "") +
+      (excluidos ? " · " + formatInt(excluidos) + " valores extremos fora do gráfico" : "") + ".";
+
+    if (!amostra.length) return;
+
+    const width = 1000, height = 460;
+    const padL = 60, padB = 34, padT = 10, padR = 10;
+    const xMax = Math.max(1, ...amostra.map(r => r.tamanho));
+    const yMax = Math.max(1, ...amostra.map(r => r.preco));
+    const xScale = (v) => padL + (v / xMax) * (width - padL - padR);
+    const yScale = (v) => (height - padB) - (v / yMax) * (height - padB - padT);
+
+    const svg = el("svg", { class: "chart", viewBox: "0 0 " + width + " " + height, preserveAspectRatio: "none",
+      role: "img", "aria-label": "Distribuição de área e preço em " + concelhoFilter });
+    container.appendChild(svg);
+
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+      const v = (yMax / yTicks) * i;
+      const y = yScale(v);
+      el("line", { x1: padL, x2: width - padR, y1: y, y2: y, stroke: "var(--border)", "stroke-width": 1 }, svg);
+      const label = el("text", { x: padL - 8, y: y + 3, "text-anchor": "end", class: "axis-label" }, svg);
+      label.textContent = formatCompactEUR(v);
+    }
+    const xTicks = 6;
+    for (let i = 0; i <= xTicks; i++) {
+      const v = (xMax / xTicks) * i;
+      const x = xScale(v);
+      const label = el("text", { x, y: height - padB + 16, "text-anchor": "middle", class: "axis-label" }, svg);
+      label.textContent = Math.round(v) + " m²";
+    }
+    el("line", { x1: padL, x2: padL, y1: padT, y2: height - padB, stroke: "var(--baseline)", "stroke-width": 1 }, svg);
+    el("line", { x1: padL, x2: width - padR, y1: height - padB, y2: height - padB, stroke: "var(--baseline)", "stroke-width": 1 }, svg);
+
+    amostra.forEach(r => {
+      const cx = xScale(r.tamanho), cy = yScale(r.preco);
+      const dot = el("circle", { cx, cy, r: 4, fill: "var(--accent)", "fill-opacity": 0.35,
+        stroke: "var(--accent)", "stroke-width": 1, "stroke-opacity": 0.6 }, svg);
+      const tt = '<div class="tt-title">' + (r.titulo || "Anúncio") + '</div>' +
+        '<div class="tt-sub">' + (r.freguesia || r.concelho || "") + ' · ' + (r.tipologia || "—") + '</div>' +
+        '<div class="tt-row"><span class="tt-val">' + formatEUR(r.preco) + '</span><span class="tt-sub">' +
+        Math.round(r.tamanho) + ' m² · ' + formatEUR(r.preco_por_metro) + '/m²</span></div>' +
+        '<div class="tt-sub">' + (r.agencia || "—") + ' · ' + (r.origem || "—") + '</div>';
+      dot.addEventListener("pointerenter", (e) => showTooltip(e.clientX, e.clientY, tt));
+      dot.addEventListener("pointermove", (e) => showTooltip(e.clientX, e.clientY, tt));
+      dot.addEventListener("pointerleave", hideTooltip);
+      if (r.link) {
+        dot.style.cursor = "pointer";
+        dot.addEventListener("click", () => window.open(r.link, "_blank", "noopener,noreferrer"));
+      }
     });
   }
 
@@ -1176,40 +1209,56 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       "overpriced-sub", "Anúncios mais acima da média do concelho para a mesma tipologia");
   }
 
-  // ---------- agency explorer: best deal per agency ----------
-  let agenciaSortKey = "deviation_pct", agenciaSortDir = 1, agenciaSearchTerm = "";
+  // ---------- freguesia explorer: best deals per freguesia of the selected concelho ----------
+  let fregDealsSortKey = "deviation_pct", fregDealsSortDir = 1, fregDealsSearchTerm = "";
 
-  function renderAgenciaTable() {
-    // Até N_CANDIDATOS_POR_AGENCIA (5) ofertas por agência — não só a melhor —
-    // para dar mais opções de escolha dentro da mesma agência.
-    let rows = DATA.value_analysis.best_by_agencia || [];
-    if (concelhoFilter) rows = rows.filter(r => r.concelho === concelhoFilter);
+  function renderFreguesiaDealsTable() {
+    const title = document.getElementById("freguesia-deals-title");
+    const sub = document.getElementById("freguesia-deals-sub");
+    const controls = document.getElementById("freguesia-deals-controls");
+    const tbody = document.querySelector("#freguesia-deals-table tbody");
+
+    if (!concelhoFilter) {
+      title.textContent = "Melhores negócios por freguesia";
+      sub.textContent = "Escolhe um concelho no filtro acima para ver as melhores ofertas de cada freguesia.";
+      controls.style.display = "none";
+      tbody.innerHTML = "";
+      document.getElementById("freguesia-deals-count").textContent = "";
+      return;
+    }
+
+    title.textContent = "Melhores negócios por freguesia — " + concelhoFilter;
+    sub.textContent = "Até 5 melhores ofertas de cada freguesia de " + concelhoFilter + " (mín. 2 anúncios).";
+    controls.style.display = "flex";
+
+    // Até N_CANDIDATOS_POR_FREGUESIA (5) ofertas por freguesia — não só a melhor —
+    // para dar mais opções de escolha dentro da mesma freguesia.
+    let rows = (DATA.value_analysis.best_by_freguesia || []).filter(r => r.concelho === concelhoFilter);
     rows = rows.filter(passesListingFilters);
 
-    if (agenciaSearchTerm) {
-      const q = agenciaSearchTerm.toLocaleLowerCase("pt-PT");
-      rows = rows.filter(r => r.agencia.toLocaleLowerCase("pt-PT").includes(q));
+    if (fregDealsSearchTerm) {
+      const q = fregDealsSearchTerm.toLocaleLowerCase("pt-PT");
+      rows = rows.filter(r => (r.freguesia || "").toLocaleLowerCase("pt-PT").includes(q));
     }
     rows = rows.slice().sort((a, b) => {
-      const av = a[agenciaSortKey], bv = b[agenciaSortKey];
+      const av = a[fregDealsSortKey], bv = b[fregDealsSortKey];
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
-      if (typeof av === "string") return av.localeCompare(bv) * agenciaSortDir;
-      return (av - bv) * agenciaSortDir;
+      if (typeof av === "string") return av.localeCompare(bv) * fregDealsSortDir;
+      return (av - bv) * fregDealsSortDir;
     });
 
-    const tbody = document.querySelector("#agencia-table tbody");
     tbody.innerHTML = "";
     rows.forEach(r => {
       const tr = document.createElement("tr");
 
-      const tdAgencia = document.createElement("td");
-      tdAgencia.textContent = r.agencia;
-      tr.appendChild(tdAgencia);
+      const tdFreg = document.createElement("td");
+      tdFreg.textContent = r.freguesia;
+      tr.appendChild(tdFreg);
 
       const tdNum = document.createElement("td");
-      tdNum.textContent = formatInt(r.num_anuncios_agencia);
+      tdNum.textContent = formatInt(r.num_anuncios_freguesia);
       tr.appendChild(tdNum);
 
       const tdOferta = document.createElement("td");
@@ -1223,7 +1272,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       tdOferta.appendChild(a);
       tr.appendChild(tdOferta);
 
-      const cells = [r.concelho, r.tipologia || "—", formatEUR(r.preco), formatEUR(r.preco_por_metro)];
+      const cells = [r.tipologia || "—", formatEUR(r.preco), formatEUR(r.preco_por_metro)];
       cells.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
 
       const tdDev = document.createElement("td");
@@ -1233,27 +1282,31 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       tdDev.appendChild(span);
       tr.appendChild(tdDev);
 
+      const tdAgencia = document.createElement("td");
+      tdAgencia.textContent = r.agencia || "—";
+      tr.appendChild(tdAgencia);
+
       const tdOrigem = document.createElement("td");
       tdOrigem.textContent = r.origem || "—";
       tr.appendChild(tdOrigem);
 
       tbody.appendChild(tr);
     });
-    const numAgencias = new Set(rows.map(r => r.agencia)).size;
-    document.getElementById("agencia-count").textContent =
-      rows.length.toLocaleString("pt-PT") + " ofertas de " + numAgencias.toLocaleString("pt-PT") + " agências";
+    const numFreguesias = new Set(rows.map(r => r.freguesia)).size;
+    document.getElementById("freguesia-deals-count").textContent =
+      rows.length.toLocaleString("pt-PT") + " ofertas de " + numFreguesias.toLocaleString("pt-PT") + " freguesias";
   }
 
-  document.querySelectorAll("#agencia-table th button").forEach(btn => {
+  document.querySelectorAll("#freguesia-deals-table th button").forEach(btn => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.sort;
-      if (agenciaSortKey === key) agenciaSortDir *= -1; else { agenciaSortKey = key; agenciaSortDir = key === "deviation_pct" ? 1 : -1; }
-      renderAgenciaTable();
+      if (fregDealsSortKey === key) fregDealsSortDir *= -1; else { fregDealsSortKey = key; fregDealsSortDir = key === "deviation_pct" ? 1 : -1; }
+      renderFreguesiaDealsTable();
     });
   });
-  document.getElementById("agencia-search").addEventListener("input", (e) => {
-    agenciaSearchTerm = e.target.value;
-    renderAgenciaTable();
+  document.getElementById("freguesia-deals-search").addEventListener("input", (e) => {
+    fregDealsSearchTerm = e.target.value;
+    renderFreguesiaDealsTable();
   });
 
   // ---------- trend chart: small multiples (overview) or single detail (filtered) ----------
@@ -1531,6 +1584,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
           concelhoDetailCache.set(slug, data);
           concelhoDetailPage = 1;
           renderConcelhoDetail();
+          renderScatterChart();
         })
         .catch(() => {
           concelhoDetailCache.delete(slug);
@@ -1620,17 +1674,26 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
   document.getElementById("min-fotos-filter").addEventListener("change", (e) => {
     minFotosFilter = parseInt(e.target.value, 10) || 0;
     renderDealsTables();
-    renderAgenciaTable();
+    renderFreguesiaDealsTable();
+    concelhoDetailPage = 1;
+    renderConcelhoDetail();
+    renderScatterChart();
   });
   document.getElementById("preco-min-filter").addEventListener("input", (e) => {
     precoMinFilter = e.target.value === "" ? null : Number(e.target.value);
     renderDealsTables();
-    renderAgenciaTable();
+    renderFreguesiaDealsTable();
+    concelhoDetailPage = 1;
+    renderConcelhoDetail();
+    renderScatterChart();
   });
   document.getElementById("preco-max-filter").addEventListener("input", (e) => {
     precoMaxFilter = e.target.value === "" ? null : Number(e.target.value);
     renderDealsTables();
-    renderAgenciaTable();
+    renderFreguesiaDealsTable();
+    concelhoDetailPage = 1;
+    renderConcelhoDetail();
+    renderScatterChart();
   });
 
   function renderAll() {
@@ -1640,13 +1703,13 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     renderTopFreguesias();
     renderBottomFreguesias();
     renderRangeChart();
-    renderAgenciaDistCharts();
     renderDealsTables();
     renderTrendChart();
-    renderAgenciaTable();
+    renderFreguesiaDealsTable();
     renderFregTable();
     concelhoDetailPage = 1;
     renderConcelhoDetail();
+    renderScatterChart();
   }
 
   renderOverview();

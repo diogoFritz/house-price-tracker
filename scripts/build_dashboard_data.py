@@ -64,16 +64,50 @@ CONCELHO_NAMES = {
 }
 
 
+# bug conhecido no scraper do Supercasa (parcialmente corrigido na origem,
+# mas ainda presente em dados já recolhidos): "freguesia" vem por vezes
+# preenchida com o título do anúncio ou uma frase de marketing sem nenhuma
+# estrutura de morada (ex. "Apartamento T1 em X", "VIVER LISBOA, SENTIR
+# LISBOA", "estacionamento") em vez do nome real da freguesia.
+_PALAVRAS_NAO_FREGUESIA = {
+    "estacionamento", "arrecadacao", "varanda", "terraco", "elevador", "garagem",
+    "piscina", "luxo", "novo", "nova", "remodelacao", "remodelado", "remodelada",
+    "mobilado", "mobilada", "suite", "conforto", "premium", "espaco",
+    "localizacao", "vista", "rio", "total", "unico", "sentir", "viver",
+    "quinta", "herdade", "vivenda", "predio", "armazem", "terreno", "palacete", "solar",
+}
+
+
+def _sem_acentos(txt):
+    subs = str.maketrans("áàâãäéèêëíìîïóòôõöúùûüç", "aaaaaeeeeiiiiooooouuuuc")
+    return txt.lower().translate(subs)
+
+
+def _parece_freguesia(fr, concelho=None):
+    if not fr or len(fr) < 3:
+        return False
+    if fr.isupper():
+        return False
+    if re.search(r"\d", fr):
+        return False
+    if re.match(r"^(apartamento\b|moradia\b|casa\b)", fr, re.IGNORECASE):
+        return False
+    # "Arruda dos Vinhos" sozinho pode ser a freguesia-sede do concelho (mesmo
+    # nome é comum em Portugal) — só se rejeita quando é um sufixo de algo
+    # maior, ex. "Herdade em Arruda dos Vinhos" (aí o texto antes não é freguesia).
+    if concelho and fr.lower() != concelho.lower() and fr.lower().endswith(concelho.lower()):
+        return False
+    palavras = set(re.findall(r"[a-z]+", _sem_acentos(fr)))
+    if palavras & _PALAVRAS_NAO_FREGUESIA:
+        return False
+    return True
+
+
 def extract_freguesia(row, concelho):
     fr = row.get("freguesia")
     if fr:
         fr = fr.strip()
-        # bug conhecido no scraper do Supercasa: por vezes "freguesia" vem
-        # preenchida com o título do anúncio ("Apartamento T1 em X") em vez
-        # do nome da freguesia — descartar esses casos
-        if re.match(r"^Apartamento\b", fr, re.IGNORECASE):
-            return None
-        return fr
+        return fr if _parece_freguesia(fr, concelho) else None
     loc = row.get("localizacao")
     if loc:
         parts = [p.strip() for p in loc.split(",")]
@@ -160,12 +194,12 @@ MIN_GROUP_FOR_STATS = 8
 MIN_GROUP_FOR_DEALS = 8
 DEALS_PER_SIDE = 60
 MIN_PRECO_ABSOLUTO = 20000
-# Agências com só 1 anúncio no grupo dão uma "melhor oferta" pouco significativa
-# (não há nada para comparar dentro da própria agência) — exige pelo menos 2.
-MIN_LISTINGS_PER_AGENCIA = 2
-# Quantas candidatas por agência se guardam, para os filtros client-side
-# (fotos/preço) ainda encontrarem uma oferta válida por agência.
-N_CANDIDATOS_POR_AGENCIA = 5
+# Freguesias com só 1 anúncio no grupo dão uma "melhor oferta" pouco significativa
+# (não há nada para comparar dentro da própria freguesia) — exige pelo menos 2.
+MIN_LISTINGS_PER_FREGUESIA = 2
+# Quantas candidatas por freguesia se guardam, para os filtros client-side
+# (fotos/preço) ainda encontrarem uma oferta válida por freguesia.
+N_CANDIDATOS_POR_FREGUESIA = 5
 
 # intervalos de área plausíveis por tipologia (m²) — usados só para a análise de
 # valor (média/desvio), que é sensível a outliers; a mediana usada no resto do
@@ -256,92 +290,35 @@ def build_value_analysis(rows):
     best_deals = deals[:DEALS_PER_SIDE]
     overpriced = list(reversed(deals[-DEALS_PER_SIDE:]))
 
-    # Uma oferta por agência (a melhor que a agência tem) — em vez de só os
-    # negócios globais mais baratos, que tendem a ficar dominados por 1-2
-    # agências muito agressivas no preço, dá para navegar por agência e ter
-    # mais opções de escolha espalhadas pelo mercado.
-    por_agencia = defaultdict(list)
+    # Uma oferta por freguesia (a melhor que a freguesia tem) — em vez de só
+    # os negócios globais mais baratos, que tendem a ficar dominados por 1-2
+    # freguesias muito baratas, dá para navegar por freguesia dentro do
+    # concelho escolhido e ter mais opções de escolha espalhadas pelo mapa.
+    por_freguesia = defaultdict(list)
     for d in deals:
-        if d["agencia"]:
-            por_agencia[d["agencia"]].append(d)
-    # Guardam-se as N melhores candidatas por agência (não só a 1ª) para que os
-    # filtros de fotos/preço no dashboard (aplicados no browser) ainda consigam
-    # encontrar uma oferta válida dessa agência, em vez de a agência desaparecer
-    # só porque a sua oferta nº1 falhou o filtro.
-    best_by_agencia = [
-        {**oferta, "num_anuncios_agencia": len(ofertas)}
-        for ofertas in por_agencia.values()
-        if len(ofertas) >= MIN_LISTINGS_PER_AGENCIA
-        for oferta in sorted(ofertas, key=lambda x: x["deviation_pct"])[:N_CANDIDATOS_POR_AGENCIA]
+        if d["freguesia"]:
+            por_freguesia[(d["concelho"], d["freguesia"])].append(d)
+    # Guardam-se as N melhores candidatas por freguesia (não só a 1ª) para que
+    # os filtros de fotos/preço no dashboard (aplicados no browser) ainda
+    # consigam encontrar uma oferta válida dessa freguesia, em vez de a
+    # freguesia desaparecer só porque a sua oferta nº1 falhou o filtro.
+    best_by_freguesia = [
+        {**oferta, "num_anuncios_freguesia": len(ofertas)}
+        for ofertas in por_freguesia.values()
+        if len(ofertas) >= MIN_LISTINGS_PER_FREGUESIA
+        for oferta in sorted(ofertas, key=lambda x: x["deviation_pct"])[:N_CANDIDATOS_POR_FREGUESIA]
     ]
-    best_by_agencia.sort(key=lambda x: x["deviation_pct"])
-
-    agencia_distribution = build_agencia_distribution(latest)
+    best_by_freguesia.sort(key=lambda x: x["deviation_pct"])
 
     return {
         "concelho_stats": concelho_stats,
         "best_deals": best_deals,
         "overpriced": overpriced,
-        "best_by_agencia": best_by_agencia,
-        "agencia_distribution": agencia_distribution,
+        "best_by_freguesia": best_by_freguesia,
         "deals_meta": {
             "latest_snapshot_count": len(latest),
             "min_group_size": MIN_GROUP_FOR_DEALS,
         },
-    }
-
-
-def _distribution_stats(sub):
-    """Estatísticas de caixa (quartis) de preço/m² e área para um grupo de
-    anúncios — mesma forma que concelho_stats, para o box-plot por agência."""
-    ppms = [r["preco_por_metro"] for r in sub if r["preco_por_metro"] is not None]
-    tamanhos = [r["tamanho"] for r in sub if r["tamanho"] is not None]
-    if len(ppms) < MIN_GROUP_FOR_STATS or len(tamanhos) < MIN_GROUP_FOR_STATS:
-        return None
-    return {
-        "count": len(sub),
-        "mean_ppm": mean(ppms), "median_ppm": median(ppms),
-        "p25_ppm": percentile(ppms, 0.25), "p75_ppm": percentile(ppms, 0.75),
-        "min_ppm": round(min(ppms), 2), "max_ppm": round(max(ppms), 2),
-        "mean_tamanho": mean(tamanhos), "median_tamanho": median(tamanhos),
-        "p25_tamanho": percentile(tamanhos, 0.25), "p75_tamanho": percentile(tamanhos, 0.75),
-        "min_tamanho": round(min(tamanhos), 1), "max_tamanho": round(max(tamanhos), 1),
-    }
-
-
-N_AGENCIAS_DISTRIBUICAO = 15
-
-
-def build_agencia_distribution(latest):
-    """Distribuição de área (m²) e preço/m² por agência (box-plot, mesma forma
-    que concelho_stats). Calculado globalmente e também por concelho, para que
-    o gráfico respeite o filtro de concelho do dashboard tal como os outros."""
-    por_agencia_global = defaultdict(list)
-    por_agencia_concelho = defaultdict(list)
-    for r in latest:
-        agencia = (r.get("agencia") or "").strip()
-        if not agencia or not r["concelho"]:
-            continue
-        por_agencia_global[agencia].append(r)
-        por_agencia_concelho[(r["concelho"], agencia)].append(r)
-
-    global_stats = []
-    for agencia, sub in por_agencia_global.items():
-        stats = _distribution_stats(sub)
-        if stats:
-            global_stats.append({"agencia": agencia, **stats})
-    global_stats.sort(key=lambda x: x["count"], reverse=True)
-
-    by_concelho_stats = []
-    for (concelho, agencia), sub in por_agencia_concelho.items():
-        stats = _distribution_stats(sub)
-        if stats:
-            by_concelho_stats.append({"agencia": agencia, "concelho": concelho, **stats})
-    by_concelho_stats.sort(key=lambda x: x["count"], reverse=True)
-
-    return {
-        "global": global_stats[:N_AGENCIAS_DISTRIBUICAO],
-        "by_concelho": by_concelho_stats,
     }
 
 
