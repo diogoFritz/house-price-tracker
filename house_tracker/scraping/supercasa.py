@@ -34,6 +34,59 @@ BASE_URL = "https://supercasa.pt/comprar-casas/{concelho}/com-apartamentos"
 # Intervalo entre pedidos sucessivos, para não parecer tráfego automatizado.
 REQUEST_DELAY_RANGE = (2.0, 4.0)
 
+# "concelho.capitalize()" chega para nomes de uma palavra, mas não para os
+# compostos (ex. "arruda-dos-vinhos" -> "Arruda Dos Vinhos" ficaria errado).
+NOME_CONCELHO = {
+    "arruda-dos-vinhos": "Arruda dos Vinhos",
+    "lourinha": "Lourinhã",
+    "sobral-de-monte-agraco": "Sobral de Monte Agraço",
+    "torres-vedras": "Torres Vedras",
+    "vila-franca-de-xira": "Vila Franca de Xira",
+}
+
+
+def _nome_concelho(concelho):
+    return NOME_CONCELHO.get(concelho, concelho.capitalize())
+
+
+# Muitos títulos do Supercasa são frases de marketing sem estrutura de morada
+# nenhuma (ex. "VIVER LISBOA, SENTIR LISBOA", "T2 NOVO EM ANJOS - ESPAÇO,
+# CONFORTO, TERRAÇO..."), e um simples split(",") apanha essas palavras como
+# se fossem a freguesia. Em vez de tentar adivinhar sempre, valida-se o
+# candidato e descarta-se (fica None) quando não parece mesmo um topónimo.
+_PALAVRAS_NAO_FREGUESIA = {
+    "estacionamento", "arrecadacao", "varanda", "terraco", "elevador", "garagem",
+    "piscina", "luxo", "novo", "nova", "remodelacao", "remodelado", "remodelada",
+    "mobilado", "mobilada", "suite", "conforto", "premium", "espaco",
+    "localizacao", "vista", "rio", "total", "unico", "sentir", "viver",
+    "quinta", "herdade", "vivenda", "predio", "armazem", "terreno", "palacete", "solar",
+}
+
+
+def _sem_acentos(txt):
+    subs = str.maketrans("áàâãäéèêëíìîïóòôõöúùûüç", "aaaaaeeeeiiiiooooouuuuc")
+    return txt.lower().translate(subs)
+
+
+def _parece_freguesia(txt, concelho_nome=None):
+    if not txt or len(txt) < 3:
+        return False
+    if txt.isupper():
+        return False
+    if re.search(r"\d", txt):
+        return False
+    if re.match(r"^(apartamento\b|moradia\b|casa\b)", txt, re.I):
+        return False
+    # "Arruda dos Vinhos" sozinho pode ser a freguesia-sede do concelho (mesmo
+    # nome é comum em Portugal) — só se rejeita quando é um sufixo de algo
+    # maior, ex. "Herdade em Arruda dos Vinhos" (aí o texto antes não é freguesia).
+    if concelho_nome and txt.lower() != concelho_nome.lower() and txt.lower().endswith(concelho_nome.lower()):
+        return False
+    palavras = set(re.findall(r"[a-z]+", _sem_acentos(txt)))
+    if palavras & _PALAVRAS_NAO_FREGUESIA:
+        return False
+    return True
+
 
 def _url_pagina(concelho, page):
     base = BASE_URL.format(concelho=concelho)
@@ -42,7 +95,7 @@ def _url_pagina(concelho, page):
     return f"{base}/pagina-{page}"
 
 
-def _parse_listing(card, pagina=None):
+def _parse_listing(card, concelho_nome, pagina=None):
     title_a = card.select_one(".property-card__title a")
     href = title_a.get("href") if title_a else None
     id_match = re.search(r"/i(\d+)", href) if href else None
@@ -68,7 +121,13 @@ def _parse_listing(card, pagina=None):
         if m_a:
             tamanho = int(m_a.group(1))
 
-    freguesia, concelho_nome, agencia, lat, lng = None, None, None, None, None
+    # O concelho já é conhecido (é o que foi pesquisado) — nunca se usa o que
+    # vem do anúncio para o preencher, porque tanto o ld+json como o título
+    # às vezes referem-se a uma freguesia ou a um concelho vizinho, não ao
+    # concelho pesquisado (ex. resultados de "arruda-dos-vinhos" a incluir
+    # anúncios de "Sobral de Monte Agraço" ou "furo e terreno" como se fossem
+    # o concelho).
+    freguesia, agencia, lat, lng = None, None, None, None
     script = card.find("script", {"type": "application/ld+json"})
     if script and script.string:
         try:
@@ -77,20 +136,32 @@ def _parse_listing(card, pagina=None):
             dados = {}
         endereco = (dados.get("availableAtOrFrom") or {}).get("address") or {}
         freguesia = endereco.get("addressRegion")
-        concelho_nome = endereco.get("addressLocality")
         agencia = (dados.get("seller") or {}).get("name")
         geo = (dados.get("availableAtOrFrom") or {}).get("geo") or {}
         lat = geo.get("latitude")
         lng = geo.get("longitude")
 
     # Nem todos os cartões têm o bloco ld+json (ex. os cartões "featured"
-    # compactos) — quando falta, a freguesia e o concelho costumam vir no
-    # próprio título, ex. "Apartamento T1 em Rua X, Falagueira-Venda Nova, Amadora".
+    # compactos) — quando falta, a freguesia costuma vir no próprio título,
+    # em dois formatos: "Apartamento T1 em Rua X, Falagueira-Venda Nova,
+    # Amadora" (freguesia isolada entre vírgulas) ou só "Moradia T3 em Santo
+    # Quintino, Sobral de Monte Agraço" (freguesia colada ao "em", sem vírgula
+    # a separá-la). Um simples partes[-2] apanharia "Moradia T3 em Santo
+    # Quintino" inteiro no segundo caso — por isso usa-se o concelho já
+    # conhecido para decidir qual dos dois formatos é este.
     if not freguesia and titulo:
         partes = [p.strip() for p in titulo.split(",")]
-        if len(partes) >= 2:
-            freguesia = freguesia or partes[-2]
-            concelho_nome = concelho_nome or partes[-1]
+        candidato = None
+        if len(partes) >= 3:
+            candidato = partes[-2]
+        elif len(partes) == 2:
+            ultimo = partes[-1]
+            if ultimo.lower() == concelho_nome.lower():
+                m = re.search(r"\b(?:em|na|no)\s+(.+)$", partes[0], re.I)
+                candidato = m.group(1).strip() if m else None
+            else:
+                candidato = ultimo
+        freguesia = candidato if _parece_freguesia(candidato, concelho_nome) else None
 
     # Só os cartões "premium" completos têm descrição — os compactos "featured" não.
     desc_tag = card.select_one(".property-card__description")
@@ -131,7 +202,7 @@ def _fetch_page(concelho, page):
 
     soup = BeautifulSoup(r.text, "html.parser")
     cards = soup.find_all("article", class_="property-card")
-    return [_parse_listing(card, pagina=page) for card in cards]
+    return [_parse_listing(card, _nome_concelho(concelho), pagina=page) for card in cards]
 
 
 
