@@ -276,15 +276,72 @@ def build_value_analysis(rows):
     ]
     best_by_agencia.sort(key=lambda x: x["deviation_pct"])
 
+    agencia_distribution = build_agencia_distribution(latest)
+
     return {
         "concelho_stats": concelho_stats,
         "best_deals": best_deals,
         "overpriced": overpriced,
         "best_by_agencia": best_by_agencia,
+        "agencia_distribution": agencia_distribution,
         "deals_meta": {
             "latest_snapshot_count": len(latest),
             "min_group_size": MIN_GROUP_FOR_DEALS,
         },
+    }
+
+
+def _distribution_stats(sub):
+    """Estatísticas de caixa (quartis) de preço/m² e área para um grupo de
+    anúncios — mesma forma que concelho_stats, para o box-plot por agência."""
+    ppms = [r["preco_por_metro"] for r in sub if r["preco_por_metro"] is not None]
+    tamanhos = [r["tamanho"] for r in sub if r["tamanho"] is not None]
+    if len(ppms) < MIN_GROUP_FOR_STATS or len(tamanhos) < MIN_GROUP_FOR_STATS:
+        return None
+    return {
+        "count": len(sub),
+        "mean_ppm": mean(ppms), "median_ppm": median(ppms),
+        "p25_ppm": percentile(ppms, 0.25), "p75_ppm": percentile(ppms, 0.75),
+        "min_ppm": round(min(ppms), 2), "max_ppm": round(max(ppms), 2),
+        "mean_tamanho": mean(tamanhos), "median_tamanho": median(tamanhos),
+        "p25_tamanho": percentile(tamanhos, 0.25), "p75_tamanho": percentile(tamanhos, 0.75),
+        "min_tamanho": round(min(tamanhos), 1), "max_tamanho": round(max(tamanhos), 1),
+    }
+
+
+N_AGENCIAS_DISTRIBUICAO = 15
+
+
+def build_agencia_distribution(latest):
+    """Distribuição de área (m²) e preço/m² por agência (box-plot, mesma forma
+    que concelho_stats). Calculado globalmente e também por concelho, para que
+    o gráfico respeite o filtro de concelho do dashboard tal como os outros."""
+    por_agencia_global = defaultdict(list)
+    por_agencia_concelho = defaultdict(list)
+    for r in latest:
+        agencia = (r.get("agencia") or "").strip()
+        if not agencia or not r["concelho"]:
+            continue
+        por_agencia_global[agencia].append(r)
+        por_agencia_concelho[(r["concelho"], agencia)].append(r)
+
+    global_stats = []
+    for agencia, sub in por_agencia_global.items():
+        stats = _distribution_stats(sub)
+        if stats:
+            global_stats.append({"agencia": agencia, **stats})
+    global_stats.sort(key=lambda x: x["count"], reverse=True)
+
+    by_concelho_stats = []
+    for (concelho, agencia), sub in por_agencia_concelho.items():
+        stats = _distribution_stats(sub)
+        if stats:
+            by_concelho_stats.append({"agencia": agencia, "concelho": concelho, **stats})
+    by_concelho_stats.sort(key=lambda x: x["count"], reverse=True)
+
+    return {
+        "global": global_stats[:N_AGENCIAS_DISTRIBUICAO],
+        "by_concelho": by_concelho_stats,
     }
 
 
@@ -306,6 +363,7 @@ def build_aggregates(rows):
         "date_max": dates[-1] if dates else None,
         "date_max_by_origem": date_max_by_origem,
         "n_dates": len(dates),
+        "concelho_slugs": {nome: slug for slug, nome in CONCELHO_NAMES.items()},
     }
 
     by_concelho = []
@@ -342,12 +400,18 @@ def build_aggregates(rows):
     for (c, f), sub in freg_map.items():
         if len(sub) < 3:
             continue
+        ppms = [r["preco_por_metro"] for r in sub if r["preco_por_metro"] is not None]
         by_freguesia.append({
             "concelho": c,
             "freguesia": f,
             "count": len(sub),
-            "median_ppm": median([r["preco_por_metro"] for r in sub]),
+            "median_ppm": median(ppms),
             "median_preco": median([r["preco"] for r in sub]),
+            "mean_ppm": mean(ppms),
+            "p25_ppm": percentile(ppms, 0.25),
+            "p75_ppm": percentile(ppms, 0.75),
+            "min_ppm": round(min(ppms), 2) if ppms else None,
+            "max_ppm": round(max(ppms), 2) if ppms else None,
         })
     by_freguesia.sort(key=lambda x: (x["median_ppm"] or 0), reverse=True)
 
@@ -411,6 +475,42 @@ def build_aggregates(rows):
     }
 
 
+LISTING_FIELDS = [
+    "titulo", "link", "freguesia", "tipologia", "tamanho", "preco",
+    "preco_por_metro", "agencia", "origem", "num_fotos", "data_extracao",
+]
+
+
+def export_listings_by_concelho(rows):
+    """Grava um ficheiro por concelho (docs/listings/<slug>.json) com todos os
+    anúncios da recolha mais recente — carregado sob pedido pela secção de
+    detalhe do concelho do dashboard, em vez de ir tudo num único ficheiro
+    (seria grande demais: ~40 mil anúncios no total)."""
+    slug_by_nome = {nome: slug for slug, nome in CONCELHO_NAMES.items()}
+    latest = [r for r in latest_snapshot_rows(rows) if plausible_for_value_analysis(r)]
+
+    por_concelho = defaultdict(list)
+    for r in latest:
+        por_concelho[r["concelho"]].append({k: r.get(k) for k in LISTING_FIELDS})
+
+    listings_dir = ROOT / "docs" / "listings"
+    listings_dir.mkdir(exist_ok=True)
+    for f in listings_dir.glob("*.json"):
+        f.unlink()
+
+    resumo = []
+    for nome, anuncios in por_concelho.items():
+        slug = slug_by_nome.get(nome)
+        if slug is None:
+            continue
+        anuncios.sort(key=lambda a: (a["preco_por_metro"] is None, a["preco_por_metro"]))
+        (listings_dir / f"{slug}.json").write_text(
+            json.dumps(anuncios, ensure_ascii=False), encoding="utf-8"
+        )
+        resumo.append((slug, len(anuncios)))
+    return resumo
+
+
 def main():
     rows = load_all()
     agg = build_aggregates(rows)
@@ -419,6 +519,10 @@ def main():
     out_path.write_text(json.dumps(agg, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"{len(rows)} registos processados -> {out_path}")
     print(json.dumps(agg["overview"], ensure_ascii=False, indent=2))
+
+    resumo = export_listings_by_concelho(rows)
+    total_listings = sum(n for _, n in resumo)
+    print(f"{total_listings} anúncios exportados em {len(resumo)} ficheiros -> docs/listings/")
 
 
 if __name__ == "__main__":
