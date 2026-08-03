@@ -234,6 +234,11 @@ MIN_GROUP_FOR_STATS = 8
 MIN_GROUP_FOR_DEALS = 8
 DEALS_PER_SIDE = 60
 MIN_PRECO_ABSOLUTO = 20000
+# Intervalo de desvio (vs. média do grupo concelho+tipologia) considerado um
+# negócio plausível — abaixo de -30% é mais provável ser erro de recolha
+# (preço/área mal capturados) do que uma pechincha genuína.
+BEST_DEAL_MIN_PCT = -30.0
+BEST_DEAL_MAX_PCT = -10.0
 # Freguesias com só 1 anúncio no grupo dão uma "melhor oferta" pouco significativa
 # (não há nada para comparar dentro da própria freguesia) — exige pelo menos 2.
 MIN_LISTINGS_PER_FREGUESIA = 2
@@ -327,7 +332,12 @@ def build_value_analysis(rows):
                 "data_extracao": r["data_extracao"],
             })
     deals.sort(key=lambda x: x["deviation_pct"])
-    best_deals = deals[:DEALS_PER_SIDE]
+    # Desvios muito extremos (< -30%) são mais prováveis de ser erro de
+    # recolha (preço ou área mal capturados) do que negócios genuínos — os
+    # "melhores negócios" ficam limitados a um intervalo plausível, em vez de
+    # serem sempre dominados pelos desvios mais extremos da lista toda.
+    deals_plausiveis = [d for d in deals if BEST_DEAL_MIN_PCT <= d["deviation_pct"] <= BEST_DEAL_MAX_PCT]
+    best_deals = sorted(deals_plausiveis, key=lambda x: x["deviation_pct"])[:DEALS_PER_SIDE]
     overpriced = list(reversed(deals[-DEALS_PER_SIDE:]))
 
     # Uma oferta por freguesia (a melhor que a freguesia tem) — em vez de só
@@ -335,7 +345,7 @@ def build_value_analysis(rows):
     # freguesias muito baratas, dá para navegar por freguesia dentro do
     # concelho escolhido e ter mais opções de escolha espalhadas pelo mapa.
     por_freguesia = defaultdict(list)
-    for d in deals:
+    for d in deals_plausiveis:
         if d["freguesia"]:
             por_freguesia[(d["concelho"], d["freguesia"])].append(d)
     # Guardam-se as N melhores candidatas por freguesia (não só a 1ª) para que
@@ -363,7 +373,14 @@ def build_value_analysis(rows):
 
 
 def build_aggregates(rows):
-    concelhos = sorted({r["concelho"] for r in rows if r["concelho"]})
+    # "rows" tem um registo por anúncio POR recolha semanal — um anúncio que
+    # continua no mercado há 3 meses aparece 12 vezes. Todas as agregações
+    # (gráficos, contagens, freguesias) usam só a recolha mais recente de
+    # cada (portal, concelho), para não contar o mesmo anúncio várias vezes
+    # nem misturar anúncios antigos (já removidos do mercado) com os atuais.
+    latest_all = latest_snapshot_rows(rows)
+
+    concelhos = sorted({r["concelho"] for r in latest_all if r["concelho"]})
     origens = sorted({r["origem"] for r in rows if r["origem"]})
     dates = sorted({r["data_extracao"] for r in rows if r["data_extracao"]})
 
@@ -373,7 +390,7 @@ def build_aggregates(rows):
         date_max_by_origem[o] = max(datas_origem) if datas_origem else None
 
     overview = {
-        "total_listings": len(rows),
+        "total_listings": len(latest_all),
         "concelhos": concelhos,
         "origens": origens,
         "date_min": dates[0] if dates else None,
@@ -385,7 +402,7 @@ def build_aggregates(rows):
 
     by_concelho = []
     for c in concelhos:
-        sub = [r for r in rows if r["concelho"] == c]
+        sub = [r for r in latest_all if r["concelho"] == c]
         by_concelho.append({
             "concelho": c,
             "count": len(sub),
@@ -398,7 +415,7 @@ def build_aggregates(rows):
     by_concelho_tipologia = []
     for c in concelhos:
         for t in tipologias_order:
-            sub = [r for r in rows if r["concelho"] == c and r["tipologia"] == t]
+            sub = [r for r in latest_all if r["concelho"] == c and r["tipologia"] == t]
             if not sub:
                 continue
             by_concelho_tipologia.append({
@@ -410,7 +427,7 @@ def build_aggregates(rows):
             })
 
     freg_map = defaultdict(list)
-    for r in rows:
+    for r in latest_all:
         if r["freguesia"]:
             freg_map[(r["concelho"], r["freguesia"])].append(r)
     by_freguesia = []
@@ -434,7 +451,7 @@ def build_aggregates(rows):
 
     by_origem = []
     for o in origens:
-        sub = [r for r in rows if r["origem"] == o]
+        sub = [r for r in latest_all if r["origem"] == o]
         by_origem.append({
             "origem": o,
             "count": len(sub),
@@ -446,7 +463,7 @@ def build_aggregates(rows):
     by_concelho_origem = []
     for c in concelhos:
         for o in origens:
-            sub = [r for r in rows if r["concelho"] == c and r["origem"] == o]
+            sub = [r for r in latest_all if r["concelho"] == c and r["origem"] == o]
             if not sub:
                 continue
             by_concelho_origem.append({
@@ -472,7 +489,7 @@ def build_aggregates(rows):
     trend.sort(key=lambda x: (x["concelho"], x["data"]))
 
     tip_counts = defaultdict(int)
-    for r in rows:
+    for r in latest_all:
         if r["tipologia"]:
             tip_counts[r["tipologia"]] += 1
     by_tipologia = [{"tipologia": t, "count": n} for t, n in sorted(tip_counts.items())]
