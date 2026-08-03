@@ -20,6 +20,9 @@
     --accent-wash: rgba(42,120,214,0.10);
     --accent-fill: rgba(42,120,214,0.12);
     --good:        #006300;
+    --series-2:    #eb6834;
+    --series-3:    #1baf7a;
+    --series-other: #9c9a92;
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -37,6 +40,9 @@
       --accent-wash: rgba(57,135,229,0.14);
       --accent-fill: rgba(57,135,229,0.16);
       --good:        #0ca30c;
+      --series-2:    #d95926;
+      --series-3:    #199e70;
+      --series-other: #6f6d67;
     }
   }
   :root[data-theme="dark"] {
@@ -54,6 +60,9 @@
     --accent-wash: rgba(57,135,229,0.14);
     --accent-fill: rgba(57,135,229,0.16);
     --good:        #0ca30c;
+    --series-2:    #d95926;
+    --series-3:    #199e70;
+    --series-other: #6f6d67;
   }
 
   * { box-sizing: border-box; }
@@ -204,6 +213,28 @@
     white-space: nowrap;
   }
   .table-toggle:hover { background: var(--accent-wash); }
+
+  .scatter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .scatter-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin: 4px 0 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .scatter-legend .item { display: flex; align-items: center; gap: 5px; }
+  .scatter-legend .swatch { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
   svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
   svg.chart text {
@@ -544,8 +575,17 @@
 
   <section class="grid-2">
     <div class="card full">
-      <h2>Distribuição: área × preço</h2>
-      <p class="card-sub" id="scatter-sub"></p>
+      <div class="card-head">
+        <div>
+          <h2>Distribuição: área × preço</h2>
+          <p class="card-sub" id="scatter-sub"></p>
+        </div>
+        <label class="scatter-toggle">
+          <input type="checkbox" id="scatter-color-tipologia">
+          Colorir por tipologia
+        </label>
+      </div>
+      <div id="scatter-legend" class="scatter-legend" style="display:none;"></div>
       <div id="chart-scatter"></div>
     </div>
   </section>
@@ -1056,11 +1096,25 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
 
   // ---------- scatter: área × preço, per listing ----------
   const SCATTER_MAX_PONTOS = 1500;
+  let scatterColorByTipologia = false;
+  // Só as 3 primeiras cores categóricas da paleta distinguem-se de forma
+  // fiável em todos os pares possíveis (relevante num scatter, onde
+  // qualquer par de cores pode ficar lado a lado) — daí o limite a 3
+  // tipologias com cor própria; o resto cai em "Outras" (cinzento neutro).
+  const SCATTER_SERIES = [
+    { color: "var(--accent)" },
+    { color: "var(--series-2)" },
+    { color: "var(--series-3)" },
+  ];
+  const SCATTER_OUTRAS_COLOR = "var(--series-other)";
 
   function renderScatterChart() {
     const container = document.getElementById("chart-scatter");
     const sub = document.getElementById("scatter-sub");
+    const legend = document.getElementById("scatter-legend");
     container.innerHTML = "";
+    legend.innerHTML = "";
+    legend.style.display = "none";
 
     const slug = concelhoFilter ? DATA.overview.concelho_slugs[concelhoFilter] : null;
     if (!slug) {
@@ -1128,10 +1182,38 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     el("line", { x1: padL, x2: padL, y1: padT, y2: height - padB, stroke: "var(--baseline)", "stroke-width": 1 }, svg);
     el("line", { x1: padL, x2: width - padR, y1: height - padB, y2: height - padB, stroke: "var(--baseline)", "stroke-width": 1 }, svg);
 
+    // Cor por tipologia: só as 3 mais frequentes na amostra têm cor própria
+    // (ver nota acima sobre o limite de 3 num scatter) — as restantes e os
+    // anúncios sem tipologia caem em "Outras".
+    let corDe = () => "var(--accent)";
+    if (scatterColorByTipologia) {
+      const contagem = new Map();
+      amostra.forEach(r => {
+        const t = r.tipologia || "—";
+        contagem.set(t, (contagem.get(t) || 0) + 1);
+      });
+      const top3 = [...contagem.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]);
+      const corPorTipologia = new Map(top3.map((t, i) => [t, SCATTER_SERIES[i].color]));
+      corDe = (r) => corPorTipologia.get(r.tipologia || "—") || SCATTER_OUTRAS_COLOR;
+
+      legend.style.display = "flex";
+      top3.forEach((t, i) => {
+        const item = document.createElement("span");
+        item.className = "item";
+        item.innerHTML = '<span class="swatch" style="background:' + SCATTER_SERIES[i].color + '"></span>' + t;
+        legend.appendChild(item);
+      });
+      const outras = document.createElement("span");
+      outras.className = "item";
+      outras.innerHTML = '<span class="swatch" style="background:' + SCATTER_OUTRAS_COLOR + '"></span>Outras';
+      legend.appendChild(outras);
+    }
+
     amostra.forEach(r => {
       const cx = xScale(r.tamanho), cy = yScale(r.preco);
-      const dot = el("circle", { cx, cy, r: 4, fill: "var(--accent)", "fill-opacity": 0.35,
-        stroke: "var(--accent)", "stroke-width": 1, "stroke-opacity": 0.6 }, svg);
+      const cor = corDe(r);
+      const dot = el("circle", { cx, cy, r: 4, fill: cor, "fill-opacity": 0.4,
+        stroke: cor, "stroke-width": 1, "stroke-opacity": 0.7 }, svg);
       const tt = '<div class="tt-title">' + (r.titulo || "Anúncio") + '</div>' +
         '<div class="tt-sub">' + (r.freguesia || r.concelho || "") + ' · ' + (r.tipologia || "—") + '</div>' +
         '<div class="tt-row"><span class="tt-val">' + formatEUR(r.preco) + '</span><span class="tt-sub">' +
@@ -1691,6 +1773,11 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
   }
   document.getElementById("concelho-filter").addEventListener("change", (e) => setConcelhoFilter(e.target.value));
   document.getElementById("clear-filter").addEventListener("click", () => setConcelhoFilter(""));
+
+  document.getElementById("scatter-color-tipologia").addEventListener("change", (e) => {
+    scatterColorByTipologia = e.target.checked;
+    renderScatterChart();
+  });
 
   document.getElementById("min-fotos-filter").addEventListener("change", (e) => {
     minFotosFilter = parseInt(e.target.value, 10) || 0;
