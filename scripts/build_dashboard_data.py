@@ -83,6 +83,24 @@ def _sem_acentos(txt):
     return txt.lower().translate(subs)
 
 
+# Em concelhos com freguesias fundidas em 2013 (Lisboa, Amadora, Odivelas, ...)
+# tanto o Sapo ("localizacao") como o Supercasa (ld+json) devolvem o bairro
+# informal seguido da freguesia oficial entre parênteses, ex. "Alameda (São
+# Jorge de Arroios)" — sem isto o bairro (não oficial) ficava a valer por
+# freguesia, fragmentando os dados em centenas de nomes não-oficiais.
+def _normaliza_freguesia(fr):
+    m = re.match(r"^.+\(([^()]+)\)\s*$", fr)
+    fr = m.group(1).strip() if m else fr
+    # "União das freguesias de Ramada e Caneças" / "União Freguesias do Cadaval
+    # e Pêro Moniz" e a forma curta ("Ramada e Caneças") são a mesma freguesia
+    # — normaliza-se para a forma curta, que é a mais comum entre as fontes.
+    fr = re.sub(
+        r"^Uni[aã]o(?:\s+das)?\s+freguesias\s+(?:de|do|da|dos|das)?\s*",
+        "", fr, flags=re.IGNORECASE,
+    ).strip()
+    return fr
+
+
 def _parece_freguesia(fr, concelho=None):
     if not fr or len(fr) < 3:
         return False
@@ -106,14 +124,15 @@ def _parece_freguesia(fr, concelho=None):
 def extract_freguesia(row, concelho):
     fr = row.get("freguesia")
     if fr:
-        fr = fr.strip()
+        fr = _normaliza_freguesia(fr.strip())
         return fr if _parece_freguesia(fr, concelho) else None
     loc = row.get("localizacao")
     if loc:
         parts = [p.strip() for p in loc.split(",")]
         parts = [p for p in parts if p.lower() != concelho.lower() and "distrito" not in p.lower()]
         if parts:
-            return parts[0]
+            fr = _normaliza_freguesia(parts[0])
+            return fr if _parece_freguesia(fr, concelho) else None
     return None
 
 
@@ -175,6 +194,27 @@ def load_all():
                     "agencia": r.get("agencia") or r.get("anunciante"),
                     "num_fotos": r.get("num_fotos"),
                 })
+
+    # O Century21 obtém a freguesia através de uma API oficial de autocompletar
+    # (ver century21.py: _freguesia_lookup) — por isso serve de lista de
+    # referência para descartar nomes informais de bairro que outras fontes
+    # (Sapo, Supercasa, ...) às vezes devolvem em vez da freguesia oficial
+    # (ex. "Salitre", "Twin Towers" em Lisboa não são freguesias). Só se filtra
+    # em concelhos onde o Century21 tem dados — nos restantes não há referência
+    # fiável, por isso mantém-se o que já foi extraído.
+    freguesias_oficiais = defaultdict(set)
+    for r in rows:
+        if r["origem"] == "Century21" and r["freguesia"]:
+            freguesias_oficiais[r["concelho"]].add(r["freguesia"])
+    # Concelhos rurais/pequenos onde o Century21 só tem anúncios numa única
+    # freguesia não têm cobertura suficiente para servir de referência — aí
+    # aplicar o filtro rejeitaria à força freguesias genuínas que só as
+    # outras fontes captaram.
+    for r in rows:
+        oficiais = freguesias_oficiais.get(r["concelho"])
+        if oficiais and len(oficiais) >= 2 and r["freguesia"] and r["freguesia"] not in oficiais:
+            r["freguesia"] = None
+
     return rows
 
 

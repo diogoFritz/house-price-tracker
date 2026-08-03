@@ -68,6 +68,20 @@ def _sem_acentos(txt):
     return txt.lower().translate(subs)
 
 
+# Em concelhos com freguesias fundidas em 2013 (Lisboa, Amadora, Odivelas, ...)
+# o ld+json devolve o bairro informal seguido da freguesia oficial entre
+# parênteses, ex. "Alameda (São Jorge de Arroios)" — sem isto o bairro
+# (não oficial) ficava a valer por freguesia.
+def _normaliza_freguesia(txt):
+    m = re.match(r"^.+\(([^()]+)\)\s*$", txt)
+    txt = m.group(1).strip() if m else txt
+    txt = re.sub(
+        r"^Uni[aã]o(?:\s+das)?\s+freguesias\s+(?:de|do|da|dos|das)?\s*",
+        "", txt, flags=re.IGNORECASE,
+    ).strip()
+    return txt
+
+
 def _parece_freguesia(txt, concelho_nome=None):
     if not txt or len(txt) < 3:
         return False
@@ -136,6 +150,8 @@ def _parse_listing(card, concelho_nome, pagina=None):
             dados = {}
         endereco = (dados.get("availableAtOrFrom") or {}).get("address") or {}
         freguesia = endereco.get("addressRegion")
+        if freguesia:
+            freguesia = _normaliza_freguesia(freguesia.strip())
         agencia = (dados.get("seller") or {}).get("name")
         geo = (dados.get("availableAtOrFrom") or {}).get("geo") or {}
         lat = geo.get("latitude")

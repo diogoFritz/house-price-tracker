@@ -1094,7 +1094,8 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
 
     sub.textContent = formatInt(points.length) + " anúncios de " + concelhoFilter +
       (amostra.length < points.length ? " (amostra de " + formatInt(amostra.length) + ")" : "") +
-      (excluidos ? " · " + formatInt(excluidos) + " valores extremos fora do gráfico" : "") + ".";
+      (excluidos ? " · " + formatInt(excluidos) + " valores extremos fora do gráfico" : "") +
+      ". Linha tracejada = tendência (regressão linear).";
 
     if (!amostra.length) return;
 
@@ -1144,6 +1145,26 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
         dot.addEventListener("click", () => window.open(r.link, "_blank", "noopener,noreferrer"));
       }
     });
+
+    // linha de tendência: regressão linear simples sobre a amostra apresentada
+    const n = amostra.length;
+    if (n >= 2) {
+      const sumX = amostra.reduce((s, r) => s + r.tamanho, 0);
+      const sumY = amostra.reduce((s, r) => s + r.preco, 0);
+      const sumXY = amostra.reduce((s, r) => s + r.tamanho * r.preco, 0);
+      const sumXX = amostra.reduce((s, r) => s + r.tamanho * r.tamanho, 0);
+      const denom = n * sumXX - sumX * sumX;
+      if (denom !== 0) {
+        const slope = (n * sumXY - sumX * sumY) / denom;
+        const intercept = (sumY - slope * sumX) / n;
+        const clampY = (v) => Math.max(0, Math.min(yMax, v));
+        const y0 = clampY(intercept);
+        const y1 = clampY(slope * xMax + intercept);
+        el("line", { x1: xScale(0), x2: xScale(xMax), y1: yScale(y0), y2: yScale(y1),
+          stroke: "var(--ink)", "stroke-width": 2, "stroke-dasharray": "7 5", "stroke-opacity": 0.55 }, svg);
+      }
+    }
+
   }
 
   // ---------- deals tables (best / overpriced vs. concelho+tipologia mean) ----------
@@ -1267,7 +1288,7 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       a.href = r.link || "#";
       a.target = "_blank";
       a.rel = "noopener noreferrer";
-      a.textContent = r.tamanho != null ? Math.round(r.tamanho) + " m²" : (r.titulo || "ver anúncio");
+      a.textContent = r.titulo || "ver anúncio";
       a.title = r.titulo || "";
       tdOferta.appendChild(a);
       tr.appendChild(tdOferta);
