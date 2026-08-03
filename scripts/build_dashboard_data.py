@@ -232,7 +232,6 @@ def latest_snapshot_rows(rows):
 
 MIN_GROUP_FOR_STATS = 8
 MIN_GROUP_FOR_DEALS = 8
-DEALS_PER_SIDE = 60
 MIN_PRECO_ABSOLUTO = 20000
 # Intervalo de desvio (vs. média do grupo concelho+tipologia) considerado um
 # negócio plausível — abaixo de -30% é mais provável ser erro de recolha
@@ -337,8 +336,6 @@ def build_value_analysis(rows):
     # "melhores negócios" ficam limitados a um intervalo plausível, em vez de
     # serem sempre dominados pelos desvios mais extremos da lista toda.
     deals_plausiveis = [d for d in deals if BEST_DEAL_MIN_PCT <= d["deviation_pct"] <= BEST_DEAL_MAX_PCT]
-    best_deals = sorted(deals_plausiveis, key=lambda x: x["deviation_pct"])[:DEALS_PER_SIDE]
-    overpriced = list(reversed(deals[-DEALS_PER_SIDE:]))
 
     # Uma oferta por freguesia (a melhor que a freguesia tem) — em vez de só
     # os negócios globais mais baratos, que tendem a ficar dominados por 1-2
@@ -362,8 +359,6 @@ def build_value_analysis(rows):
 
     return {
         "concelho_stats": concelho_stats,
-        "best_deals": best_deals,
-        "overpriced": overpriced,
         "best_by_freguesia": best_by_freguesia,
         "deals_meta": {
             "latest_snapshot_count": len(latest),

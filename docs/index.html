@@ -423,7 +423,6 @@
   table.data-table tbody td.muted { color: var(--ink-muted); }
   .explorer-count { font-size: 12px; color: var(--ink-muted); margin-top: 8px; }
 
-  .deals-scroll { max-height: 360px; }
   .deal-link {
     color: var(--ink);
     text-decoration: none;
@@ -486,8 +485,12 @@
     <input type="number" id="preco-min-filter" placeholder="0" min="0" step="10000">
     <label for="preco-max-filter">Preço máx.</label>
     <input type="number" id="preco-max-filter" placeholder="sem limite" min="0" step="10000">
+    <label for="ppm-min-filter">€/m² min.</label>
+    <input type="number" id="ppm-min-filter" placeholder="0" min="0" step="100">
+    <label for="ppm-max-filter">€/m² máx.</label>
+    <input type="number" id="ppm-max-filter" placeholder="sem limite" min="0" step="100">
   </section>
-  <p class="card-sub" style="margin: -14px 0 20px;">Os filtros de fotos e preço aplicam-se às tabelas de negócios e agências abaixo (não têm dados por fonte suficientes para os gráficos e médias por concelho).</p>
+  <p class="card-sub" style="margin: -14px 0 20px;">Os filtros de fotos, preço e €/m² aplicam-se às tabelas de negócios e agências abaixo (não têm dados por fonte suficientes para os gráficos e médias por concelho).</p>
 
   <section class="card full explorer" id="concelho-detail-section">
     <h2 id="concelho-detail-title">Detalhe do concelho</h2>
@@ -587,46 +590,6 @@
       </div>
       <div id="scatter-legend" class="scatter-legend" style="display:none;"></div>
       <div id="chart-scatter"></div>
-    </div>
-  </section>
-
-  <section class="grid-2">
-    <div class="card full">
-      <div class="card-head">
-        <div>
-          <h2>Melhores negócios</h2>
-          <p class="card-sub" id="deals-sub">Anúncios mais abaixo da média do concelho para a mesma tipologia</p>
-        </div>
-      </div>
-      <div class="table-scroll deals-scroll">
-        <table class="data-table" id="deals-table-best">
-          <thead><tr>
-            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Agência</th><th>Portal</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <p class="explorer-count" id="deals-best-count"></p>
-    </div>
-  </section>
-
-  <section class="grid-2">
-    <div class="card full">
-      <div class="card-head">
-        <div>
-          <h2>Mais acima da média</h2>
-          <p class="card-sub" id="overpriced-sub">Anúncios mais acima da média do concelho para a mesma tipologia — nem sempre "caro demais", muitas vezes reflete acabamento/vista premium</p>
-        </div>
-      </div>
-      <div class="table-scroll deals-scroll">
-        <table class="data-table" id="deals-table-over">
-          <thead><tr>
-            <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th><th>vs. média</th><th>Agência</th><th>Portal</th>
-          </tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <p class="explorer-count" id="deals-over-count"></p>
     </div>
   </section>
 
@@ -910,14 +873,16 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
   // ---------- concelho price chart ----------
   let concelhoFilter = "";
 
-  // ---------- listing-level filters (fotos mín. + preço) — só afetam as
-  // tabelas de negócios e agências, que trabalham com anúncios individuais ----------
-  let minFotosFilter = 0, precoMinFilter = null, precoMaxFilter = null;
+  // ---------- listing-level filters (fotos mín. + preço + €/m²) — só afetam
+  // as tabelas de negócios e agências, que trabalham com anúncios individuais ----------
+  let minFotosFilter = 0, precoMinFilter = null, precoMaxFilter = null, ppmMinFilter = null, ppmMaxFilter = null;
 
   function passesListingFilters(r) {
     if (minFotosFilter > 0 && (r.num_fotos == null || r.num_fotos < minFotosFilter)) return false;
     if (precoMinFilter != null && (r.preco == null || r.preco < precoMinFilter)) return false;
     if (precoMaxFilter != null && (r.preco == null || r.preco > precoMaxFilter)) return false;
+    if (ppmMinFilter != null && (r.preco_por_metro == null || r.preco_por_metro < ppmMinFilter)) return false;
+    if (ppmMaxFilter != null && (r.preco_por_metro == null || r.preco_por_metro > ppmMaxFilter)) return false;
     return true;
   }
 
@@ -1247,69 +1212,6 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
       }
     }
 
-  }
-
-  // ---------- deals tables (best / overpriced vs. concelho+tipologia mean) ----------
-  function dealLabel(d) {
-    return d.tipologia + (d.freguesia ? " em " + d.freguesia : " em " + d.concelho);
-  }
-  function renderDealsTable(tbodyId, countId, rows, subtitleId, subtitleBase) {
-    let filtered = concelhoFilter ? rows.filter(r => r.concelho === concelhoFilter) : rows;
-    filtered = filtered.filter(passesListingFilters);
-    document.getElementById(subtitleId).textContent = subtitleBase + (concelhoFilter ? " — " + concelhoFilter : "");
-    const tbody = document.querySelector("#" + tbodyId + " tbody");
-    tbody.innerHTML = "";
-    filtered.forEach(d => {
-      const tr = document.createElement("tr");
-
-      const tdLabel = document.createElement("td");
-      const a = document.createElement("a");
-      a.className = "deal-link";
-      a.href = d.link || "#";
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = dealLabel(d);
-      a.title = d.titulo || "";
-      tdLabel.appendChild(a);
-      const loc = document.createElement("div");
-      loc.className = "deal-loc";
-      loc.textContent = d.concelho;
-      tdLabel.appendChild(loc);
-      tr.appendChild(tdLabel);
-
-      const cells = [
-        d.tipologia || "—",
-        d.tamanho != null ? Math.round(d.tamanho) + " m²" : "—",
-        formatEUR(d.preco),
-        formatEUR(d.preco_por_metro),
-      ];
-      cells.forEach(c => { const td = document.createElement("td"); td.textContent = c; tr.appendChild(td); });
-
-      const tdDev = document.createElement("td");
-      const span = document.createElement("span");
-      span.className = "deviation " + (d.deviation_pct < 0 ? "neg" : "pos");
-      span.textContent = (d.deviation_pct >= 0 ? "+" : "") + d.deviation_pct.toFixed(1) + "%";
-      tdDev.appendChild(span);
-      tr.appendChild(tdDev);
-
-      const tdAgencia = document.createElement("td");
-      tdAgencia.textContent = d.agencia || "—";
-      tr.appendChild(tdAgencia);
-
-      const tdOrigem = document.createElement("td");
-      tdOrigem.textContent = d.origem || "—";
-      tr.appendChild(tdOrigem);
-
-      tbody.appendChild(tr);
-    });
-    document.getElementById(countId).textContent = filtered.length.toLocaleString("pt-PT") +
-      " anúncios (recolha mais recente de cada portal, grupos com mínimo 8 anúncios da mesma tipologia)";
-  }
-  function renderDealsTables() {
-    renderDealsTable("deals-table-best", "deals-best-count", DATA.value_analysis.best_deals,
-      "deals-sub", "Anúncios mais abaixo da média do concelho para a mesma tipologia");
-    renderDealsTable("deals-table-over", "deals-over-count", DATA.value_analysis.overpriced,
-      "overpriced-sub", "Anúncios mais acima da média do concelho para a mesma tipologia");
   }
 
   // ---------- freguesia explorer: best deals per freguesia of the selected concelho ----------
@@ -1781,7 +1683,6 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
 
   document.getElementById("min-fotos-filter").addEventListener("change", (e) => {
     minFotosFilter = parseInt(e.target.value, 10) || 0;
-    renderDealsTables();
     renderFreguesiaDealsTable();
     concelhoDetailPage = 1;
     renderConcelhoDetail();
@@ -1789,7 +1690,6 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
   });
   document.getElementById("preco-min-filter").addEventListener("input", (e) => {
     precoMinFilter = e.target.value === "" ? null : Number(e.target.value);
-    renderDealsTables();
     renderFreguesiaDealsTable();
     concelhoDetailPage = 1;
     renderConcelhoDetail();
@@ -1797,7 +1697,20 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
   });
   document.getElementById("preco-max-filter").addEventListener("input", (e) => {
     precoMaxFilter = e.target.value === "" ? null : Number(e.target.value);
-    renderDealsTables();
+    renderFreguesiaDealsTable();
+    concelhoDetailPage = 1;
+    renderConcelhoDetail();
+    renderScatterChart();
+  });
+  document.getElementById("ppm-min-filter").addEventListener("input", (e) => {
+    ppmMinFilter = e.target.value === "" ? null : Number(e.target.value);
+    renderFreguesiaDealsTable();
+    concelhoDetailPage = 1;
+    renderConcelhoDetail();
+    renderScatterChart();
+  });
+  document.getElementById("ppm-max-filter").addEventListener("input", (e) => {
+    ppmMaxFilter = e.target.value === "" ? null : Number(e.target.value);
     renderFreguesiaDealsTable();
     concelhoDetailPage = 1;
     renderConcelhoDetail();
@@ -1811,7 +1724,6 @@ fetch("dashboard_data.json", { cache: "no-cache" }).then(function (r) { return r
     renderTopFreguesias();
     renderBottomFreguesias();
     renderRangeChart();
-    renderDealsTables();
     renderTrendChart();
     renderFreguesiaDealsTable();
     renderFregTable();
