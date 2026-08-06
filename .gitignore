@@ -19,6 +19,7 @@ __pycache__
 /century21/json/*/
 /era/json/*/
 /supercasa/json/*/
+/idealista/json/*/
 
 /idealista/html/*
 !/idealista/html/exemplo_pagina.html

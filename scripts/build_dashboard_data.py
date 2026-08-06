@@ -1,5 +1,6 @@
-"""Agrega todos os JSON de scraping (sapo, imovirtual, century21, era, remax, supercasa)
-num único dataset normalizado e calcula os agregados usados pelo dashboard."""
+"""Agrega todos os JSON de scraping (sapo, imovirtual, century21, era, remax,
+supercasa, idealista) num único dataset normalizado e calcula os agregados
+usados pelo dashboard."""
 import json
 import re
 import statistics
@@ -9,10 +10,10 @@ from zoneinfo import ZoneInfo
 from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parent.parent
-PORTAL_DIRS = ["sapo", "imovirtual", "century21", "era", "remax", "supercasa"]
+PORTAL_DIRS = ["sapo", "imovirtual", "century21", "era", "remax", "supercasa", "idealista"]
 PORTAL_ORIGEM = {
     "sapo": "Sapo", "imovirtual": "Imovirtual", "century21": "Century21",
-    "era": "ERA", "remax": "Remax", "supercasa": "Supercasa",
+    "era": "ERA", "remax": "Remax", "supercasa": "Supercasa", "idealista": "Idealista",
 }
 
 

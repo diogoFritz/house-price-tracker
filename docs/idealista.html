@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Idealista — Análise de anúncios</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f2ee;
+    --ink:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6; --accent-wash:rgba(42,120,214,0.10); --accent-fill:rgba(42,120,214,0.12);
+    --good:#006300; --series-2:#eb6834; --series-3:#1baf7a; --series-other:#9c9a92;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+      --ink:#fff; --ink-2:#c3c2b7; --ink-muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+      --accent:#3987e5; --accent-wash:rgba(57,135,229,0.14); --accent-fill:rgba(57,135,229,0.16);
+      --good:#0ca30c; --series-2:#d95926; --series-3:#199e70; --series-other:#6f6d67;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+    --ink:#fff; --ink-2:#c3c2b7; --ink-muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5; --accent-wash:rgba(57,135,229,0.14); --accent-fill:rgba(57,135,229,0.16);
+    --good:#0ca30c; --series-2:#d95926; --series-3:#199e70; --series-other:#6f6d67;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background:var(--page); color:var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+  body { padding: 28px 20px 64px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  a { color: var(--accent); }
+
+  header.top { margin-bottom: 20px; }
+  header.top .eyebrow { font-size:11.5px; font-weight:650; letter-spacing:0.06em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
+  header.top h1 { font-size:26px; font-weight:650; letter-spacing:-0.01em; margin:0 0 6px; }
+  header.top p { margin:0; color:var(--ink-2); font-size:14.5px; max-width:70ch; line-height:1.5; }
+  .backlink { font-size:13px; }
+
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:22px 0; }
+  .tile { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+  .tile .label { font-size:12px; color:var(--ink-2); margin-bottom:6px; }
+  .tile .value { font-size:24px; font-weight:650; letter-spacing:-0.01em; }
+  .tile .sub { font-size:12px; color:var(--ink-muted); margin-top:3px; }
+
+  .filters { display:flex; align-items:center; gap:10px; margin:4px 0 20px; flex-wrap:wrap; }
+  .filters label { font-size:13px; color:var(--ink-2); font-weight:550; }
+  select, input[type="search"], input[type="number"] { font:inherit; font-size:13.5px; color:var(--ink);
+    background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:7px 10px; }
+  input[type="number"] { width:104px; }
+  select:focus-visible, input:focus-visible, button:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
+  .clear-btn { font-size:12.5px; color:var(--accent); background:none; border:none; cursor:pointer; padding:4px 2px; font-weight:550; }
+  .clear-btn:hover { text-decoration:underline; }
+  .chk { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-2); cursor:pointer; user-select:none; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px 18px 14px; margin-bottom:14px; }
+  .card h2 { font-size:14.5px; font-weight:650; margin:0 0 2px; }
+  .card .card-sub { font-size:12px; color:var(--ink-muted); margin:0 0 12px; }
+
+  svg.chart { display:block; width:100%; height:auto; overflow:visible; }
+  svg.chart .axis-label { fill:var(--ink-muted); font-size:10.5px; }
+  .bar-row { display:flex; align-items:center; gap:10px; padding:4px 0; }
+  .bar-row .b-label { width:150px; flex-shrink:0; font-size:12px; color:var(--ink-2); text-align:right;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar-row .b-track { flex:1; min-width:0; height:22px; background:var(--surface-2); border-radius:5px; position:relative; }
+  .bar-row .b-fill { height:100%; background:var(--accent); border-radius:5px; min-width:2px; }
+  .bar-row .b-val { width:82px; flex-shrink:0; font-size:12px; font-variant-numeric:tabular-nums; color:var(--ink-2); }
+
+  .cats { display:flex; flex-wrap:wrap; gap:8px; }
+  .cat-chip { display:inline-flex; align-items:center; gap:7px; font-size:13px; padding:7px 12px;
+    border:1px solid var(--border); border-radius:999px; background:var(--surface); cursor:pointer; color:var(--ink); }
+  .cat-chip:hover { background:var(--accent-wash); }
+  .cat-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .cat-chip .n { font-variant-numeric:tabular-nums; font-weight:650; }
+  .cat-chip .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+  .tag { display:inline-block; font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:999px;
+    background:var(--accent-wash); color:var(--accent); margin:1px 3px 1px 0; white-space:nowrap; }
+
+  .table-scroll { overflow:auto; max-height:600px; border:1px solid var(--border); border-radius:10px; }
+  table.data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  table.data-table thead th { position:sticky; top:0; background:var(--surface-2); text-align:right;
+    padding:9px 12px; font-size:11px; font-weight:650; color:var(--ink-2); text-transform:uppercase;
+    letter-spacing:0.03em; border-bottom:1px solid var(--border); white-space:nowrap; }
+  table.data-table thead th:first-child { text-align:left; }
+  table.data-table tbody td { padding:8px 12px; text-align:right; border-bottom:1px solid var(--border);
+    font-variant-numeric:tabular-nums; white-space:nowrap; }
+  table.data-table tbody td:first-child { text-align:left; font-variant-numeric:normal; white-space:normal; min-width:260px; }
+  table.data-table tbody tr:hover td { background:var(--accent-wash); }
+  .deal-link { color:var(--ink); text-decoration:none; font-weight:550; border-bottom:1px solid var(--border); }
+  .deal-link:hover { color:var(--accent); border-color:var(--accent); }
+  .deal-loc { color:var(--ink-muted); font-size:11.5px; margin-top:1px; }
+  .desc { color:var(--good); font-weight:650; }
+
+  .pager { display:flex; align-items:center; gap:12px; margin-top:12px; }
+  .pager button { font-size:12.5px; color:var(--accent); background:none; border:1px solid var(--border);
+    border-radius:6px; padding:5px 11px; cursor:pointer; }
+  .pager button:disabled { color:var(--ink-muted); cursor:default; }
+  .count { font-size:12px; color:var(--ink-muted); margin-top:8px; }
+
+  .tooltip { position:fixed; z-index:50; pointer-events:none; background:var(--surface); color:var(--ink);
+    border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:12px; max-width:280px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.18); opacity:0; transition:opacity .1s; }
+  .tooltip.show { opacity:1; }
+  .tt-title { font-weight:650; margin-bottom:3px; }
+  .tt-sub { color:var(--ink-muted); }
+
+  footer.note { margin-top:28px; padding-top:16px; border-top:1px solid var(--border);
+    font-size:12px; color:var(--ink-muted); line-height:1.5; }
+  @media (max-width:720px){ .tiles{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Idealista</p>
+    <h1>Análise de anúncios — Idealista</h1>
+    <p>O Idealista é a única fonte com descrição completa por anúncio, o que permite detetar
+      <strong>situações especiais</strong> (usufruto, herança, imóveis para obras, arrendados, permutas,
+      vendedores motivados) e <strong>descidas de preço</strong>. <a class="backlink" href="index.html">← Voltar ao dashboard geral (todas as fontes)</a></p>
+  </header>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="filters">
+    <label for="f-concelho">Concelho</label>
+    <select id="f-concelho"><option value="">Todos</option></select>
+    <label for="f-tipologia">Tipologia</label>
+    <select id="f-tipologia"><option value="">Todas</option></select>
+    <label for="f-cat">Situação</label>
+    <select id="f-cat"><option value="">Qualquer</option></select>
+    <label for="f-agencia">Agência</label>
+    <select id="f-agencia"><option value="">Todas</option></select>
+    <input type="search" id="f-search" placeholder="Pesquisar freguesia ou título…">
+    <label for="f-preco-min">Preço</label>
+    <input type="number" id="f-preco-min" placeholder="mín." min="0" step="10000">
+    <input type="number" id="f-preco-max" placeholder="máx." min="0" step="10000">
+    <label for="f-ppm-min">€/m²</label>
+    <input type="number" id="f-ppm-min" placeholder="mín." min="0" step="100">
+    <input type="number" id="f-ppm-max" placeholder="máx." min="0" step="100">
+    <label class="chk"><input type="checkbox" id="f-desconto"> só com descida de preço</label>
+    <button class="clear-btn" id="f-clear">Limpar</button>
+  </section>
+
+  <section class="card">
+    <h2>Situações especiais</h2>
+    <p class="card-sub">Anúncios cuja descrição sugere uma venda fora do comum. Clica numa etiqueta para filtrar a tabela.</p>
+    <div class="cats" id="cats"></div>
+  </section>
+
+  <section class="card">
+    <h2>Preço/m² mediano por concelho</h2>
+    <p class="card-sub" id="concelho-sub">Ordenado do mais caro ao mais barato.</p>
+    <div id="chart-concelho"></div>
+  </section>
+
+  <section class="card">
+    <h2>Distribuição: área × preço</h2>
+    <p class="card-sub" id="scatter-sub"></p>
+    <div id="chart-scatter"></div>
+  </section>
+
+  <section class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;">
+      <div><h2>Anúncios</h2><p class="card-sub" id="table-sub"></p></div>
+    </div>
+    <div class="table-scroll">
+      <table class="data-table" id="tbl">
+        <thead><tr>
+          <th>Anúncio</th><th>Tipologia</th><th>Área</th><th>Preço</th><th>€/m²</th>
+          <th>Descida</th><th>Situações</th><th>Agência</th><th>Fotos</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager" style="display:none;">
+      <button id="prev">← Anterior</button>
+      <span id="page-label"></span>
+      <button id="next">Seguinte →</button>
+    </div>
+    <p class="count" id="count"></p>
+  </section>
+
+  <footer class="note" id="footer"></footer>
+</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const svgNS = "http://www.w3.org/2000/svg";
+const CAT_COLORS = {
+  usufruto:"var(--accent)", arrendado:"var(--series-2)", obras:"var(--series-3)",
+  heranca:"#eda100", permuta:"#4a3aa7", urgente:"#e34948",
+};
+const PER_PAGE = 25, SCATTER_MAX = 1500;
+let DATA, page = 1;
+let fConcelho="", fTipologia="", fCat="", fAgencia="", fSearch="", fPrecoMin=null, fPrecoMax=null, fPpmMin=null, fPpmMax=null, fDesconto=false;
+
+const tooltip = document.getElementById("tooltip");
+function showTip(x,y,html){ tooltip.innerHTML=html; tooltip.classList.add("show");
+  let l=x+14,t=y+14; if(l+280>innerWidth)l=x-294; tooltip.style.left=l+"px"; tooltip.style.top=t+"px"; }
+function hideTip(){ tooltip.classList.remove("show"); }
+function el(tag,attrs,parent){ const e=document.createElementNS(svgNS,tag);
+  for(const k in attrs)e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e; }
+function fmtEUR(v){ return v==null?"—":Math.round(v).toLocaleString("pt-PT")+" €"; }
+function fmtInt(v){ return v==null?"—":v.toLocaleString("pt-PT"); }
+function fmtCompact(v){ if(v==null)return"—"; if(v>=1e6)return (v/1e6).toFixed(1).replace(/\.0$/,"")+"M €"; if(v>=1e3)return Math.round(v/1e3)+"K €"; return Math.round(v)+" €"; }
+
+fetch("idealista_data.json").then(r=>r.json()).then(d=>{ DATA=d; init(); });
+
+function init(){
+  const ov=DATA.overview;
+  const tiles=[
+    {label:"Anúncios", value:fmtInt(ov.total), sub:ov.concelhos+" concelhos"},
+    {label:"Preço mediano", value:fmtEUR(ov.median_preco), sub:fmtEUR(ov.median_ppm)+" /m²"},
+    {label:"Situações especiais", value:fmtInt(ov.n_situacoes), sub:Math.round(100*ov.n_situacoes/Math.max(ov.total,1))+"% dos anúncios"},
+    {label:"Descidas de preço", value:fmtInt(ov.n_com_desconto), sub:ov.n_com_desconto? "vendedores que baixaram" : "capturado a partir da próxima recolha"},
+  ];
+  const wrap=document.getElementById("tiles");
+  tiles.forEach(t=>{ const d=document.createElement("div"); d.className="tile";
+    d.innerHTML='<div class="label"></div><div class="value"></div><div class="sub"></div>';
+    d.querySelector(".label").textContent=t.label; d.querySelector(".value").textContent=t.value; d.querySelector(".sub").textContent=t.sub;
+    wrap.appendChild(d); });
+
+  const concSel=document.getElementById("f-concelho");
+  DATA.by_concelho.map(c=>c.concelho).sort((a,b)=>a.localeCompare(b)).forEach(c=>{
+    concSel.insertAdjacentHTML("beforeend",`<option value="${c}">${c}</option>`); });
+  const tips=[...new Set(DATA.listings.map(l=>l.tipologia).filter(Boolean))].sort();
+  const tipSel=document.getElementById("f-tipologia");
+  tips.forEach(t=>tipSel.insertAdjacentHTML("beforeend",`<option value="${t}">${t}</option>`));
+  const catSel=document.getElementById("f-cat");
+  Object.entries(DATA.categorias_label).forEach(([k,label])=>{
+    if(DATA.categorias_count[k]) catSel.insertAdjacentHTML("beforeend",`<option value="${k}">${label}</option>`); });
+  const agCount={};
+  DATA.listings.forEach(l=>{ if(l.agencia) agCount[l.agencia]=(agCount[l.agencia]||0)+1; });
+  const agSel=document.getElementById("f-agencia");
+  Object.entries(agCount).sort((a,b)=>b[1]-a[1]).forEach(([nome,n])=>{
+    const opt=document.createElement("option"); opt.value=nome; opt.textContent=`${nome} (${n})`; agSel.appendChild(opt); });
+
+  document.getElementById("f-concelho").addEventListener("change",e=>{fConcelho=e.target.value; page=1; renderAll();});
+  document.getElementById("f-tipologia").addEventListener("change",e=>{fTipologia=e.target.value; page=1; renderTable();});
+  document.getElementById("f-cat").addEventListener("change",e=>{fCat=e.target.value; page=1; renderCats(); renderTable();});
+  document.getElementById("f-agencia").addEventListener("change",e=>{fAgencia=e.target.value; page=1; renderTable();});
+  document.getElementById("f-search").addEventListener("input",e=>{fSearch=e.target.value.toLocaleLowerCase("pt-PT"); page=1; renderTable();});
+  document.getElementById("f-preco-min").addEventListener("input",e=>{fPrecoMin=e.target.value===""?null:+e.target.value; page=1; renderTable();});
+  document.getElementById("f-preco-max").addEventListener("input",e=>{fPrecoMax=e.target.value===""?null:+e.target.value; page=1; renderTable();});
+  document.getElementById("f-ppm-min").addEventListener("input",e=>{fPpmMin=e.target.value===""?null:+e.target.value; page=1; renderTable();});
+  document.getElementById("f-ppm-max").addEventListener("input",e=>{fPpmMax=e.target.value===""?null:+e.target.value; page=1; renderTable();});
+  document.getElementById("f-desconto").addEventListener("change",e=>{fDesconto=e.target.checked; page=1; renderTable();});
+  document.getElementById("f-clear").addEventListener("click",()=>{
+    fConcelho=fTipologia=fCat=fAgencia=fSearch=""; fPrecoMin=fPrecoMax=fPpmMin=fPpmMax=null; fDesconto=false; page=1;
+    ["f-concelho","f-tipologia","f-cat","f-agencia","f-search","f-preco-min","f-preco-max","f-ppm-min","f-ppm-max"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-desconto").checked=false; renderAll();
+  });
+  document.getElementById("prev").addEventListener("click",()=>{page--; renderTable();});
+  document.getElementById("next").addEventListener("click",()=>{page++; renderTable();});
+
+  const ov2=DATA.overview;
+  document.getElementById("footer").textContent =
+    `${fmtInt(ov2.total)} anúncios de venda do Idealista em ${ov2.concelhos} concelhos do distrito de Lisboa. `+
+    `As "situações especiais" são detetadas por palavras-chave na descrição, por isso são indicativas — confirma sempre no anúncio. `+
+    `Recolha mais recente. Página gerada em ${ov2.generated_at.replace("T"," ")}.`;
+
+  renderAll();
+}
+
+function catDot(k){ return `<span class="dot" style="background:${CAT_COLORS[k]||'var(--accent)'}"></span>`; }
+
+function renderCats(){
+  const wrap=document.getElementById("cats"); wrap.innerHTML="";
+  Object.entries(DATA.categorias_label).forEach(([k,label])=>{
+    const n=DATA.categorias_count[k]||0; if(!n)return;
+    const b=document.createElement("button");
+    b.className="cat-chip"+(fCat===k?" active":"");
+    b.innerHTML=catDot(k)+label+' <span class="n">'+fmtInt(n)+'</span>';
+    b.addEventListener("click",()=>{ fCat=(fCat===k?"":k); page=1;
+      document.getElementById("f-cat").value=fCat; renderCats(); renderTable(); });
+    wrap.appendChild(b);
+  });
+}
+
+function renderConcelhoChart(){
+  const cont=document.getElementById("chart-concelho"); cont.innerHTML="";
+  const rows=DATA.by_concelho.slice().sort((a,b)=>(b.median_ppm||0)-(a.median_ppm||0));
+  const max=Math.max(1,...rows.map(r=>r.median_ppm||0));
+  rows.forEach(r=>{
+    const row=document.createElement("div"); row.className="bar-row";
+    const active = !fConcelho || fConcelho===r.concelho;
+    row.innerHTML=`<div class="b-label">${r.concelho}</div>`+
+      `<div class="b-track"><div class="b-fill" style="width:${100*(r.median_ppm||0)/max}%;opacity:${active?1:0.35}"></div></div>`+
+      `<div class="b-val">${fmtEUR(r.median_ppm).replace(" €","")} · ${fmtInt(r.count)}</div>`;
+    row.style.cursor="pointer";
+    row.addEventListener("click",()=>{ fConcelho=(fConcelho===r.concelho?"":r.concelho); page=1;
+      document.getElementById("f-concelho").value=fConcelho; renderAll(); });
+    cont.appendChild(row);
+  });
+}
+
+function currentListings(){
+  let rows=DATA.listings;
+  if(fConcelho) rows=rows.filter(r=>r.concelho===fConcelho);
+  if(fTipologia) rows=rows.filter(r=>r.tipologia===fTipologia);
+  if(fCat) rows=rows.filter(r=>r.categorias.includes(fCat));
+  if(fAgencia) rows=rows.filter(r=>r.agencia===fAgencia);
+  if(fPrecoMin!=null) rows=rows.filter(r=>r.preco!=null&&r.preco>=fPrecoMin);
+  if(fPrecoMax!=null) rows=rows.filter(r=>r.preco!=null&&r.preco<=fPrecoMax);
+  if(fPpmMin!=null) rows=rows.filter(r=>r.preco_por_metro!=null&&r.preco_por_metro>=fPpmMin);
+  if(fPpmMax!=null) rows=rows.filter(r=>r.preco_por_metro!=null&&r.preco_por_metro<=fPpmMax);
+  if(fDesconto) rows=rows.filter(r=>r.desconto_pct!=null);
+  if(fSearch) rows=rows.filter(r=>(
+    (r.freguesia||"").toLocaleLowerCase("pt-PT").includes(fSearch)||
+    (r.titulo||"").toLocaleLowerCase("pt-PT").includes(fSearch)));
+  return rows;
+}
+
+function renderScatter(){
+  const cont=document.getElementById("chart-scatter"); cont.innerHTML="";
+  const sub=document.getElementById("scatter-sub");
+  let pts=currentListings().filter(r=>r.tamanho>0&&r.preco>0);
+  const total=pts.length;
+  if(!total){ sub.textContent="Sem anúncios para os filtros atuais."; return; }
+  const pct=(arr,p)=>{const s=arr.slice().sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.floor(s.length*p))];};
+  const xcap=pct(pts.map(r=>r.tamanho),0.97)*1.1, ycap=pct(pts.map(r=>r.preco),0.97)*1.1;
+  pts=pts.filter(r=>r.tamanho<=xcap&&r.preco<=ycap);
+  const excl=total-pts.length;
+  let amostra=pts;
+  if(pts.length>SCATTER_MAX) amostra=pts.slice().sort(()=>Math.random()-0.5).slice(0,SCATTER_MAX);
+  sub.textContent=`${fmtInt(pts.length)} anúncios${amostra.length<pts.length?" (amostra de "+fmtInt(amostra.length)+")":""}`+
+    `${excl?" · "+fmtInt(excl)+" valores extremos fora do gráfico":""}. Linha tracejada = tendência.`;
+  const W=1000,H=440,padL=58,padB=32,padT=8,padR=8;
+  const xMax=Math.max(1,...amostra.map(r=>r.tamanho)), yMax=Math.max(1,...amostra.map(r=>r.preco));
+  const xS=v=>padL+(v/xMax)*(W-padL-padR), yS=v=>(H-padB)-(v/yMax)*(H-padB-padT);
+  const svg=el("svg",{class:"chart",viewBox:`0 0 ${W} ${H}`,preserveAspectRatio:"none",role:"img","aria-label":"Área × preço"});
+  cont.appendChild(svg);
+  for(let i=0;i<=5;i++){ const v=yMax/5*i,y=yS(v);
+    el("line",{x1:padL,x2:W-padR,y1:y,y2:y,stroke:"var(--border)","stroke-width":1},svg);
+    el("text",{x:padL-8,y:y+3,"text-anchor":"end",class:"axis-label"},svg).textContent=fmtCompact(v); }
+  for(let i=0;i<=6;i++){ const v=xMax/6*i;
+    el("text",{x:xS(v),y:H-padB+16,"text-anchor":"middle",class:"axis-label"},svg).textContent=Math.round(v)+" m²"; }
+  el("line",{x1:padL,x2:padL,y1:padT,y2:H-padB,stroke:"var(--baseline)","stroke-width":1},svg);
+  el("line",{x1:padL,x2:W-padR,y1:H-padB,y2:H-padB,stroke:"var(--baseline)","stroke-width":1},svg);
+  amostra.forEach(r=>{
+    const cor = r.desconto_pct!=null ? "var(--good)" : (r.categorias.length ? "var(--series-2)" : "var(--accent)");
+    const dot=el("circle",{cx:xS(r.tamanho),cy:yS(r.preco),r:4,fill:cor,"fill-opacity":0.4,stroke:cor,"stroke-width":1,"stroke-opacity":0.7},svg);
+    const tt=`<div class="tt-title">${r.titulo||"Anúncio"}</div>`+
+      `<div class="tt-sub">${(r.freguesia||r.concelho||"")} · ${r.tipologia||"—"}</div>`+
+      `<div>${fmtEUR(r.preco)} · ${Math.round(r.tamanho)} m² · ${fmtEUR(r.preco_por_metro)}/m²</div>`+
+      (r.categorias.length?`<div class="tt-sub">${r.categorias.map(c=>DATA.categorias_label[c]).join(", ")}</div>`:"");
+    dot.addEventListener("pointerenter",e=>showTip(e.clientX,e.clientY,tt));
+    dot.addEventListener("pointermove",e=>showTip(e.clientX,e.clientY,tt));
+    dot.addEventListener("pointerleave",hideTip);
+    if(r.link){ dot.style.cursor="pointer"; dot.addEventListener("click",()=>window.open(r.link,"_blank","noopener")); }
+  });
+  const n=amostra.length;
+  if(n>=2){ const sx=amostra.reduce((s,r)=>s+r.tamanho,0),sy=amostra.reduce((s,r)=>s+r.preco,0),
+    sxy=amostra.reduce((s,r)=>s+r.tamanho*r.preco,0),sxx=amostra.reduce((s,r)=>s+r.tamanho*r.tamanho,0);
+    const den=n*sxx-sx*sx;
+    if(den){ const m=(n*sxy-sx*sy)/den,b=(sy-m*sx)/n,cl=v=>Math.max(0,Math.min(yMax,v));
+      el("line",{x1:xS(0),x2:xS(xMax),y1:yS(cl(b)),y2:yS(cl(m*xMax+b)),stroke:"var(--ink)","stroke-width":2,"stroke-dasharray":"7 5","stroke-opacity":0.55},svg); } }
+}
+
+function renderTable(){
+  const rows=currentListings();
+  const totalPages=Math.max(1,Math.ceil(rows.length/PER_PAGE));
+  page=Math.min(Math.max(1,page),totalPages);
+  const pageRows=rows.slice((page-1)*PER_PAGE,(page-1)*PER_PAGE+PER_PAGE);
+  const tb=document.querySelector("#tbl tbody"); tb.innerHTML="";
+  pageRows.forEach(r=>{
+    const tr=document.createElement("tr");
+    const a=`<a class="deal-link" href="${r.link||'#'}" target="_blank" rel="noopener" title="${(r.titulo||'').replace(/"/g,'&quot;')}">${r.titulo||'ver anúncio'}</a>`+
+      `<div class="deal-loc">${r.freguesia?r.freguesia+' · ':''}${r.concelho}</div>`;
+    const tags=r.categorias.map(c=>`<span class="tag">${DATA.categorias_label[c]}</span>`).join("");
+    const desc = r.desconto_pct!=null ? `<span class="desc">${r.desconto_pct}%</span>` : "—";
+    tr.innerHTML=`<td>${a}</td><td>${r.tipologia||'—'}</td>`+
+      `<td>${r.tamanho!=null?Math.round(r.tamanho)+' m²':'—'}</td>`+
+      `<td>${fmtEUR(r.preco)}</td><td>${fmtEUR(r.preco_por_metro)}</td>`+
+      `<td>${desc}</td><td style="white-space:normal;text-align:left;">${tags||'—'}</td>`+
+      `<td style="text-align:left;">${r.agencia||'—'}</td><td>${r.num_fotos!=null?r.num_fotos:'—'}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById("count").textContent=fmtInt(rows.length)+" anúncios"+(fConcelho?" em "+fConcelho:"");
+  document.getElementById("table-sub").textContent =
+    "Todos os anúncios que passam os filtros, com link para o Idealista"+(fCat?` — só "${DATA.categorias_label[fCat]}"`:"")+".";
+  const pager=document.getElementById("pager");
+  pager.style.display=rows.length?"flex":"none";
+  document.getElementById("page-label").textContent="Página "+page+" de "+totalPages;
+  document.getElementById("prev").disabled=page<=1;
+  document.getElementById("next").disabled=page>=totalPages;
+}
+
+function renderAll(){ renderCats(); renderConcelhoChart(); renderScatter(); renderTable(); }
+</script>
+</body>
+</html>
