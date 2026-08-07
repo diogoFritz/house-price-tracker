@@ -1,18 +1,21 @@
-"""Gera docs/idealista_data.json — os dados da página de análise dedicada ao
-Idealista (docs/idealista.html).
+"""Gera docs/idealista_data.json — os dados da página de análise do Idealista
+(docs/idealista.html), com navegação por níveis Distrito › Concelho › Freguesia.
 
-O Idealista é a única fonte com descrição completa + nº de fotos + descida de
-preço fiáveis, por isso tem uma página própria com análises que o dashboard
-principal não faz: deteção de "situações especiais" por palavras-chave na
-descrição, descidas de preço (vendedor motivado), etc.
+O Idealista é a única fonte com descrição completa por anúncio, o que permite
+detetar "situações especiais" (usufruto, herança, obras, arrendado, permuta,
+vendedor motivado) e descidas de preço.
 
-Lê o JSON consolidado mais recente de cada concelho (idealista/json/
-<concelho>_<data>.json); para concelhos ainda em extração (sem consolidado),
-concatena as páginas em cache (idealista/json/<concelho>/pagina_*.json).
+Estrutura produzida:
+  - listings: recolha MAIS RECENTE (mercado atual), um registo por anúncio;
+  - concelhos / freguesias: resumo por nível (contagem, €/m² e preço medianos);
+  - history: histórico de €/m² mediano por nível (distrito/concelho/freguesia),
+    ao longo de TODAS as recolhas do Idealista. Só-Idealista, por isso hoje é
+    um único ponto; cresce a cada nova extração.
 
 Uso: python scripts/build_idealista_data.py
 """
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,9 +28,17 @@ from house_tracker.scraping.classificacao import categorias as detetar_categoria
 ROOT = Path(__file__).resolve().parent.parent
 IDEALISTA_DIR = ROOT / "idealista" / "json"
 
-# €/m² fora deste intervalo é quase de certeza erro de recolha, não mercado.
 MIN_PPM, MAX_PPM = 300, 20000
 MIN_TAMANHO = 10
+FREG_SEP = "|||"  # separador concelho/freguesia nas chaves de histórico
+
+# Área plausível por tipologia (m²) — descarta erros de recolha (ex. um "T0 de
+# 400 m²" que distorceria a média e apareceria como falso "negócio -83%").
+TAMANHO_RANGE = {
+    "T0": (15, 120), "T1": (25, 160), "T2": (40, 220), "T3": (55, 300),
+    "T4": (70, 400), "T5": (90, 500),
+}
+TAMANHO_RANGE_DEFAULT = (110, 800)  # T6 e acima
 
 CATEGORIAS_LABEL = {
     "usufruto": "Usufruto / nua-propriedade",
@@ -38,7 +49,6 @@ CATEGORIAS_LABEL = {
     "urgente": "Vendedor motivado",
 }
 
-# slug -> nome do concelho (os ficheiros usam o slug no nome).
 CONCELHO_NOME = {
     "lisboa": "Lisboa", "amadora": "Amadora", "loures": "Loures",
     "odivelas": "Odivelas", "oeiras": "Oeiras", "sintra": "Sintra",
@@ -59,31 +69,55 @@ def _median(values):
     return values[mid] if n % 2 else round((values[mid - 1] + values[mid]) / 2, 2)
 
 
-def _load_concelho(slug):
-    """Anúncios de um concelho: prefere o consolidado mais recente; se não
-    existir (concelho ainda em extração), concatena as páginas em cache."""
-    consolidados = sorted(IDEALISTA_DIR.glob(f"{slug}_*.json"))
-    if consolidados:
-        return json.loads(consolidados[-1].read_text(encoding="utf-8"))
-    pasta = IDEALISTA_DIR / slug
-    if not pasta.exists():
-        return []
-    items = []
-    for pagina in sorted(pasta.glob("pagina_*.json"), key=lambda p: int(p.stem.split("_")[1])):
-        items.extend(json.loads(pagina.read_text(encoding="utf-8"))["items"])
-    return items
+def _normaliza_freguesia(fr):
+    if not fr:
+        return None
+    fr = fr.strip()
+    m = re.match(r"^.+\(([^()]+)\)\s*$", fr)
+    fr = m.group(1).strip() if m else fr
+    fr = re.sub(r"^Uni[aã]o(?:\s+das)?\s+freguesias\s+(?:de|do|da|dos|das)?\s*", "", fr, flags=re.IGNORECASE).strip()
+    return fr or None
 
 
 def _valido(r):
-    # Fantasmas (geo-reach-card do código antigo): sem link/preço.
     if not r.get("link") or r.get("preco") is None:
         return False
     ppm = r.get("preco_por_metro")
     if ppm is not None and not (MIN_PPM <= ppm <= MAX_PPM):
         return False
-    if r.get("tamanho") is not None and r["tamanho"] < MIN_TAMANHO:
-        return False
+    tam = r.get("tamanho")
+    if tam is not None:
+        if tam < MIN_TAMANHO:
+            return False
+        if r.get("tipologia"):
+            lo, hi = TAMANHO_RANGE.get(r["tipologia"], TAMANHO_RANGE_DEFAULT)
+            if not (lo <= tam <= hi):
+                return False
     return True
+
+
+def _ficheiros_por_data():
+    """{data: [Path, ...]} de todos os consolidados <concelho>_<data>.json."""
+    por_data = defaultdict(list)
+    for f in IDEALISTA_DIR.glob("*_*.json"):
+        m = re.match(r"([a-z-]+)_(\d{8})$", f.stem)
+        if m and m.group(1) in CONCELHO_NOME:
+            por_data[m.group(2)].append((m.group(1), f))
+    return por_data
+
+
+def _carrega(slug, path):
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    saida = []
+    vistos = set()
+    for r in rows:
+        if not _valido(r) or r["id"] in vistos:
+            continue
+        vistos.add(r["id"])
+        r["concelho"] = CONCELHO_NOME[slug]
+        r["freguesia"] = _normaliza_freguesia(r.get("freguesia"))
+        saida.append(r)
+    return saida
 
 
 LISTING_FIELDS = [
@@ -92,67 +126,107 @@ LISTING_FIELDS = [
 ]
 
 
+def _history_por_nivel(datas):
+    """Para cada data, o €/m² mediano por distrito/concelho/freguesia."""
+    dist, conc, freg = defaultdict(list), defaultdict(dict), defaultdict(dict)
+    for data in sorted(datas):
+        rows = []
+        for slug, path in datas[data]:
+            rows.extend(_carrega(slug, path))
+        ppm_all = [r["preco_por_metro"] for r in rows]
+        dist["distrito"].append({"date": data, "median_ppm": _median(ppm_all), "count": len(rows)})
+        por_c = defaultdict(list)
+        por_f = defaultdict(list)
+        for r in rows:
+            por_c[r["concelho"]].append(r["preco_por_metro"])
+            if r["freguesia"]:
+                por_f[(r["concelho"], r["freguesia"])].append(r["preco_por_metro"])
+        for c, ppms in por_c.items():
+            conc[c].setdefault("__list__", []).append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
+        for (c, fr), ppms in por_f.items():
+            freg[c + FREG_SEP + fr].setdefault("__list__", []).append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
+    return (
+        dist["distrito"],
+        {c: v["__list__"] for c, v in conc.items()},
+        {k: v["__list__"] for k, v in freg.items()},
+    )
+
+
 def main():
+    por_data = _ficheiros_por_data()
+    if not por_data:
+        print("Sem dados do Idealista em idealista/json/.")
+        return
+    data_max = max(por_data)
+
+    # Recolha mais recente -> os anúncios mostrados na página.
     listings = []
-    vistos = set()
-    for slug in CONCELHO_NOME:
-        for r in _load_concelho(slug):
-            if not _valido(r) or r["id"] in vistos:
-                continue
-            vistos.add(r["id"])
+    for slug, path in por_data[data_max]:
+        for r in _carrega(slug, path):
             item = {k: r.get(k) for k in LISTING_FIELDS}
-            item["concelho"] = CONCELHO_NOME[slug]  # nome da pasta é a fonte fiável
-            # Categorias a partir do texto — descrição não vai no JSON (poupa
-            # espaço), só as etiquetas resultantes.
-            cats = detetar_categorias(r.get("descricao") or r.get("titulo") or "")
-            item["categorias"] = cats or []
+            item["categorias"] = detetar_categorias(r.get("descricao") or r.get("titulo") or "") or []
             listings.append(item)
 
     por_concelho = defaultdict(list)
     for it in listings:
         por_concelho[it["concelho"]].append(it)
-    by_concelho = []
+    concelhos = []
     for nome, sub in por_concelho.items():
-        by_concelho.append({
-            "concelho": nome,
-            "count": len(sub),
+        concelhos.append({
+            "concelho": nome, "count": len(sub),
             "median_ppm": _median([s["preco_por_metro"] for s in sub]),
             "median_preco": _median([s["preco"] for s in sub]),
         })
-    by_concelho.sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
+    concelhos.sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
+
+    freguesias = defaultdict(list)
+    por_freg = defaultdict(list)
+    for it in listings:
+        if it["freguesia"]:
+            por_freg[(it["concelho"], it["freguesia"])].append(it)
+    for (c, fr), sub in por_freg.items():
+        freguesias[c].append({
+            "freguesia": fr, "count": len(sub),
+            "median_ppm": _median([s["preco_por_metro"] for s in sub]),
+            "median_preco": _median([s["preco"] for s in sub]),
+        })
+    for c in freguesias:
+        freguesias[c].sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
+
+    hist_dist, hist_conc, hist_freg = _history_por_nivel(por_data)
 
     cat_counts = defaultdict(int)
     for it in listings:
         for c in it["categorias"]:
             cat_counts[c] += 1
-
     com_desconto = [it for it in listings if it.get("desconto_pct") is not None]
-    datas = [r.get("data_extracao") for slug in CONCELHO_NOME for r in _load_concelho(slug) if r.get("data_extracao")]
 
     overview = {
         "total": len(listings),
         "concelhos": len(por_concelho),
         "median_preco": _median([it["preco"] for it in listings]),
         "median_ppm": _median([it["preco_por_metro"] for it in listings]),
-        "n_com_desconto": len(com_desconto),
         "n_situacoes": sum(1 for it in listings if it["categorias"]),
-        "date_max": max(datas) if datas else None,
+        "n_com_desconto": len(com_desconto),
+        "n_recolhas": len(por_data),
+        "date_max": data_max,
         "generated_at": datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%Y-%m-%dT%H:%M"),
     }
 
     out = {
         "overview": overview,
-        "by_concelho": by_concelho,
         "categorias_label": CATEGORIAS_LABEL,
         "categorias_count": dict(cat_counts),
+        "concelhos": concelhos,
+        "freguesias": freguesias,
+        "history": {"distrito": hist_dist, "concelho": hist_conc, "freguesia": hist_freg},
         "listings": listings,
     }
     out_path = ROOT / "docs" / "idealista_data.json"
     out_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
-    print(f"{len(listings)} anúncios -> {out_path}")
-    print(f"  {len(by_concelho)} concelhos, {overview['n_situacoes']} com situação especial, "
-          f"{len(com_desconto)} com descida de preço")
-    print(f"  categorias: {dict(cat_counts)}")
+    print(f"{len(listings)} anúncios (recolha {data_max}) -> {out_path}")
+    print(f"  {len(por_concelho)} concelhos · {sum(len(v) for v in freguesias.values())} freguesias · "
+          f"{overview['n_situacoes']} situações especiais · {overview['n_recolhas']} recolha(s) no histórico")
 
 
 if __name__ == "__main__":
