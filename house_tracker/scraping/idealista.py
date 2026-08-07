@@ -34,10 +34,30 @@ from .classificacao import tem_usufruto
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-BASE_URL = "https://www.idealista.pt/comprar-casas/{concelho}/com-apartamentos/"
+BASE_URL = "https://www.idealista.pt/comprar-casas/{path}/com-apartamentos/"
 
 # Intervalo entre páginas, para não parecer tráfego automatizado.
 REQUEST_DELAY_RANGE = (3.0, 5.5)
+
+# O Idealista corta a paginação ao fim de ~60 páginas (~1800 resultados) por
+# pesquisa. Lisboa tem ~9500 apartamentos, muito acima disso — uma pesquisa
+# única só apanharia ~1800. Divide-se por freguesia (cada uma <900, bem abaixo
+# do limite) para capturar tudo. Os restantes concelhos cabem numa pesquisa só.
+LISBOA_FREGUESIAS = [
+    "ajuda", "alcantara", "alvalade", "areeiro", "arroios", "avenidas-novas",
+    "beato", "belem", "benfica", "campo-de-ourique", "campolide", "carnide",
+    "estrela", "lumiar", "marvila", "misericordia", "olivais", "parque-das-nacoes",
+    "penha-de-franca", "santa-clara", "santa-maria-maior", "santo-antonio",
+    "sao-domingos-de-benfica", "sao-vicente",
+]
+
+
+def _segmentos(concelho):
+    """Devolve [(id_segmento, path_url)] das pesquisas a fazer para um concelho.
+    Um segmento por concelho, exceto Lisboa (um por freguesia)."""
+    if concelho == "lisboa":
+        return [(fr, f"lisboa/{fr}") for fr in LISBOA_FREGUESIAS]
+    return [(concelho, concelho)]
 
 # "concelho.capitalize()" chega para nomes de uma palavra, mas não para os
 # compostos (ex. "arruda-dos-vinhos" -> "Arruda Dos Vinhos" ficaria errado).
@@ -186,8 +206,8 @@ def _parse_listing(article, concelho_nome, pagina=None):
     }
 
 
-def _url_pagina(concelho, page):
-    base = BASE_URL.format(concelho=concelho)
+def _url_pagina(path, page):
+    base = BASE_URL.format(path=path)
     if page == 1:
         return base
     # Sem ".htm": o formato antigo "pagina-N.htm" devolve uma página vazia,
@@ -199,13 +219,13 @@ class BloqueadoError(Exception):
     """O DataDome bloqueou a sessão (página sem anúncios com desafio presente)."""
 
 
-def _fetch_page(driver, concelho, page):
+def _fetch_page(driver, path, concelho_nome, page):
     """Devolve (items, tem_next) de uma página de resultados.
 
     Lança BloqueadoError se a página vier sem anúncios mas com o desafio do
     DataDome presente — melhor parar e reportar do que gravar vazios.
     """
-    driver.get(_url_pagina(concelho, page))
+    driver.get(_url_pagina(path, page))
     time.sleep(random.uniform(*REQUEST_DELAY_RANGE))
 
     soup = BeautifulSoup(driver.page_source, "html.parser")
@@ -219,73 +239,91 @@ def _fetch_page(driver, concelho, page):
 
     if not articles and "geo.captcha-delivery.com" in driver.page_source:
         raise BloqueadoError(
-            f"[Idealista] DataDome bloqueou a sessão na página {page} de {concelho}."
+            f"[Idealista] DataDome bloqueou a sessão na página {page} de {path}."
         )
 
-    items = [_parse_listing(a, _nome_concelho(concelho), pagina=page) for a in articles]
+    items = [_parse_listing(a, concelho_nome, pagina=page) for a in articles]
     return items, tem_next
+
+
+def _extrai_segmento(driver, path, seg_dir, concelho_nome, barra, max_paginas):
+    """Pagina uma pesquisa (um concelho ou uma freguesia) até ao fim, gravando
+    cada página em seg_dir/pagina_N.json (retomável). Devolve os anúncios."""
+    os.makedirs(seg_dir, exist_ok=True)
+    listagem = []
+    page = 1
+    while page <= max_paginas:
+        page_file = os.path.join(seg_dir, f"pagina_{page}.json")
+        if os.path.exists(page_file):
+            with open(page_file, encoding="utf-8") as f:
+                cached = json.load(f)
+            listagem.extend(cached["items"])
+            tem_next = cached["tem_next"]
+            barra.set_postfix_str(f"pág {page} em cache")
+        else:
+            inicio = time.time()
+            items, tem_next = _fetch_page(driver, path, concelho_nome, page)
+            with open(page_file, "w", encoding="utf-8") as f:
+                json.dump({"page": page, "tem_next": tem_next, "items": items}, f, ensure_ascii=False, indent=2)
+            listagem.extend(items)
+            barra.set_postfix_str(f"{len(items)} imóveis, {time.time()-inicio:.1f}s")
+        barra.update(1)
+        if not tem_next:
+            break
+        page += 1
+    return listagem
 
 
 def fetch_all_listings(concelho="lisboa", output_dir="idealista/json", driver=None,
                        max_paginas=400):
     """Extrai todos os apartamentos à venda de um concelho, página a página.
 
-    Grava o resultado de cada página em disco (output_dir/<concelho>/pagina_N.json)
-    à medida que avança — retomável: se a extração for interrompida, corre outra
-    vez com os mesmos argumentos para retomar a partir da última página em falta.
+    Lisboa é dividida por freguesia (ver _segmentos / LISBOA_FREGUESIAS) para
+    contornar o limite de paginação do Idealista; os restantes concelhos são
+    uma pesquisa só. Cada página é gravada em disco à medida que avança
+    (retomável); a lista final é deduplicada por id (anúncios que apareçam em
+    mais do que uma freguesia contam uma vez).
 
     Aceita um driver já criado (para partilhar a mesma sessão de browser entre
     concelhos — ver scripts/run_idealista.py); se None, cria e fecha um próprio.
     """
     concelho_dir = os.path.join(output_dir, concelho)
     os.makedirs(concelho_dir, exist_ok=True)
+    concelho_nome = _nome_concelho(concelho)
+    segmentos = _segmentos(concelho)
 
     driver_proprio = driver is None
     if driver_proprio:
         driver = new_driver()
 
     all_listings = []
-    page = 1
     barra = tqdm(desc=f"Idealista [{concelho}]", unit="página")
-
     try:
-        while page <= max_paginas:
-            page_file = os.path.join(concelho_dir, f"pagina_{page}.json")
-
-            if os.path.exists(page_file):
-                with open(page_file, encoding="utf-8") as f:
-                    cached = json.load(f)
-                all_listings.extend(cached["items"])
-                tem_next = cached["tem_next"]
-                barra.set_postfix_str(f"página {page} em cache")
-                barra.update(1)
-                if not tem_next:
-                    break
-                page += 1
-                continue
-
-            inicio = time.time()
-            items, tem_next = _fetch_page(driver, concelho, page)
-            duracao = time.time() - inicio
-
-            with open(page_file, "w", encoding="utf-8") as f:
-                json.dump({"page": page, "tem_next": tem_next, "items": items},
-                          f, ensure_ascii=False, indent=2)
-
-            all_listings.extend(items)
-            barra.set_postfix_str(f"{len(items)} imóveis, {duracao:.1f}s")
-            barra.update(1)
-            if not tem_next:
-                break
-            page += 1
+        for seg_id, path in segmentos:
+            # Concelho de segmento único -> cache direto na pasta do concelho
+            # (retrocompatível); Lisboa -> uma subpasta por freguesia.
+            seg_dir = concelho_dir if len(segmentos) == 1 else os.path.join(concelho_dir, seg_id)
+            if len(segmentos) > 1:
+                barra.set_description(f"Idealista [{concelho}/{seg_id}]")
+            all_listings.extend(_extrai_segmento(driver, path, seg_dir, concelho_nome, barra, max_paginas))
     finally:
         barra.close()
         if driver_proprio:
             driver.quit()
 
+    # Dedup por id — o mesmo anúncio pode surgir em duas freguesias limítrofes.
+    vistos, unicos = set(), []
+    for it in all_listings:
+        if it["id"] not in vistos:
+            vistos.add(it["id"])
+            unicos.append(it)
+
     consolidated_file = os.path.join(output_dir, f"{concelho}_{date.today().strftime('%Y%m%d')}.json")
     with open(consolidated_file, "w", encoding="utf-8") as f:
-        json.dump(all_listings, f, ensure_ascii=False, indent=2)
-    logging.info(f"[Idealista] Total: {len(all_listings)} imóveis consolidados em {consolidated_file}")
+        json.dump(unicos, f, ensure_ascii=False, indent=2)
+    logging.info(
+        f"[Idealista] Total: {len(unicos)} imóveis únicos "
+        f"({len(all_listings)-len(unicos)} duplicados removidos) consolidados em {consolidated_file}"
+    )
 
-    return all_listings
+    return unicos

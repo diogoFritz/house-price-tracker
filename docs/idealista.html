@@ -298,7 +298,7 @@ function renderTiles(){
 
 function renderAgencias(){
   const sel=document.getElementById("f-agencia"); const cur=sel.value;
-  const cnt={}; scopeListings().forEach(l=>{ if(l.agencia)cnt[l.agencia]=(cnt[l.agencia]||0)+1; });
+  const cnt={}; scopeListings().forEach(l=>{ if(l.grupo_agencia)cnt[l.grupo_agencia]=(cnt[l.grupo_agencia]||0)+1; });
   sel.innerHTML='<option value="">Todas</option>'+Object.entries(cnt).sort((a,b)=>b[1]-a[1])
     .map(([n,c])=>`<option value="${n.replace(/"/g,'&quot;')}">${n} (${c})</option>`).join("");
   sel.value=cur; if(sel.value!==cur){ sel.value=""; fAgencia=""; }
@@ -324,7 +324,7 @@ function filtered(){
   const med=scopeMedianPpm();
   if(fTipologia) r=r.filter(x=>x.tipologia===fTipologia);
   if(fCat) r=r.filter(x=>x.categorias.includes(fCat));
-  if(fAgencia) r=r.filter(x=>x.agencia===fAgencia);
+  if(fAgencia) r=r.filter(x=>x.grupo_agencia===fAgencia);
   if(fDesconto) r=r.filter(x=>x.desconto_pct!=null);
   if(fAbaixo&&med!=null) r=r.filter(x=>x.preco_por_metro!=null&&x.preco_por_metro<med);
   if(fSearch) r=r.filter(x=>(x.freguesia||"").toLocaleLowerCase("pt-PT").includes(fSearch)||(x.titulo||"").toLocaleLowerCase("pt-PT").includes(fSearch));
@@ -396,7 +396,7 @@ function renderTable(){
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${a}</td><td>${r.tipologia||'—'}</td><td>${r.tamanho!=null?Math.round(r.tamanho)+' m²':'—'}</td>`+
       `<td>${fmtEUR(r.preco)}</td><td>${fmtEUR(r.preco_por_metro)}</td><td>${devTxt}</td><td>${desc}</td>`+
-      `<td style="white-space:normal;text-align:left;">${tags}</td><td style="text-align:left;">${r.agencia||'—'}</td><td>${r.num_fotos??'—'}</td>`;
+      `<td style="white-space:normal;text-align:left;">${tags}</td><td style="text-align:left;">${r.agencia||'<span style="color:var(--ink-muted)">Independente</span>'}</td><td>${r.num_fotos??'—'}</td>`;
     tb.appendChild(tr);
   });
   document.getElementById("tbl-title").textContent = fAbaixo? "Anúncios abaixo da média — "+scopeName() : "Anúncios — "+scopeName();

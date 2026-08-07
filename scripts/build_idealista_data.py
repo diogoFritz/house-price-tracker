@@ -69,6 +69,35 @@ def _median(values):
     return values[mid] if n % 2 else round((values[mid - 1] + values[mid]) / 2, 2)
 
 
+# Redes/franchises com muitos balcões independentes — agrupam-se todos sob a
+# marca, para o filtro por agência não ter centenas de sub-ramos ("RE/MAX
+# Vantagem Park", "RE/MAX Expo", ... -> "RE/MAX"). Ordem importa: o primeiro
+# padrão que casar ganha. Agências independentes mantêm o nome próprio.
+_GRUPOS_AGENCIA = [
+    (re.compile(r"^re\s*/?\s*max\b", re.I), "RE/MAX"),
+    (re.compile(r"^(century\s*21|c21)\b", re.I), "Century 21"),
+    (re.compile(r"^kw\b|keller\s*williams", re.I), "Keller Williams (KW)"),
+    (re.compile(r"^era\b", re.I), "ERA"),
+    (re.compile(r"^engel\s*&?\s*v", re.I), "Engel & Völkers"),
+    (re.compile(r"^zome\b", re.I), "Zome"),
+    (re.compile(r"^iad\b", re.I), "IAD"),
+    (re.compile(r"^dils\b", re.I), "Dils"),
+    (re.compile(r"^jll\b", re.I), "JLL"),
+    (re.compile(r"^predimed\b", re.I), "Predimed"),
+    (re.compile(r"^remaxgroup|^remax\b", re.I), "RE/MAX"),
+]
+
+
+def _grupo_agencia(nome):
+    # Anúncios sem agência são de particulares — agrupam-se em "Independente".
+    if not nome or not nome.strip():
+        return "Independente"
+    for padrao, marca in _GRUPOS_AGENCIA:
+        if padrao.search(nome):
+            return marca
+    return nome.strip()
+
+
 def _normaliza_freguesia(fr):
     if not fr:
         return None
@@ -165,6 +194,7 @@ def main():
         for r in _carrega(slug, path):
             item = {k: r.get(k) for k in LISTING_FIELDS}
             item["categorias"] = detetar_categorias(r.get("descricao") or r.get("titulo") or "") or []
+            item["grupo_agencia"] = _grupo_agencia(r.get("agencia"))
             listings.append(item)
 
     por_concelho = defaultdict(list)
