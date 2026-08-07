@@ -72,6 +72,13 @@
   svg.chart { display:block; width:100%; height:auto; overflow:visible; }
   svg.chart .axis-label { fill:var(--ink-muted); font-size:10.5px; }
 
+  #map svg { display:block; width:100%; height:auto; max-height:560px; }
+  #map path { stroke:var(--surface); stroke-width:1; cursor:pointer; transition:opacity .1s; }
+  #map path:hover { opacity:0.82; stroke:var(--ink); stroke-width:1.5; }
+  #map path.sel { stroke:var(--ink); stroke-width:2; }
+  .legend-grad { width:120px; height:10px; border-radius:3px;
+    background:linear-gradient(90deg,var(--legend-lo),var(--legend-hi)); }
+
   .nav-list { display:flex; flex-direction:column; gap:2px; }
   .nav-row { display:flex; align-items:center; gap:10px; padding:5px 6px; border-radius:7px; cursor:pointer; }
   .nav-row:hover { background:var(--accent-wash); }
@@ -137,6 +144,13 @@
 
   <nav class="crumb" id="crumb"></nav>
   <section class="tiles" id="tiles"></section>
+
+  <section class="card">
+    <h2 id="map-title">Mapa</h2>
+    <p class="card-sub" id="map-sub">Clica num concelho para entrar. Cor = €/m² mediano.</p>
+    <div id="map"></div>
+    <div id="map-legend" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11.5px;color:var(--ink-muted);"></div>
+  </section>
 
   <section class="card">
     <h2>Distribuição: área × preço</h2>
@@ -266,7 +280,85 @@ function scopeHistory(){
 
 function render(){
   renderCrumb(); renderTiles(); renderCats(); renderAgencias();
-  renderScatter(); renderTable(); renderNav(); renderHist();
+  renderMap(); renderScatter(); renderTable(); renderNav(); renderHist();
+}
+
+// ---- mapa clicável (geodata EPSG:3763, em metros) ----
+const CONCELHO_SLUG={Lisboa:"lisboa",Amadora:"amadora",Loures:"loures",Odivelas:"odivelas",Oeiras:"oeiras",Sintra:"sintra",Alenquer:"alenquer","Arruda dos Vinhos":"arruda-dos-vinhos",Azambuja:"azambuja",Cadaval:"cadaval",Cascais:"cascais","Lourinhã":"lourinha",Mafra:"mafra","Sobral de Monte Agraço":"sobral-de-monte-agraco","Torres Vedras":"torres-vedras","Vila Franca de Xira":"vila-franca-de-xira"};
+const geoCache=new Map();
+function loadGeo(url){ if(!geoCache.has(url)) geoCache.set(url, fetch(url).then(r=>r.ok?r.json():null).catch(()=>null)); return geoCache.get(url); }
+function norm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLocaleLowerCase("pt-PT").trim(); }
+// Chave de freguesia: além de norm, tira o prefixo "união das freguesias de"
+// e o bairro entre parênteses, para casar os nomes oficiais da geodata com os
+// nomes (já normalizados) que vêm do Idealista.
+function fregKey(s){
+  let x=norm(s);
+  const m=x.match(/\(([^()]+)\)\s*$/); if(m) x=norm(m[1]);
+  return x.replace(/^uni[aã]o\s+d[ae]s?\s+freguesias?\s+(?:de|do|da|dos|das)?\s*/,"").trim();
+}
+function corMapa(v,lo,hi){
+  if(v==null) return "var(--surface-2)";
+  const t = hi>lo ? Math.max(0,Math.min(1,(v-lo)/(hi-lo))) : 0.6;
+  const a=[214,229,247], b=[23,79,138];
+  return `rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*t)).join(",")})`;
+}
+function _proj(feats){
+  let mnX=1/0,mnY=1/0,mxX=-1/0,mxY=-1/0;
+  const scan=x=>{ if(typeof x[0]==="number"){ if(x[0]<mnX)mnX=x[0]; if(x[0]>mxX)mxX=x[0]; if(x[1]<mnY)mnY=x[1]; if(x[1]>mxY)mxY=x[1]; } else x.forEach(scan); };
+  feats.forEach(f=>scan(f.geometry.coordinates));
+  const W=1000, H=Math.max(1,Math.round(W*(mxY-mnY)/(mxX-mnX)));
+  return {W,H, p:([x,y])=>[((x-mnX)/(mxX-mnX)*W).toFixed(1), ((mxY-y)/(mxY-mnY)*H).toFixed(1)]};
+}
+function _pathD(geom,pr){
+  const polys = geom.type==="Polygon"? [geom.coordinates] : geom.coordinates;
+  return polys.map(poly=>poly.map(ring=>ring.map((pt,i)=>(i?"L":"M")+pr.p(pt).join(" ")).join("")+"Z").join("")).join("");
+}
+function renderMap(){
+  const mapEl=document.getElementById("map"), title=document.getElementById("map-title"),
+        sub=document.getElementById("map-sub"), legend=document.getElementById("map-legend");
+  let url, keyFn, unidadeDe, nomeDe, onClick, selName=null;
+  if(level==="distrito"){
+    url="geo/concelhos-lisboa.json"; keyFn=norm;
+    const by={}; DATA.concelhos.forEach(c=>by[norm(c.concelho)]=c);
+    unidadeDe=f=>by[norm(f.properties.concelho)];
+    nomeDe=f=>f.properties.concelho;
+    onClick=f=>goTo("concelho",f.properties.concelho,"");
+    title.textContent="Mapa — concelhos do distrito de Lisboa";
+    sub.textContent="Clica num concelho para entrar. Cor = €/m² mediano (mais escuro = mais caro).";
+  } else {
+    const slug=CONCELHO_SLUG[selConcelho]; if(!slug){ mapEl.innerHTML=""; return; }
+    url="geo/freguesias/"+slug+".json"; keyFn=fregKey;
+    const by={}, dn={}; (DATA.freguesias[selConcelho]||[]).forEach(f=>{ by[fregKey(f.freguesia)]=f; dn[fregKey(f.freguesia)]=f.freguesia; });
+    unidadeDe=f=>by[fregKey(f.properties.freguesia)];
+    nomeDe=f=>f.properties.freguesia;
+    onClick=f=>goTo("freguesia",selConcelho, dn[fregKey(f.properties.freguesia)]||f.properties.freguesia);
+    selName = level==="freguesia"? selFreguesia : null;
+    title.textContent="Mapa — freguesias de "+selConcelho;
+    sub.textContent="Clica numa freguesia para a analisar. Cor = €/m² mediano.";
+  }
+  const valorDe=f=>(unidadeDe(f)||{}).median_ppm;
+  loadGeo(url).then(geo=>{
+    if(!geo||!geo.features.length){ mapEl.innerHTML='<p class="card-sub">Mapa indisponível para este nível.</p>'; legend.innerHTML=""; return; }
+    const feats=geo.features, pr=_proj(feats);
+    const vals=feats.map(valorDe).filter(v=>v!=null);
+    const lo=vals.length?Math.min(...vals):0, hi=vals.length?Math.max(...vals):1;
+    const selK = selName!=null? keyFn(selName) : null;
+    let s=`<svg viewBox="0 0 ${pr.W} ${pr.H}" role="img" aria-label="Mapa">`;
+    feats.forEach((f,i)=>{ const cls=selK!=null&&keyFn(nomeDe(f))===selK?' class="sel"':"";
+      s+=`<path d="${_pathD(f.geometry,pr)}" fill="${corMapa(valorDe(f),lo,hi)}" data-i="${i}"${cls}></path>`; });
+    s+="</svg>"; mapEl.innerHTML=s;
+    mapEl.querySelectorAll("path").forEach(p=>{ const f=feats[+p.dataset.i], u=unidadeDe(f);
+      const tt=`<div class="tt-title">${nomeDe(f)}</div>`+
+        (u? `<div>${fmtEUR(u.median_ppm)}/m² · ${fmtInt(u.count)} anúncios</div>` : `<div class="tt-sub">sem anúncios</div>`);
+      p.addEventListener("pointerenter",e=>showTip(e.clientX,e.clientY,tt));
+      p.addEventListener("pointermove",e=>showTip(e.clientX,e.clientY,tt));
+      p.addEventListener("pointerleave",hideTip);
+      p.addEventListener("click",()=>onClick(f));
+    });
+    legend.style.setProperty("--legend-lo",corMapa(lo,lo,hi));
+    legend.style.setProperty("--legend-hi",corMapa(hi,lo,hi));
+    legend.innerHTML = vals.length? `<span>${fmtEUR(lo)}/m²</span><span class="legend-grad"></span><span>${fmtEUR(hi)}/m²</span>` : "";
+  });
 }
 
 function renderCrumb(){
