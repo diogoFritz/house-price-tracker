@@ -88,6 +88,12 @@ _GRUPOS_AGENCIA = [
 ]
 
 
+# Uma agência/rede com menos anúncios do que isto não aparece sozinha no filtro
+# — junta-se em "Outras consultoras", para o dropdown ter só os grandes players.
+MIN_AGENCIA_PROPRIA = 50
+OUTRAS = "Outras consultoras"
+
+
 def _grupo_agencia(nome):
     # Anúncios sem agência são de particulares — agrupam-se em "Independente".
     if not nome or not nome.strip():
@@ -125,14 +131,18 @@ def _valido(r):
     return True
 
 
-def _ficheiros_por_data():
-    """{data: [Path, ...]} de todos os consolidados <concelho>_<data>.json."""
-    por_data = defaultdict(list)
+def _ficheiros_por_concelho():
+    """{slug: [(data, Path), ...]} dos consolidados <concelho>_<data>.json,
+    por concelho e ordenados por data. Cada concelho pode ter datas diferentes
+    (ex. Lisboa foi extraída noutro dia por ser dividida por freguesia)."""
+    por_concelho = defaultdict(list)
     for f in IDEALISTA_DIR.glob("*_*.json"):
         m = re.match(r"([a-z-]+)_(\d{8})$", f.stem)
         if m and m.group(1) in CONCELHO_NOME:
-            por_data[m.group(2)].append((m.group(1), f))
-    return por_data
+            por_concelho[m.group(1)].append((m.group(2), f))
+    for slug in por_concelho:
+        por_concelho[slug].sort()
+    return por_concelho
 
 
 def _carrega(slug, path):
@@ -155,47 +165,57 @@ LISTING_FIELDS = [
 ]
 
 
-def _history_por_nivel(datas):
-    """Para cada data, o €/m² mediano por distrito/concelho/freguesia."""
-    dist, conc, freg = defaultdict(list), defaultdict(dict), defaultdict(dict)
-    for data in sorted(datas):
-        rows = []
-        for slug, path in datas[data]:
-            rows.extend(_carrega(slug, path))
-        ppm_all = [r["preco_por_metro"] for r in rows]
-        dist["distrito"].append({"date": data, "median_ppm": _median(ppm_all), "count": len(rows)})
-        por_c = defaultdict(list)
-        por_f = defaultdict(list)
-        for r in rows:
-            por_c[r["concelho"]].append(r["preco_por_metro"])
-            if r["freguesia"]:
-                por_f[(r["concelho"], r["freguesia"])].append(r["preco_por_metro"])
-        for c, ppms in por_c.items():
-            conc[c].setdefault("__list__", []).append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
-        for (c, fr), ppms in por_f.items():
-            freg[c + FREG_SEP + fr].setdefault("__list__", []).append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
-    return (
-        dist["distrito"],
-        {c: v["__list__"] for c, v in conc.items()},
-        {k: v["__list__"] for k, v in freg.items()},
-    )
+def _history_por_nivel(por_concelho, data_max, distrito_ppms):
+    """Histórico de €/m² mediano por nível.
+
+    Concelho e freguesia usam as datas próprias de cada concelho (crescem a
+    cada extração). O distrito é um único ponto do snapshot atual (dated
+    data_max) — um histórico de distrito por data só faria sentido com todos
+    os concelhos recolhidos no mesmo dia, o que nem sempre acontece (ex. Lisboa
+    é extraída à parte)."""
+    conc, freg = defaultdict(list), defaultdict(list)
+    for slug, ficheiros in por_concelho.items():
+        nome = CONCELHO_NOME[slug]
+        for data, path in ficheiros:
+            rows = _carrega(slug, path)
+            conc[nome].append({"date": data, "median_ppm": _median([r["preco_por_metro"] for r in rows]), "count": len(rows)})
+            por_f = defaultdict(list)
+            for r in rows:
+                if r["freguesia"]:
+                    por_f[r["freguesia"]].append(r["preco_por_metro"])
+            for fr, ppms in por_f.items():
+                freg[nome + FREG_SEP + fr].append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
+    dist = [{"date": data_max, "median_ppm": _median(distrito_ppms), "count": len(distrito_ppms)}]
+    return dist, dict(conc), dict(freg)
 
 
 def main():
-    por_data = _ficheiros_por_data()
-    if not por_data:
+    por_concelho_files = _ficheiros_por_concelho()
+    if not por_concelho_files:
         print("Sem dados do Idealista em idealista/json/.")
         return
-    data_max = max(por_data)
+    # Ficheiro MAIS RECENTE de cada concelho (as datas podem diferir entre
+    # concelhos) -> os anúncios mostrados na página.
+    data_max = max(fs[-1][0] for fs in por_concelho_files.values())
 
-    # Recolha mais recente -> os anúncios mostrados na página.
     listings = []
-    for slug, path in por_data[data_max]:
+    for slug, ficheiros in por_concelho_files.items():
+        _data, path = ficheiros[-1]
         for r in _carrega(slug, path):
             item = {k: r.get(k) for k in LISTING_FIELDS}
             item["categorias"] = detetar_categorias(r.get("descricao") or r.get("titulo") or "") or []
             item["grupo_agencia"] = _grupo_agencia(r.get("agencia"))
             listings.append(item)
+
+    # Junta as agências pequenas em "Outras consultoras" — o filtro fica só com
+    # os grandes players + Independente + Outras. A tabela mantém o nome real.
+    tamanho_grupo = defaultdict(int)
+    for it in listings:
+        tamanho_grupo[it["grupo_agencia"]] += 1
+    for it in listings:
+        g = it["grupo_agencia"]
+        if g != "Independente" and tamanho_grupo[g] < MIN_AGENCIA_PROPRIA:
+            it["grupo_agencia"] = OUTRAS
 
     por_concelho = defaultdict(list)
     for it in listings:
@@ -223,7 +243,8 @@ def main():
     for c in freguesias:
         freguesias[c].sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
 
-    hist_dist, hist_conc, hist_freg = _history_por_nivel(por_data)
+    hist_dist, hist_conc, hist_freg = _history_por_nivel(
+        por_concelho_files, data_max, [it["preco_por_metro"] for it in listings])
 
     cat_counts = defaultdict(int)
     for it in listings:
@@ -238,7 +259,7 @@ def main():
         "median_ppm": _median([it["preco_por_metro"] for it in listings]),
         "n_situacoes": sum(1 for it in listings if it["categorias"]),
         "n_com_desconto": len(com_desconto),
-        "n_recolhas": len(por_data),
+        "n_recolhas": len({d for fs in por_concelho_files.values() for d, _ in fs}),
         "date_max": data_max,
         "generated_at": datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%Y-%m-%dT%H:%M"),
     }
