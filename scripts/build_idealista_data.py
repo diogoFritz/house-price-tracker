@@ -138,6 +138,15 @@ def _reconcilia_freg(concelho, freg):
     cands = _CAOP_FREG.get(concelho)
     if not cands:
         return freg
+    # Idealista dá só o nome do CONCELHO (ex. "Setúbal", "Sesimbra") = freguesia
+    # desconhecida — só se aceita se existir uma freguesia CAOP com exatamente
+    # esse nome (sede homónima, ex. "Odivelas"); senão é None, para não inventar
+    # uma freguesia (não juntar os "Setúbal" a São Sebastião, p.ex.).
+    if _sa(freg) == _sa(concelho):
+        for n, _ in cands:
+            if _sa(n) == _sa(concelho):
+                return n
+        return None
     alvo = _sa(_normaliza_freguesia(freg))
     for n, _ in cands:
         if _sa(_normaliza_freguesia(n)) == alvo:
