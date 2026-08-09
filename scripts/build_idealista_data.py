@@ -103,7 +103,12 @@ _STOP = {"de", "do", "da", "dos", "das", "e", "a", "o", "as", "os"}
 
 
 def _tokens(fr):
-    return {t for t in re.findall(r"[a-z]+", _sa(_normaliza_freguesia(fr) or "")) if t not in _STOP and len(t) >= 3}
+    # Todas as palavras significativas do nome, sem o boilerplate "União das
+    # freguesias de" e SEM extrair só os parênteses — nas uniões CAOP o nome da
+    # sede vem antes dos parênteses (ex. "...Setúbal (São Julião, ...)"), por
+    # isso é preciso manter "setubal" para casar com o "Setúbal" do Idealista.
+    x = re.sub(r"uni[aã]o\s+d[ae]s?\s+freguesias?\s+(?:de|do|da|dos|das)?\s*", " ", _sa(fr))
+    return {t for t in re.findall(r"[a-z]+", x) if t not in _STOP and len(t) >= 3}
 
 
 # Nomes oficiais de freguesia por concelho (da CAOP, nos geojson gerados) — o
