@@ -13,6 +13,7 @@ Uso: python scripts/build_idealista_data.py
 import json
 import re
 import sys
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from collections import defaultdict
@@ -94,6 +95,63 @@ def _normaliza_freguesia(fr):
     return fr or None
 
 
+def _sa(s):  # sem acentos, minúsculas
+    return "".join(c for c in unicodedata.normalize("NFD", s or "") if unicodedata.category(c) != "Mn").lower().strip()
+
+
+_STOP = {"de", "do", "da", "dos", "das", "e", "a", "o", "as", "os"}
+
+
+def _tokens(fr):
+    return {t for t in re.findall(r"[a-z]+", _sa(_normaliza_freguesia(fr) or "")) if t not in _STOP and len(t) >= 3}
+
+
+# Nomes oficiais de freguesia por concelho (da CAOP, nos geojson gerados) — o
+# Idealista usa nomes informais/parciais ("Torres Vedras e Matacães" em vez de
+# "Santa Maria, São Pedro e Matacães"; "a dos Cunhados" em vez de "A dos
+# Cunhados e Maceira"), por isso reconciliam-se para o nome oficial, para o
+# mapa e os dados casarem e as freguesias fundidas somarem juntas.
+_NOME2SLUG = {v["nome"]: slug for slug, v in _INDEX.items()}
+
+
+def _carrega_caop_fregs():
+    out = {}
+    for nome, sl in _NOME2SLUG.items():
+        p = ROOT / "docs" / "geo" / "freguesias" / f"{sl}.json"
+        if p.exists():
+            names = [f["properties"]["freguesia"] for f in json.loads(p.read_text(encoding="utf-8"))["features"]]
+            out[nome] = [(n, _tokens(n)) for n in names]
+    return out
+
+
+_CAOP_FREG = _carrega_caop_fregs()
+
+
+def _reconcilia_freg(concelho, freg):
+    if not freg:
+        return freg
+    cands = _CAOP_FREG.get(concelho)
+    if not cands:
+        return freg
+    alvo = _sa(_normaliza_freguesia(freg))
+    for n, _ in cands:
+        if _sa(_normaliza_freguesia(n)) == alvo:
+            return n
+    ti = _tokens(freg)
+    if not ti:
+        return freg
+    best, best_inter = None, set()
+    for n, cj in cands:
+        inter = ti & cj
+        if len(inter) > len(best_inter):
+            best, best_inter = n, inter
+    # aceita se o Idealista é subconjunto do oficial, ou partilham um token
+    # distintivo (>=4 letras) — evita casar por palavras curtas comuns.
+    if best is not None and best_inter and (ti <= dict(cands)[best] or any(len(t) >= 4 for t in best_inter)):
+        return best
+    return freg
+
+
 def _valido(r):
     if not r.get("link") or r.get("preco") is None:
         return False
@@ -132,7 +190,7 @@ def _carrega(slug, path):
         vistos.add(r["id"])
         r["concelho"] = CONCELHO_NOME[slug]
         r["distrito"] = CONCELHO_DIST[slug]
-        r["freguesia"] = _normaliza_freguesia(r.get("freguesia"))
+        r["freguesia"] = _reconcilia_freg(CONCELHO_NOME[slug], _normaliza_freguesia(r.get("freguesia")))
         saida.append(r)
     return saida
 
