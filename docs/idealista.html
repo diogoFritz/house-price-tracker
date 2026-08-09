@@ -137,7 +137,7 @@
   <header class="top">
     <p class="eyebrow">Idealista</p>
     <h1 id="page-title">Análise por freguesia — Idealista</h1>
-    <p>Navega por <strong>Distrito › Concelho › Freguesia</strong>. Em cada nível: a distribuição área×preço,
+    <p>Navega por <strong>Portugal › Distrito › Concelho › Freguesia</strong>. Em cada nível: a distribuição área×preço,
       os anúncios abaixo do preço médio, o histórico de €/m² e as situações especiais lidas da descrição.
       <a href="index.html">← Dashboard geral (todas as fontes)</a></p>
   </header>
@@ -214,7 +214,7 @@ const svgNS="http://www.w3.org/2000/svg";
 const CAT_COLORS={usufruto:"var(--accent)",arrendado:"var(--series-2)",obras:"var(--series-3)",heranca:"#eda100",permuta:"#4a3aa7",urgente:"#e34948"};
 const PER_PAGE=25, SCATTER_MAX=1500, MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 let DATA;
-let level="distrito", selConcelho="", selFreguesia="";
+let level="pais", selDistrito="", selConcelho="", selFreguesia="";
 let fTipologia="", fAgencia="", fSearch="", fAbaixo=false, fDesconto=false, page=1;
 
 const tooltip=document.getElementById("tooltip");
@@ -257,26 +257,33 @@ function init(){
     `Histórico só-Idealista: ${ov.n_recolhas} recolha(s) até agora, cresce a cada nova extração. `+
     `Página gerada em ${ov.generated_at.replace("T"," ")}.`;
 
-  goTo("distrito","","");
+  goTo("pais","","","");
 }
 
-// ---- navegação ----
-function goTo(lv,conc,freg){ level=lv; selConcelho=conc; selFreguesia=freg; page=1;
+// ---- navegação (Portugal › Distrito › Concelho › Freguesia) ----
+function goTo(lv,dist,conc,freg){ level=lv; selDistrito=dist||""; selConcelho=conc||""; selFreguesia=freg||""; page=1;
   fAgencia=""; document.getElementById("f-agencia").value=""; render(); scrollTo({top:0,behavior:"smooth"}); }
 
-function scopeName(){ return level==="freguesia"? selFreguesia : level==="concelho"? selConcelho : "Distrito de Lisboa"; }
+function scopeName(){
+  return level==="freguesia"? selFreguesia : level==="concelho"? selConcelho
+       : level==="distrito"? "Distrito de "+selDistrito : "Portugal";
+}
 function scopeListings(){
   let r=DATA.listings;
+  if(selDistrito) r=r.filter(x=>x.distrito===selDistrito);
   if(selConcelho) r=r.filter(x=>x.concelho===selConcelho);
   if(selFreguesia) r=r.filter(x=>x.freguesia===selFreguesia);
   return r;
 }
 function scopeMedianPpm(){ return median(scopeListings().map(x=>x.preco_por_metro)); }
 function scopeHistory(){
-  if(level==="distrito") return DATA.history.distrito;
+  if(level==="pais") return DATA.history.pais||[];
+  if(level==="distrito") return DATA.history.distrito[selDistrito]||[];
   if(level==="concelho") return DATA.history.concelho[selConcelho]||[];
   return DATA.history.freguesia[selConcelho+"|||"+selFreguesia]||[];
 }
+// distrito de um concelho (a partir dos agregados)
+function distritoDoConcelho(c){ for(const d in DATA.concelhos){ if(DATA.concelhos[d].some(x=>x.concelho===c)) return d; } return ""; }
 
 function render(){
   renderCrumb(); renderTiles(); renderCats(); renderAgencias();
@@ -284,7 +291,6 @@ function render(){
 }
 
 // ---- mapa clicável (geodata EPSG:3763, em metros) ----
-const CONCELHO_SLUG={Lisboa:"lisboa",Amadora:"amadora",Loures:"loures",Odivelas:"odivelas",Oeiras:"oeiras",Sintra:"sintra",Alenquer:"alenquer","Arruda dos Vinhos":"arruda-dos-vinhos",Azambuja:"azambuja",Cadaval:"cadaval",Cascais:"cascais","Lourinhã":"lourinha",Mafra:"mafra","Sobral de Monte Agraço":"sobral-de-monte-agraco","Torres Vedras":"torres-vedras","Vila Franca de Xira":"vila-franca-de-xira"};
 const geoCache=new Map();
 function loadGeo(url){ if(!geoCache.has(url)) geoCache.set(url, fetch(url).then(r=>r.ok?r.json():null).catch(()=>null)); return geoCache.get(url); }
 function norm(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLocaleLowerCase("pt-PT").trim(); }
@@ -316,22 +322,24 @@ function _pathD(geom,pr){
 function renderMap(){
   const mapEl=document.getElementById("map"), title=document.getElementById("map-title"),
         sub=document.getElementById("map-sub"), legend=document.getElementById("map-legend");
-  let url, keyFn, unidadeDe, nomeDe, onClick, selName=null;
-  if(level==="distrito"){
-    url="geo/concelhos-lisboa.json"; keyFn=norm;
-    const by={}; DATA.concelhos.forEach(c=>by[norm(c.concelho)]=c);
+  let url, keyFn=norm, unidadeDe, nomeDe, onClick, selName=null;
+  if(level==="pais" || level==="distrito"){
+    // mapa de concelhos: nacional (país) ou só de um distrito
+    url = level==="pais" ? "geo/concelhos.json" : "geo/concelhos-"+(DATA.distrito_slug[selDistrito]||"")+".json";
+    const todos=[].concat(...Object.values(DATA.concelhos));
+    const by={}; todos.forEach(c=>by[norm(c.concelho)]=c);
     unidadeDe=f=>by[norm(f.properties.concelho)];
     nomeDe=f=>f.properties.concelho;
-    onClick=f=>goTo("concelho",f.properties.concelho,"");
-    title.textContent="Mapa — concelhos do distrito de Lisboa";
+    onClick=f=>goTo("concelho", f.properties.distrito||distritoDoConcelho(f.properties.concelho), f.properties.concelho, "");
+    title.textContent = level==="pais" ? "Mapa — concelhos" : "Mapa — concelhos de "+selDistrito;
     sub.textContent="Clica num concelho para entrar. Cor = €/m² mediano (mais escuro = mais caro).";
   } else {
-    const slug=CONCELHO_SLUG[selConcelho]; if(!slug){ mapEl.innerHTML=""; return; }
+    const slug=DATA.concelho_slug[selConcelho]; if(!slug){ mapEl.innerHTML=""; return; }
     url="geo/freguesias/"+slug+".json"; keyFn=fregKey;
     const by={}, dn={}; (DATA.freguesias[selConcelho]||[]).forEach(f=>{ by[fregKey(f.freguesia)]=f; dn[fregKey(f.freguesia)]=f.freguesia; });
     unidadeDe=f=>by[fregKey(f.properties.freguesia)];
     nomeDe=f=>f.properties.freguesia;
-    onClick=f=>goTo("freguesia",selConcelho, dn[fregKey(f.properties.freguesia)]||f.properties.freguesia);
+    onClick=f=>goTo("freguesia",selDistrito,selConcelho, dn[fregKey(f.properties.freguesia)]||f.properties.freguesia);
     selName = level==="freguesia"? selFreguesia : null;
     title.textContent="Mapa — freguesias de "+selConcelho;
     sub.textContent="Clica numa freguesia para a analisar. Cor = €/m² mediano.";
@@ -366,8 +374,9 @@ function renderCrumb(){
   const add=(label,fn,cur)=>{ const b=document.createElement("button"); b.textContent=label; b.disabled=cur;
     if(!cur)b.addEventListener("click",fn); c.appendChild(b); };
   const sep=()=>{ const s=document.createElement("span"); s.className="sep"; s.textContent="›"; c.appendChild(s); };
-  add("Distrito de Lisboa",()=>goTo("distrito","",""),level==="distrito");
-  if(selConcelho){ sep(); add(selConcelho,()=>goTo("concelho",selConcelho,""),level==="concelho"); }
+  add("Portugal",()=>goTo("pais","","",""),level==="pais");
+  if(selDistrito){ sep(); add(selDistrito,()=>goTo("distrito",selDistrito,"",""),level==="distrito"); }
+  if(selConcelho){ sep(); add(selConcelho,()=>goTo("concelho",selDistrito,selConcelho,""),level==="concelho"); }
   if(selFreguesia){ sep(); add(selFreguesia,()=>{},true); }
   document.getElementById("page-title").textContent="Idealista — "+scopeName();
 }
@@ -504,19 +513,24 @@ function renderNav(){
   const card=document.getElementById("nav-card"), list=document.getElementById("nav-list");
   if(level==="freguesia"){ card.style.display="none"; return; }
   card.style.display="";
-  let items, drill, titulo, sub;
-  if(level==="distrito"){ items=DATA.concelhos; titulo="Concelhos"; sub="€/m² mediano · nº de anúncios. Clica para entrar num concelho.";
-    drill=it=>goTo("concelho",it.concelho,""); }
-  else { items=(DATA.freguesias[selConcelho]||[]); titulo="Freguesias de "+selConcelho;
-    sub="€/m² mediano · nº de anúncios. Clica para ver só essa freguesia."; drill=it=>goTo("freguesia",selConcelho,it.freguesia); }
+  let items, drill, titulo, sub, nomeDe;
+  if(level==="pais"){
+    items=DATA.distritos; titulo="Distritos"; sub="€/m² mediano · nº de anúncios. Clica para entrar num distrito.";
+    nomeDe=it=>it.distrito; drill=it=>goTo("distrito",it.distrito,"","");
+  } else if(level==="distrito"){
+    items=DATA.concelhos[selDistrito]||[]; titulo="Concelhos de "+selDistrito; sub="€/m² mediano · nº de anúncios. Clica para entrar num concelho.";
+    nomeDe=it=>it.concelho; drill=it=>goTo("concelho",selDistrito,it.concelho,"");
+  } else {
+    items=DATA.freguesias[selConcelho]||[]; titulo="Freguesias de "+selConcelho; sub="€/m² mediano · nº de anúncios. Clica para ver só essa freguesia.";
+    nomeDe=it=>it.freguesia; drill=it=>goTo("freguesia",selDistrito,selConcelho,it.freguesia);
+  }
   document.getElementById("nav-title").textContent=titulo;
   document.getElementById("nav-sub").textContent=sub;
   const max=Math.max(1,...items.map(i=>i.median_ppm||0));
   list.innerHTML="";
   items.forEach(it=>{
-    const nome=it.concelho||it.freguesia;
     const row=document.createElement("div"); row.className="nav-row";
-    row.innerHTML=`<div class="n-label">${nome}</div>`+
+    row.innerHTML=`<div class="n-label">${nomeDe(it)}</div>`+
       `<div class="n-track"><div class="n-fill" style="width:${100*(it.median_ppm||0)/max}%"></div></div>`+
       `<div class="n-val">${fmtEUR(it.median_ppm).replace(" €","")} · ${fmtInt(it.count)}</div><div class="chev">›</div>`;
     row.addEventListener("click",()=>drill(it));

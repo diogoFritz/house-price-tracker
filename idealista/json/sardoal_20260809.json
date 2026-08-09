@@ -1,0 +1,24 @@
+[
+  {
+    "id": 34616089,
+    "pagina": 1,
+    "titulo": "Apartamento T3 na Rua da Taberna Seca, 18, Sardoal",
+    "link": "https://www.idealista.pt/imovel/34616089/",
+    "tipologia": "T3",
+    "quartos": 3,
+    "tamanho": 150,
+    "preco": 200000,
+    "preco_por_metro": 1333.33,
+    "preco_antigo": null,
+    "desconto_pct": null,
+    "freguesia": "Sardoal",
+    "concelho": "Sardoal",
+    "distrito": "Lisboa",
+    "agencia": null,
+    "num_fotos": null,
+    "descricao": null,
+    "usufruto": false,
+    "data_extracao": "20260809",
+    "origem": "Idealista"
+  }
+]

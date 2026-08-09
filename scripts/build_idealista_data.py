@@ -1,16 +1,12 @@
 """Gera docs/idealista_data.json — os dados da página de análise do Idealista
-(docs/idealista.html), com navegação por níveis Distrito › Concelho › Freguesia.
+(docs/idealista.html), com navegação Portugal › Distrito › Concelho › Freguesia.
 
 O Idealista é a única fonte com descrição completa por anúncio, o que permite
 detetar "situações especiais" (usufruto, herança, obras, arrendado, permuta,
 vendedor motivado) e descidas de preço.
 
-Estrutura produzida:
-  - listings: recolha MAIS RECENTE (mercado atual), um registo por anúncio;
-  - concelhos / freguesias: resumo por nível (contagem, €/m² e preço medianos);
-  - history: histórico de €/m² mediano por nível (distrito/concelho/freguesia),
-    ao longo de TODAS as recolhas do Idealista. Só-Idealista, por isso hoje é
-    um único ponto; cresce a cada nova extração.
+Os concelhos e a que distrito pertencem vêm de docs/geo/concelhos_index.json
+(gerado da CAOP). Só entram os concelhos que já foram extraídos.
 
 Uso: python scripts/build_idealista_data.py
 """
@@ -30,15 +26,13 @@ IDEALISTA_DIR = ROOT / "idealista" / "json"
 
 MIN_PPM, MAX_PPM = 300, 20000
 MIN_TAMANHO = 10
-FREG_SEP = "|||"  # separador concelho/freguesia nas chaves de histórico
+FREG_SEP = "|||"
 
-# Área plausível por tipologia (m²) — descarta erros de recolha (ex. um "T0 de
-# 400 m²" que distorceria a média e apareceria como falso "negócio -83%").
 TAMANHO_RANGE = {
     "T0": (15, 120), "T1": (25, 160), "T2": (40, 220), "T3": (55, 300),
     "T4": (70, 400), "T5": (90, 500),
 }
-TAMANHO_RANGE_DEFAULT = (110, 800)  # T6 e acima
+TAMANHO_RANGE_DEFAULT = (110, 800)
 
 CATEGORIAS_LABEL = {
     "usufruto": "Usufruto / nua-propriedade",
@@ -49,15 +43,10 @@ CATEGORIAS_LABEL = {
     "urgente": "Vendedor motivado",
 }
 
-CONCELHO_NOME = {
-    "lisboa": "Lisboa", "amadora": "Amadora", "loures": "Loures",
-    "odivelas": "Odivelas", "oeiras": "Oeiras", "sintra": "Sintra",
-    "alenquer": "Alenquer", "arruda-dos-vinhos": "Arruda dos Vinhos",
-    "azambuja": "Azambuja", "cadaval": "Cadaval", "cascais": "Cascais",
-    "lourinha": "Lourinhã", "mafra": "Mafra",
-    "sobral-de-monte-agraco": "Sobral de Monte Agraço",
-    "torres-vedras": "Torres Vedras", "vila-franca-de-xira": "Vila Franca de Xira",
-}
+# slug -> {nome, distrito, distrito_slug}, gerado da CAOP.
+_INDEX = json.loads((ROOT / "docs" / "geo" / "concelhos_index.json").read_text(encoding="utf-8"))
+CONCELHO_NOME = {slug: v["nome"] for slug, v in _INDEX.items()}
+CONCELHO_DIST = {slug: v["distrito"] for slug, v in _INDEX.items()}
 
 
 def _median(values):
@@ -69,10 +58,6 @@ def _median(values):
     return values[mid] if n % 2 else round((values[mid - 1] + values[mid]) / 2, 2)
 
 
-# Redes/franchises com muitos balcões independentes — agrupam-se todos sob a
-# marca, para o filtro por agência não ter centenas de sub-ramos ("RE/MAX
-# Vantagem Park", "RE/MAX Expo", ... -> "RE/MAX"). Ordem importa: o primeiro
-# padrão que casar ganha. Agências independentes mantêm o nome próprio.
 _GRUPOS_AGENCIA = [
     (re.compile(r"^re\s*/?\s*max\b", re.I), "RE/MAX"),
     (re.compile(r"^(century\s*21|c21)\b", re.I), "Century 21"),
@@ -86,16 +71,11 @@ _GRUPOS_AGENCIA = [
     (re.compile(r"^predimed\b", re.I), "Predimed"),
     (re.compile(r"^remaxgroup|^remax\b", re.I), "RE/MAX"),
 ]
-
-
-# Uma agência/rede com menos anúncios do que isto não aparece sozinha no filtro
-# — junta-se em "Outras consultoras", para o dropdown ter só os grandes players.
 MIN_AGENCIA_PROPRIA = 50
 OUTRAS = "Outras consultoras"
 
 
 def _grupo_agencia(nome):
-    # Anúncios sem agência são de particulares — agrupam-se em "Independente".
     if not nome or not nome.strip():
         return "Independente"
     for padrao, marca in _GRUPOS_AGENCIA:
@@ -132,9 +112,7 @@ def _valido(r):
 
 
 def _ficheiros_por_concelho():
-    """{slug: [(data, Path), ...]} dos consolidados <concelho>_<data>.json,
-    por concelho e ordenados por data. Cada concelho pode ter datas diferentes
-    (ex. Lisboa foi extraída noutro dia por ser dividida por freguesia)."""
+    """{slug: [(data, Path), ...]} dos consolidados <concelho>_<data>.json."""
     por_concelho = defaultdict(list)
     for f in IDEALISTA_DIR.glob("*_*.json"):
         m = re.match(r"([a-z-]+)_(\d{8})$", f.stem)
@@ -147,13 +125,13 @@ def _ficheiros_por_concelho():
 
 def _carrega(slug, path):
     rows = json.loads(path.read_text(encoding="utf-8"))
-    saida = []
-    vistos = set()
+    saida, vistos = [], set()
     for r in rows:
         if not _valido(r) or r["id"] in vistos:
             continue
         vistos.add(r["id"])
         r["concelho"] = CONCELHO_NOME[slug]
+        r["distrito"] = CONCELHO_DIST[slug]
         r["freguesia"] = _normaliza_freguesia(r.get("freguesia"))
         saida.append(r)
     return saida
@@ -161,20 +139,23 @@ def _carrega(slug, path):
 
 LISTING_FIELDS = [
     "id", "titulo", "link", "tipologia", "tamanho", "preco", "preco_por_metro",
-    "preco_antigo", "desconto_pct", "freguesia", "concelho", "agencia", "num_fotos",
+    "preco_antigo", "desconto_pct", "freguesia", "concelho", "distrito", "agencia", "num_fotos",
 ]
 
 
-def _history_por_nivel(por_concelho, data_max, distrito_ppms):
-    """Histórico de €/m² mediano por nível.
+def _stats(sub):
+    return {
+        "count": len(sub),
+        "median_ppm": _median([s["preco_por_metro"] for s in sub]),
+        "median_preco": _median([s["preco"] for s in sub]),
+    }
 
-    Concelho e freguesia usam as datas próprias de cada concelho (crescem a
-    cada extração). O distrito é um único ponto do snapshot atual (dated
-    data_max) — um histórico de distrito por data só faria sentido com todos
-    os concelhos recolhidos no mesmo dia, o que nem sempre acontece (ex. Lisboa
-    é extraída à parte)."""
+
+def _history_por_nivel(por_concelho_files, listings):
+    """Concelho e freguesia: série pelas datas próprias de cada concelho.
+    Distrito e país: um único ponto do snapshot atual (data mais recente)."""
     conc, freg = defaultdict(list), defaultdict(list)
-    for slug, ficheiros in por_concelho.items():
+    for slug, ficheiros in por_concelho_files.items():
         nome = CONCELHO_NOME[slug]
         for data, path in ficheiros:
             rows = _carrega(slug, path)
@@ -185,8 +166,13 @@ def _history_por_nivel(por_concelho, data_max, distrito_ppms):
                     por_f[r["freguesia"]].append(r["preco_por_metro"])
             for fr, ppms in por_f.items():
                 freg[nome + FREG_SEP + fr].append({"date": data, "median_ppm": _median(ppms), "count": len(ppms)})
-    dist = [{"date": data_max, "median_ppm": _median(distrito_ppms), "count": len(distrito_ppms)}]
-    return dist, dict(conc), dict(freg)
+    data_max = max(d for fs in por_concelho_files.values() for d, _ in fs)
+    por_dist = defaultdict(list)
+    for it in listings:
+        por_dist[it["distrito"]].append(it["preco_por_metro"])
+    dist = {d: [{"date": data_max, "median_ppm": _median(ppms), "count": len(ppms)}] for d, ppms in por_dist.items()}
+    pais = [{"date": data_max, "median_ppm": _median([it["preco_por_metro"] for it in listings]), "count": len(listings)}]
+    return pais, dist, dict(conc), dict(freg)
 
 
 def main():
@@ -194,8 +180,6 @@ def main():
     if not por_concelho_files:
         print("Sem dados do Idealista em idealista/json/.")
         return
-    # Ficheiro MAIS RECENTE de cada concelho (as datas podem diferir entre
-    # concelhos) -> os anúncios mostrados na página.
     data_max = max(fs[-1][0] for fs in por_concelho_files.values())
 
     listings = []
@@ -207,8 +191,6 @@ def main():
             item["grupo_agencia"] = _grupo_agencia(r.get("agencia"))
             listings.append(item)
 
-    # Junta as agências pequenas em "Outras consultoras" — o filtro fica só com
-    # os grandes players + Independente + Outras. A tabela mantém o nome real.
     tamanho_grupo = defaultdict(int)
     for it in listings:
         tamanho_grupo[it["grupo_agencia"]] += 1
@@ -217,34 +199,32 @@ def main():
         if g != "Independente" and tamanho_grupo[g] < MIN_AGENCIA_PROPRIA:
             it["grupo_agencia"] = OUTRAS
 
-    por_concelho = defaultdict(list)
-    for it in listings:
-        por_concelho[it["concelho"]].append(it)
-    concelhos = []
-    for nome, sub in por_concelho.items():
-        concelhos.append({
-            "concelho": nome, "count": len(sub),
-            "median_ppm": _median([s["preco_por_metro"] for s in sub]),
-            "median_preco": _median([s["preco"] for s in sub]),
-        })
-    concelhos.sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
-
-    freguesias = defaultdict(list)
+    # Agregados por nível
+    por_dist = defaultdict(list)
+    por_conc = defaultdict(list)
     por_freg = defaultdict(list)
     for it in listings:
+        por_dist[it["distrito"]].append(it)
+        por_conc[(it["distrito"], it["concelho"])].append(it)
         if it["freguesia"]:
             por_freg[(it["concelho"], it["freguesia"])].append(it)
+
+    distritos = [{"distrito": d, **_stats(sub)} for d, sub in por_dist.items()]
+    distritos.sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
+
+    concelhos = defaultdict(list)  # distrito -> [concelho stats]
+    for (d, c), sub in por_conc.items():
+        concelhos[d].append({"concelho": c, **_stats(sub)})
+    for d in concelhos:
+        concelhos[d].sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
+
+    freguesias = defaultdict(list)  # concelho -> [freguesia stats]
     for (c, fr), sub in por_freg.items():
-        freguesias[c].append({
-            "freguesia": fr, "count": len(sub),
-            "median_ppm": _median([s["preco_por_metro"] for s in sub]),
-            "median_preco": _median([s["preco"] for s in sub]),
-        })
+        freguesias[c].append({"freguesia": fr, **_stats(sub)})
     for c in freguesias:
         freguesias[c].sort(key=lambda x: x["median_ppm"] or 0, reverse=True)
 
-    hist_dist, hist_conc, hist_freg = _history_por_nivel(
-        por_concelho_files, data_max, [it["preco_por_metro"] for it in listings])
+    hist_pais, hist_dist, hist_conc, hist_freg = _history_por_nivel(por_concelho_files, listings)
 
     cat_counts = defaultdict(int)
     for it in listings:
@@ -254,7 +234,8 @@ def main():
 
     overview = {
         "total": len(listings),
-        "concelhos": len(por_concelho),
+        "distritos": len(por_dist),
+        "concelhos": len(por_conc),
         "median_preco": _median([it["preco"] for it in listings]),
         "median_ppm": _median([it["preco_por_metro"] for it in listings]),
         "n_situacoes": sum(1 for it in listings if it["categorias"]),
@@ -264,20 +245,27 @@ def main():
         "generated_at": datetime.now(ZoneInfo("Europe/Lisbon")).strftime("%Y-%m-%dT%H:%M"),
     }
 
+    # slug de distrito e de concelho, para a página construir URLs de geo/nav.
+    dist_slug = {v["distrito"]: v["distrito_slug"] for v in _INDEX.values()}
+    conc_slug = {v["nome"]: slug for slug, v in _INDEX.items()}
+
     out = {
         "overview": overview,
         "categorias_label": CATEGORIAS_LABEL,
         "categorias_count": dict(cat_counts),
-        "concelhos": concelhos,
+        "distritos": distritos,
+        "concelhos": dict(concelhos),
         "freguesias": freguesias,
-        "history": {"distrito": hist_dist, "concelho": hist_conc, "freguesia": hist_freg},
+        "distrito_slug": dist_slug,
+        "concelho_slug": {c: conc_slug[c] for c in conc_slug if c in {it["concelho"] for it in listings}},
+        "history": {"pais": hist_pais, "distrito": hist_dist, "concelho": hist_conc, "freguesia": hist_freg},
         "listings": listings,
     }
     out_path = ROOT / "docs" / "idealista_data.json"
     out_path.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
     print(f"{len(listings)} anúncios (recolha {data_max}) -> {out_path}")
-    print(f"  {len(por_concelho)} concelhos · {sum(len(v) for v in freguesias.values())} freguesias · "
-          f"{overview['n_situacoes']} situações especiais · {overview['n_recolhas']} recolha(s) no histórico")
+    print(f"  {len(por_dist)} distritos · {len(por_conc)} concelhos · "
+          f"{sum(len(v) for v in freguesias.values())} freguesias · {overview['n_situacoes']} situações especiais")
 
 
 if __name__ == "__main__":
