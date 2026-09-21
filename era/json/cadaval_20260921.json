@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1579120,
+    "pagina": 1,
+    "titulo": "Apartamento T3 / Cadaval, Cadaval",
+    "link": "https://www.era.pt/imovel/apartamento-t3-cadaval-cadaval-150260214",
+    "tipologia": "T3",
+    "quartos": 3,
+    "tamanho": 209.0,
+    "preco": 260000,
+    "preco_por_metro": 1244.02,
+    "piso": "1",
+    "freguesia": "Cadaval",
+    "concelho": "Cadaval",
+    "distrito": "Lisboa",
+    "agencia": "ERA Peniche / Óbidos",
+    "num_fotos": 13,
+    "lat": 39.21097520599528,
+    "lng": -9.072389602661135,
+    "data_extracao": "20260921",
+    "origem": "ERA"
+  }
+]
