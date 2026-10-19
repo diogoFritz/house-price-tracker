@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1585091,
+    "pagina": 1,
+    "titulo": "Apartamento T2 / Azambuja, Aveiras de Cima",
+    "link": "https://www.era.pt/imovel/apartamento-t2-azambuja-aveiras-de-cima-436260169",
+    "tipologia": "T2",
+    "quartos": 2,
+    "tamanho": 76.0,
+    "preco": 250000,
+    "preco_por_metro": 3289.47,
+    "piso": "2",
+    "freguesia": "Aveiras de Cima",
+    "concelho": "Azambuja",
+    "distrito": "Lisboa",
+    "agencia": "ERA Benavente",
+    "num_fotos": 16,
+    "lat": 39.14259,
+    "lng": -8.899931,
+    "data_extracao": "20261019",
+    "origem": "ERA"
+  }
+]
