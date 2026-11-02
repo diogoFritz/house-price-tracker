@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1579126,
+    "pagina": 1,
+    "titulo": "Apartamento Estúdio / Sobral de Monte Agraço, Sobral de Monte Agraço",
+    "link": "https://www.era.pt/imovel/apartamento-t0-sobral-de-monte-agraco-sobral-de-monte-agraco-042260159",
+    "tipologia": "T0",
+    "quartos": 0,
+    "tamanho": 48.0,
+    "preco": 179000,
+    "preco_por_metro": 3729.17,
+    "piso": "0",
+    "freguesia": "Sobral de Monte Agraço",
+    "concelho": "Sobral de Monte Agraço",
+    "distrito": "Lisboa",
+    "agencia": "ERA Expo / Portela",
+    "num_fotos": 6,
+    "lat": 38.988389337013565,
+    "lng": -9.19830730590439,
+    "data_extracao": "20261102",
+    "origem": "ERA"
+  }
+]
